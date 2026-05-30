@@ -19,14 +19,13 @@ function resolveValue(expr: string, record: Record<string, unknown>): unknown {
   if (numCmp) {
     const val = Number(record[numCmp[1]]) || 0
     const num = Number(numCmp[3])
-    switch (numCmp[2]) {
-      case '==': return val === num
-      case '!=': return val !== num
-      case '>': return val > num
-      case '<': return val < num
-      case '>=': return val >= num
-      case '<=': return val <= num
-    }
+    const op = numCmp[2]
+    if (op === '==') return val === num
+    if (op === '!=') return val !== num
+    if (op === '>') return val > num
+    if (op === '<') return val < num
+    if (op === '>=') return val >= num
+    if (op === '<=') return val <= num
   }
   return undefined
 }
