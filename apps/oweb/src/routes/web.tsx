@@ -25,7 +25,7 @@ function WebPage() {
 
   const { data: actionData, isLoading: resolvingAction } = useQuery({
     queryKey: ['odoo', 'action', search.action],
-    queryFn: () => resolveAction(search.action!),
+    queryFn: () => resolveAction(search.action as number),
     enabled: !!search.action && !search.model,
     staleTime: 15 * 60_000,
   })

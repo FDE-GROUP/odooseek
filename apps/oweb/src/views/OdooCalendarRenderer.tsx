@@ -109,7 +109,7 @@ export function OdooCalendarRenderer({
     const map = new Map<string, string>()
     let i = 0
     for (const k of keys) {
-      map.set(k!, PALETTE[i % PALETTE.length])
+      map.set(k as string, PALETTE[i % PALETTE.length])
       i++
     }
     return map

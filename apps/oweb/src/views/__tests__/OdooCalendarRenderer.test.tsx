@@ -26,7 +26,7 @@ vi.mock('react-big-calendar', () => {
             key={e.id}
             type="button"
             data-testid={`event-${e.id}`}
-            onClick={() => onSelectEvent?.(e as any)}
+            onClick={() => onSelectEvent?.(e as { id: number })}
           >
             {e.title}
           </button>

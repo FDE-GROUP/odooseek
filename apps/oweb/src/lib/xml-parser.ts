@@ -42,7 +42,9 @@ function parseFieldElement(el: Element): FieldElement {
       ? parseOptions(el.getAttribute('options') ?? '')
       : undefined,
     mode: el.getAttribute('mode') ?? undefined,
-    colspan: el.hasAttribute('colspan') ? parseInt(el.getAttribute('colspan')!, 10) : undefined,
+    colspan: el.hasAttribute('colspan')
+      ? parseInt(el.getAttribute('colspan') as string, 10)
+      : undefined,
   }
 }
 

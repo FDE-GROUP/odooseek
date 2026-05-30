@@ -9,7 +9,7 @@ import { OdooFormRenderer } from '../OdooFormRenderer'
 
 const mockCallKw = vi.fn()
 vi.mock('../../lib/api', () => ({
-  callKw: (...args: any[]) => mockCallKw(...args),
+  callKw: (...args: unknown[]) => mockCallKw(...args),
 }))
 
 let queryClient: QueryClient
@@ -149,7 +149,9 @@ describe('OdooFormRenderer', () => {
     await user.click(screen.getByText('Save'))
 
     await waitFor(() => {
-      const writeCall = mockCallKw.mock.calls.find((c: any[]) => c[1] === 'write')
+      const writeCall = mockCallKw.mock.calls.find(
+        (c: unknown[]) => (c as unknown[])[1] === 'write',
+      )
       expect(writeCall).toBeDefined()
       expect(writeCall?.[0]).toBe('res.partner')
       expect(writeCall?.[2][0]).toEqual([1])
@@ -177,7 +179,9 @@ describe('OdooFormRenderer', () => {
     await user.click(screen.getByText('Save'))
 
     await waitFor(() => {
-      const createCall = mockCallKw.mock.calls.find((c: any[]) => c[1] === 'create')
+      const createCall = mockCallKw.mock.calls.find(
+        (c: unknown[]) => (c as unknown[])[1] === 'create',
+      )
       expect(createCall).toBeDefined()
       expect(createCall?.[0]).toBe('res.partner')
     })
@@ -315,7 +319,9 @@ describe('OdooFormRenderer', () => {
     await user.click(screen.getByText('Mark as Won'))
 
     await waitFor(() => {
-      const actionCall = mockCallKw.mock.calls.find((c: any[]) => c[1] === 'action_won')
+      const actionCall = mockCallKw.mock.calls.find(
+        (c: unknown[]) => (c as unknown[])[1] === 'action_won',
+      )
       expect(actionCall).toBeDefined()
       expect(actionCall?.[0]).toBe('crm.lead')
       expect(actionCall?.[2]).toEqual([[1]])
@@ -349,7 +355,8 @@ describe('OdooFormRenderer', () => {
 
     await waitFor(() => {
       const actionCall = mockCallKw.mock.calls.find(
-        (c: any[]) => c[0] === 'ir.actions.server' && c[1] === 'run',
+        (c: unknown[]) =>
+          (c as unknown[])[0] === 'ir.actions.server' && (c as unknown[])[1] === 'run',
       )
       expect(actionCall).toBeDefined()
       expect(actionCall?.[2]).toEqual([[42]])
@@ -574,7 +581,9 @@ describe('OdooFormRenderer', () => {
     await user.click(screen.getByText('View'))
 
     await waitFor(() => {
-      const actionCall = mockCallKw.mock.calls.find((c: any[]) => c[1] === 'action_open')
+      const actionCall = mockCallKw.mock.calls.find(
+        (c: unknown[]) => (c as unknown[])[1] === 'action_open',
+      )
       expect(actionCall).toBeDefined()
       expect(actionCall?.[0]).toBe('crm.lead')
       expect(actionCall?.[2]).toEqual([[1]])
@@ -609,7 +618,9 @@ describe('OdooFormRenderer', () => {
     })
 
     await waitFor(() => {
-      const writeCall = mockCallKw.mock.calls.find((c: any[]) => c[1] === 'write')
+      const writeCall = mockCallKw.mock.calls.find(
+        (c: unknown[]) => (c as unknown[])[1] === 'write',
+      )
       expect(writeCall).toBeDefined()
     })
   })
@@ -664,7 +675,9 @@ describe('OdooFormRenderer', () => {
     await user.click(screen.getByText('Confirmed'))
 
     await waitFor(() => {
-      const writeCall = mockCallKw.mock.calls.find((c: any[]) => c[1] === 'write')
+      const writeCall = mockCallKw.mock.calls.find(
+        (c: unknown[]) => (c as unknown[])[1] === 'write',
+      )
       expect(writeCall).toBeDefined()
       expect(writeCall?.[2]).toEqual([[1], { state: 'confirmed' }])
     })

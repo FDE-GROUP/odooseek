@@ -7,7 +7,7 @@ import { OdooPivotRenderer } from '../OdooPivotRenderer'
 
 const mockCallKw = vi.fn()
 vi.mock('../../lib/api', () => ({
-  callKw: (...args: any[]) => mockCallKw(...args),
+  callKw: (...args: unknown[]) => mockCallKw(...args),
 }))
 
 let queryClient: QueryClient

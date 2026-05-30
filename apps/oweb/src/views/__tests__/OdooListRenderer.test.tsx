@@ -9,8 +9,8 @@ import { OdooListRenderer } from '../OdooListRenderer'
 const mockCallKw = vi.fn()
 const mockReadGroup = vi.fn()
 vi.mock('../../lib/api', () => ({
-  callKw: (...args: any[]) => mockCallKw(...args),
-  readGroup: (...args: any[]) => mockReadGroup(...args),
+  callKw: (...args: unknown[]) => mockCallKw(...args),
+  readGroup: (...args: unknown[]) => mockReadGroup(...args),
 }))
 
 vi.mock('../../lib/expression-evaluator', () => ({
@@ -18,7 +18,7 @@ vi.mock('../../lib/expression-evaluator', () => ({
 }))
 
 vi.mock('use-intl', () => ({
-  useTranslations: () => (key: string, params?: any) => {
+  useTranslations: () => (key: string, params?: Record<string, unknown>) => {
     const map: Record<string, string> = {
       'list.noRecords': 'No records',
       'list.prev': 'Prev',
@@ -130,7 +130,7 @@ describe('OdooListRenderer', () => {
       expect(screen.getByText('Alice')).toBeInTheDocument()
     })
 
-    fireEvent.click(screen.getByText('Alice').closest('tr')!)
+    fireEvent.click(screen.getByText('Alice').closest('tr') as HTMLElement)
     expect(onRowClick).toHaveBeenCalledWith(1)
   })
 
@@ -229,7 +229,7 @@ describe('OdooListRenderer — inline editing', () => {
       expect(screen.getByText('Widget')).toBeInTheDocument()
     })
 
-    fireEvent.click(screen.getByText('Widget').closest('tr')!)
+    fireEvent.click(screen.getByText('Widget').closest('tr') as HTMLElement)
 
     await waitFor(() => {
       expect(screen.getByText('Save')).toBeInTheDocument()
@@ -253,7 +253,7 @@ describe('OdooListRenderer — inline editing', () => {
       expect(screen.getByText('Widget')).toBeInTheDocument()
     })
 
-    fireEvent.click(screen.getByText('Widget').closest('tr')!)
+    fireEvent.click(screen.getByText('Widget').closest('tr') as HTMLElement)
 
     await waitFor(() => {
       expect(screen.getByText('Save')).toBeInTheDocument()
@@ -264,7 +264,7 @@ describe('OdooListRenderer — inline editing', () => {
     await waitFor(() => {
       // 3rd call should be write (after search_read and search_count)
       const calls = mockCallKw.mock.calls
-      const writeCall = calls.find((c: any[]) => c[1] === 'write')
+      const writeCall = calls.find((c: unknown[]) => (c as unknown[])[1] === 'write')
       expect(writeCall).toBeTruthy()
       expect(writeCall?.[0]).toBe('test.model')
       expect(writeCall?.[2][0]).toEqual([1])
@@ -297,7 +297,7 @@ describe('OdooListRenderer — inline editing', () => {
 
     await waitFor(() => {
       const calls = mockCallKw.mock.calls
-      const createCall = calls.find((c: any[]) => c[1] === 'create')
+      const createCall = calls.find((c: unknown[]) => (c as unknown[])[1] === 'create')
       expect(createCall).toBeTruthy()
       expect(createCall?.[0]).toBe('test.model')
     })
@@ -333,7 +333,7 @@ describe('OdooListRenderer — inline editing', () => {
       expect(screen.getByText('A')).toBeInTheDocument()
     })
 
-    fireEvent.click(screen.getByText('A').closest('tr')!)
+    fireEvent.click(screen.getByText('A').closest('tr') as HTMLElement)
     expect(onRowClick).toHaveBeenCalledWith(1)
   })
 })
