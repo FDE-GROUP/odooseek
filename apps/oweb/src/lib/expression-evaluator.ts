@@ -1,11 +1,32 @@
 /** Safe client-side QWeb expression evaluator for kanban templates */
 
 function resolveValue(expr: string, record: Record<string, unknown>): unknown {
-  const m = expr.match(/^record\.(\w+)(?:\[(\d+)\])?$/)
+  const m = expr.match(/^(?:record|parent)\.(\w+)(?:\[(\d+)\])?$/)
   if (m) {
     const val = record[m[1]]
     if (m[2] !== undefined && Array.isArray(val)) return val[Number(m[2])]
     return val
+  }
+  // Handle string literal comparisons: parent.field == 'value'
+  const cmp = expr.match(/^(?:record|parent)\.(\w+)\s*(==|!=)\s*'([^']*)'$/)
+  if (cmp) {
+    const val = record[cmp[1]]
+    if (cmp[2] === '==') return val === cmp[3]
+    return val !== cmp[3]
+  }
+  // Handle numeric comparisons
+  const numCmp = expr.match(/^(?:record|parent)\.(\w+)\s*(==|!=|>|<|>=|<=)\s*(\d+)$/)
+  if (numCmp) {
+    const val = Number(record[numCmp[1]]) || 0
+    const num = Number(numCmp[3])
+    switch (numCmp[2]) {
+      case '==': return val === num
+      case '!=': return val !== num
+      case '>': return val > num
+      case '<': return val < num
+      case '>=': return val >= num
+      case '<=': return val <= num
+    }
   }
   return undefined
 }

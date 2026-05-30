@@ -2,11 +2,15 @@ import { parseDomainString } from './expression-evaluator'
 import type {
   ButtonBoxElement,
   ButtonElement,
+  ControlButton,
   FieldElement,
   FormElement,
   GraphField,
   GraphMeasure,
   KanbanTemplateNode,
+  ListButtonElement,
+  ListButtonGroup,
+  ListColumn,
   ParsedCalendarView,
   ParsedFormView,
   ParsedGraphView,
@@ -207,16 +211,36 @@ function parseDecorations(el: Element): Record<string, string> {
 function parseFieldAttrs(el: Element): ViewField {
   const optVal = el.getAttribute('optional')
   const invAttr = el.getAttribute('invisible')
+  const colInvAttr = el.getAttribute('column_invisible')
   return {
     name: el.getAttribute('name') ?? '',
     string: el.getAttribute('string') ?? undefined,
     widget: el.getAttribute('widget') ?? undefined,
     invisible: invAttr ? Number(invAttr) : undefined,
+    columnInvisible: colInvAttr ?? undefined,
     optional: optVal === 'show' || optVal === 'hide' ? optVal : undefined,
     sum: el.getAttribute('sum') ?? undefined,
+    avg: el.getAttribute('avg') ?? undefined,
+    min: el.getAttribute('min') ?? undefined,
+    max: el.getAttribute('max') ?? undefined,
+    class: el.getAttribute('class') ?? undefined,
     readonly: el.hasAttribute('readonly'),
     required: el.hasAttribute('required'),
     ...parseDecorations(el),
+  }
+}
+
+function parseListButtonElement(el: Element): ListButtonElement {
+  return {
+    type: 'button',
+    name: el.getAttribute('name') ?? '',
+    string: el.getAttribute('string') ?? undefined,
+    buttonType: (el.getAttribute('type') as 'object' | 'action') ?? undefined,
+    icon: el.getAttribute('icon') ?? undefined,
+    invisible: el.getAttribute('invisible') ?? undefined,
+    states: el.getAttribute('states') ?? undefined,
+    confirm: el.getAttribute('confirm') ?? undefined,
+    class: el.getAttribute('class') ?? undefined,
   }
 }
 
@@ -225,14 +249,64 @@ export function parseListXml(xml: string): ParsedListView {
   const doc = new DOMParser().parseFromString(xml, 'text/xml')
   const root = doc.documentElement
 
+  const columns: ListColumn[] = []
+  const controlButtons: ControlButton[] = []
+  for (const child of Array.from(root.children)) {
+    if (child.tagName === 'field') {
+      columns.push(parseFieldAttrs(child))
+    } else if (child.tagName === 'button') {
+      // Group consecutive buttons into a button_group
+      const btn = parseListButtonElement(child)
+      const last = columns[columns.length - 1]
+      if (last && 'buttons' in last && Array.isArray((last as ListButtonGroup).buttons)) {
+        ;(last as ListButtonGroup).buttons.push(btn)
+      } else {
+        columns.push({ type: 'button_group', buttons: [btn] } as ListColumn)
+      }
+    } else if (child.tagName === 'control') {
+      for (const ctrl of Array.from(child.children)) {
+        if (ctrl.tagName === 'create') {
+          controlButtons.push({
+            type: 'create',
+            string: ctrl.getAttribute('string') ?? undefined,
+            invisible: ctrl.getAttribute('invisible') ?? undefined,
+          })
+        } else if (ctrl.tagName === 'delete') {
+          controlButtons.push({
+            type: 'delete',
+            string: ctrl.getAttribute('string') ?? undefined,
+            invisible: ctrl.getAttribute('invisible') ?? undefined,
+          })
+        }
+      }
+    }
+  }
+
+  const countLimit = root.getAttribute('count_limit')
+  const groupsLimit = root.getAttribute('groups_limit')
+  const limitAttr = root.getAttribute('limit')
+
   return {
     type: 'list',
     string: root.getAttribute('string') ?? '',
     editable: root.getAttribute('editable') ?? undefined,
     create: root.getAttribute('create') !== 'false',
     delete: root.getAttribute('delete') !== 'false',
+    defaultOrder: root.getAttribute('default_order') ?? undefined,
+    noOpen: root.getAttribute('no_open') === '1',
+    openFormView: root.getAttribute('open_form_view') === '1',
+    exportXlsx: root.getAttribute('export_xlsx') !== 'false',
+    limit: limitAttr ? Number(limitAttr) : undefined,
+    countLimit: countLimit ? Number(countLimit) : undefined,
+    groupsLimit: groupsLimit ? Number(groupsLimit) : undefined,
+    groupCreate: root.getAttribute('group_create') !== 'false',
+    groupEdit: root.getAttribute('group_edit') !== 'false',
+    groupDelete: root.getAttribute('group_delete') !== 'false',
+    multiEdit: root.getAttribute('multi_edit') !== 'false',
     decorations: parseDecorations(root),
-    columns: Array.from(root.querySelectorAll('field')).map(parseFieldAttrs),
+    columns,
+    controlButtons: controlButtons.length > 0 ? controlButtons : undefined,
+    rowClass: root.getAttribute('class') ?? undefined,
   }
 }
 

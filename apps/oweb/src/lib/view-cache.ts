@@ -1,4 +1,5 @@
 const CACHE_PREFIX = 'oweb_views_'
+const COL_PREF_PREFIX = 'oweb_cols_'
 const TTL_MS = 60 * 60 * 1000 // 1 hour
 const MAX_ENTRIES = 20
 
@@ -33,6 +34,24 @@ export function setCachedViews(key: string, data: unknown): void {
     evictIfNeeded()
   } catch {
     // localStorage full, ignore
+  }
+}
+
+export function getColumnPrefs(key: string): string[] | null {
+  try {
+    const raw = localStorage.getItem(COL_PREF_PREFIX + key)
+    if (!raw) return null
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
+}
+
+export function setColumnPrefs(key: string, hidden: string[]): void {
+  try {
+    localStorage.setItem(COL_PREF_PREFIX + key, JSON.stringify(hidden))
+  } catch {
+    // ignore
   }
 }
 

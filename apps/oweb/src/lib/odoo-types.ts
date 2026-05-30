@@ -24,14 +24,19 @@ export interface ViewField {
   widget?: string
   options?: Record<string, unknown>
   invisible?: number
+  columnInvisible?: string
   optional?: 'show' | 'hide'
   required?: boolean
   readonly?: boolean
   nolabel?: boolean
   placeholder?: string
   sum?: string
+  avg?: string
+  min?: string
+  max?: string
   operator?: string
   filter_domain?: unknown
+  class?: string
   decoration_bf?: string
   decoration_it?: string
   decoration_danger?: string
@@ -47,9 +52,47 @@ export interface ParsedListView {
   editable?: string
   create?: boolean
   delete?: boolean
-  columns: ViewField[]
+  defaultOrder?: string
+  noOpen?: boolean
+  openFormView?: boolean
+  exportXlsx?: boolean
+  limit?: number
+  countLimit?: number
+  groupsLimit?: number
+  groupCreate?: boolean
+  groupEdit?: boolean
+  groupDelete?: boolean
+  multiEdit?: boolean
+  columns: ListColumn[]
   decorations: Record<string, string>
+  controlButtons?: ControlButton[]
+  rowClass?: string
 }
+
+export interface ControlButton {
+  type: 'create' | 'delete'
+  string?: string
+  invisible?: string
+}
+
+export interface ListButtonElement {
+  type: 'button'
+  name: string
+  string?: string
+  buttonType?: 'object' | 'action'
+  icon?: string
+  invisible?: string
+  states?: string
+  confirm?: string
+  class?: string
+}
+
+export interface ListButtonGroup {
+  type: 'button_group'
+  buttons: ListButtonElement[]
+}
+
+export type ListColumn = ViewField | ListButtonElement | ListButtonGroup
 
 export interface ParsedFormView {
   type: 'form'

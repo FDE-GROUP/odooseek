@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+import type { ViewField } from '../../lib/odoo-types'
 import {
   parseCalendarXml,
   parseFormXml,
@@ -20,8 +21,9 @@ describe('parseListXml', () => {
     expect(result.type).toBe('list')
     expect(result.string).toBe('Partners')
     expect(result.columns).toHaveLength(2)
-    expect(result.columns[0].name).toBe('name')
-    expect(result.columns[1].name).toBe('email')
+    expect('name' in result.columns[0]).toBe(true)
+    expect((result.columns[0] as ViewField).name).toBe('name')
+    expect((result.columns[1] as ViewField).name).toBe('email')
   })
 
   test('parses editable attribute', () => {
