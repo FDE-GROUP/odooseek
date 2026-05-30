@@ -112,7 +112,7 @@ describe('Dialog', () => {
       .getByText('Click outside')
       .closest('.fixed')
       ?.querySelector('.bg-black\\/30')
-    fireEvent.click(backdrop!)
+    fireEvent.click(backdrop as HTMLElement)
 
     expect(screen.queryByText('Backdrop Close')).not.toBeInTheDocument()
   })
@@ -131,7 +131,7 @@ describe('Dialog', () => {
       .getByText('Stay open')
       .closest('.fixed')
       ?.querySelector('.bg-black\\/30')
-    fireEvent.click(backdrop!)
+    fireEvent.click(backdrop as HTMLElement)
 
     expect(screen.getByText('No Backdrop Close')).toBeInTheDocument()
   })
@@ -142,7 +142,7 @@ describe('Dialog', () => {
 
     fireEvent.click(screen.getByTestId('trigger'))
 
-    const dialogBox = screen.getByText('Sized').closest('.rounded-xl')!
+    const dialogBox = screen.getByText('Sized').closest('.rounded-xl') as HTMLElement
     expect(dialogBox.className).toContain('max-w-[800px]')
   })
 

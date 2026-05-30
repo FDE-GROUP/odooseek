@@ -4,12 +4,12 @@ import { describe, expect, test, vi } from 'vitest'
 import { OdooViewSwitcher } from '../OdooViewSwitcher'
 
 vi.mock('@/lib/lucide-icons', () => ({
-  Table: (_p: any) => <span>Table</span>,
-  BarChart3: (_p: any) => <span>BarChart3</span>,
-  CalendarDays: (_p: any) => <span>CalendarDays</span>,
-  Columns3: (_p: any) => <span>Columns3</span>,
-  LayoutList: (_p: any) => <span>LayoutList</span>,
-  TrendingUp: (_p: any) => <span>TrendingUp</span>,
+  Table: (_p: Record<string, unknown>) => <span>Table</span>,
+  BarChart3: (_p: Record<string, unknown>) => <span>BarChart3</span>,
+  CalendarDays: (_p: Record<string, unknown>) => <span>CalendarDays</span>,
+  Columns3: (_p: Record<string, unknown>) => <span>Columns3</span>,
+  LayoutList: (_p: Record<string, unknown>) => <span>LayoutList</span>,
+  TrendingUp: (_p: Record<string, unknown>) => <span>TrendingUp</span>,
 }))
 
 describe('OdooViewSwitcher', () => {
@@ -25,7 +25,7 @@ describe('OdooViewSwitcher', () => {
 
   test('highlights current view', () => {
     render(<OdooViewSwitcher currentView="kanban" onSwitch={vi.fn()} />)
-    const kanbanBtn = screen.getByText('Kanban').closest('button')!
+    const kanbanBtn = screen.getByText('Kanban').closest('button') as HTMLButtonElement
     expect(kanbanBtn.className).toContain('bg-accent')
   })
 

@@ -60,7 +60,7 @@ export function ActivityPanel({ model, recordId }: ActivityPanelProps) {
         'mail.activity',
         [
           ['res_model', '=', model],
-          ['res_id', '=', recordId!],
+          ['res_id', '=', recordId as number],
         ],
         ACTIVITY_FIELDS,
         0,
@@ -107,7 +107,7 @@ export function ActivityPanel({ model, recordId }: ActivityPanelProps) {
   const handleCreate = () => {
     createMutation.mutate({
       res_model: model,
-      res_id: recordId!,
+      res_id: recordId as number,
       summary: newSummary,
       date_deadline: newDeadline,
     })

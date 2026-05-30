@@ -57,7 +57,7 @@ describe('CommandPalette', () => {
     // Click backdrop (the outer fixed div)
     const backdrop = screen.getByPlaceholderText('Search menus...').closest('.fixed')
     expect(backdrop).toBeTruthy()
-    fireEvent.click(backdrop!)
+    fireEvent.click(backdrop as HTMLElement)
     expect(screen.queryByPlaceholderText('Search menus...')).toBeNull()
   })
 

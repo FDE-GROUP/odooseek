@@ -119,11 +119,11 @@ describe('ExportDialog', () => {
 
     // "Notes" should be in the Export Fields column initially (selected by default)
     // Find the remove button next to "Notes" in the export column
-    const exportSection = screen.getByText('Export Fields').closest('.rounded-lg')!
+    const exportSection = screen.getByText('Export Fields').closest('.rounded-lg') as HTMLElement
     const notesRow = Array.from(exportSection.querySelectorAll('div')).find((div) =>
       div.textContent?.includes('Notes'),
-    )!
-    const removeBtn = notesRow.querySelector('button:last-child')!
+    ) as HTMLDivElement
+    const removeBtn = notesRow.querySelector('button:last-child') as HTMLButtonElement
     fireEvent.click(removeBtn)
 
     // "Notes" should now appear in Available Fields

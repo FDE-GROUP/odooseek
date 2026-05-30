@@ -42,7 +42,7 @@ export function Chatter({ model, recordId }: ChatterProps) {
         'mail.message',
         [
           ['model', '=', model],
-          ['res_id', '=', recordId!],
+          ['res_id', '=', recordId as number],
         ],
         MSG_FIELDS,
         0,
@@ -60,7 +60,7 @@ export function Chatter({ model, recordId }: ChatterProps) {
         'mail.followers',
         [
           ['res_model', '=', model],
-          ['res_id', '=', recordId!],
+          ['res_id', '=', recordId as number],
         ],
         FOLLOWER_FIELDS,
       ),
@@ -75,7 +75,7 @@ export function Chatter({ model, recordId }: ChatterProps) {
 
   const sendMutation = useMutation({
     mutationFn: ({ subtype }: { subtype: string }) =>
-      callKw(model, 'message_post', [[recordId!]], {
+      callKw(model, 'message_post', [[recordId as number]], {
         body: composeBody,
         message_type: 'comment',
         subtype_xmlid: subtype,

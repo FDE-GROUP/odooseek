@@ -142,7 +142,7 @@ describe('FavoriteFilters', () => {
     fireEvent.click(screen.getByText('Save current filter'))
     const input = screen.getByPlaceholderText('Filter name')
     fireEvent.change(input, { target: { value: 'Test Filter' } })
-    fireEvent.submit(input.closest('form')!)
+    fireEvent.submit(input.closest('form') as HTMLFormElement)
     expect(mockSaveFilter).toHaveBeenCalledWith(
       expect.objectContaining({
         name: 'Test Filter',
@@ -166,7 +166,7 @@ describe('FavoriteFilters', () => {
     fireEvent.click(screen.getByText('Save current filter'))
     const input = screen.getByPlaceholderText('Filter name')
     fireEvent.change(input, { target: { value: 'Grouped Filter' } })
-    fireEvent.submit(input.closest('form')!)
+    fireEvent.submit(input.closest('form') as HTMLFormElement)
     expect(mockSaveFilter).toHaveBeenCalledWith(
       expect.objectContaining({
         name: 'Grouped Filter',
