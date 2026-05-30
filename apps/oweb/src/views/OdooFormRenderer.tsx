@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { createPortal } from 'react-dom'
 import { ActivityPanel } from '../components/ActivityPanel'
 import { Chatter } from '../components/Chatter'
 import { useConfirmDialog } from '../components/ConfirmDialog'
@@ -140,6 +141,12 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
         queryClient.invalidateQueries({ queryKey: ['odoo', 'read', model, recordId] })
         setEditMode(false)
       }
+      // Clear draft on successful save
+      try {
+        localStorage.removeItem(`form_draft_${model}_${recordId ?? 'new'}`)
+      } catch {
+        // ignore
+      }
       setJustSaved(true)
       setTimeout(() => setJustSaved(false), 2000)
     },
@@ -198,6 +205,42 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
     window.addEventListener('beforeunload', handler)
     return () => window.removeEventListener('beforeunload', handler)
   }, [isDirty])
+
+  // Autosave: save after 5s idle when dirty
+  useEffect(() => {
+    if (!isDirty || !editMode || !newRecordId) return
+    const timer = setTimeout(() => {
+      handleSave()
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [isDirty, editMode, newRecordId, handleSave])
+
+  // Draft recovery: save draft to localStorage, restore on mount
+  const draftKey = `form_draft_${model}_${recordId ?? 'new'}`
+  useEffect(() => {
+    if (isDirty && editMode) {
+      try {
+        localStorage.setItem(draftKey, JSON.stringify(formValues))
+      } catch {
+        // localStorage full or unavailable
+      }
+    }
+  }, [isDirty, editMode, formValues, draftKey])
+
+  useEffect(() => {
+    if (!editMode) return
+    try {
+      const draft = localStorage.getItem(draftKey)
+      if (draft) {
+        localStorage.removeItem(draftKey)
+        setFormValues(JSON.parse(draft))
+      }
+    } catch {
+      // invalid draft
+    }
+    // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editMode, draftKey])
 
   // Autofocus first editable field on new record
   useEffect(() => {
@@ -317,6 +360,7 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
             editMode={editMode}
             onChange={handleChange}
           />
+          {recordId && <FormTimestamps record={record?.[0]} />}
         </div>
         <div className="mx-auto max-w-[860px]">
           <ActivityPanel model={model} recordId={recordId} />
@@ -326,6 +370,72 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
     </div>
   )
 })
+
+const MAX_HEADER_BUTTONS = 3
+
+function HeaderButtonGroup({
+  buttons,
+  onAction,
+}: {
+  buttons: ButtonElement[]
+  onAction: (btn: ButtonElement) => void
+}) {
+  const [overflowOpen, setOverflowOpen] = useState(false)
+  const primary = buttons.slice(0, MAX_HEADER_BUTTONS)
+  const overflow = buttons.slice(MAX_HEADER_BUTTONS)
+
+  const btnClass = (btn: ButtonElement) =>
+    `px-3 py-1 text-xs font-medium transition-colors ${
+      btn.class?.includes('btn-primary')
+        ? 'bg-accent text-white hover:bg-accent/90 rounded'
+        : 'text-text-secondary hover:bg-hover rounded'
+    }`
+
+  return (
+    <div className="flex items-center gap-1.5">
+      {primary.map((btn, i) => (
+        <button
+          key={`${btn.name}-${i}`}
+          type="button"
+          onClick={() => onAction(btn)}
+          className={btnClass(btn)}
+        >
+          {btn.icon && <span className="mr-1">{btn.icon}</span>}
+          {btn.string || btn.name}
+        </button>
+      ))}
+      {overflow.length > 0 && (
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setOverflowOpen(!overflowOpen)}
+            onBlur={() => setTimeout(() => setOverflowOpen(false), 150)}
+            className="px-2 py-1 text-xs font-medium text-text-secondary hover:bg-hover rounded"
+          >
+            More ▾
+          </button>
+          {overflowOpen && (
+            <div className="absolute left-0 top-full z-10 mt-1 min-w-[120px] rounded-lg border border-border-subtle bg-surface shadow-lg">
+              {overflow.map((btn, i) => (
+                <button
+                  key={`${btn.name}-${i}`}
+                  type="button"
+                  onMouseDown={() => {
+                    onAction(btn)
+                    setOverflowOpen(false)
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-xs text-text-primary hover:bg-hover"
+                >
+                  {btn.string || btn.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 function HeaderBar({
   headerElement,
@@ -419,23 +529,7 @@ function HeaderBar({
             </div>
           )}
           {visibleButtons.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {visibleButtons.map((btn, i) => (
-                <button
-                  key={`${btn.name}-${i}`}
-                  type="button"
-                  onClick={() => onAction(btn)}
-                  className={`px-3 py-1 text-xs font-medium transition-colors ${
-                    btn.class?.includes('btn-primary')
-                      ? 'bg-accent text-white hover:bg-accent/90 rounded'
-                      : 'text-text-secondary hover:bg-hover rounded'
-                  }`}
-                >
-                  {btn.icon && <span className="mr-1">{btn.icon}</span>}
-                  {btn.string || btn.name}
-                </button>
-              ))}
-            </div>
+            <HeaderButtonGroup buttons={visibleButtons} onAction={onAction} />
           )}
         </div>
         <ActionButtons
@@ -475,19 +569,19 @@ function ActionButtons({
   return (
     <div className="flex items-center gap-2 shrink-0">
       {saveError && (
-        <span className="flex items-center gap-1 text-xs text-red-400">
+        <span className="flex items-center gap-1.5 rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-400 transition-all duration-200">
           <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
           Invalid
         </span>
       )}
       {isDirty && (
-        <span className="flex items-center gap-1 text-xs text-amber-500">
+        <span className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-500 transition-all duration-200">
           <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
           Unsaved
         </span>
       )}
       {justSaved && !isDirty && (
-        <span className="flex items-center gap-1 text-xs text-emerald-500">
+        <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-500 transition-all duration-200">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
           Saved
         </span>
@@ -636,6 +730,21 @@ function NotebookRenderer({
     [pages, record],
   )
   const safeActive = Math.min(activePage, visiblePages.length - 1)
+
+  // Check each page for missing required fields (edit mode only)
+  const pageHasMissing = useMemo(() => {
+    if (!editMode) return visiblePages.map(() => false)
+    return visiblePages.map((page) => {
+      const fieldEls = page.elements.filter((e) => e.type === 'field')
+      return fieldEls.some((el) => {
+        const fe = el as { type: 'field'; name: string }
+        const meta = fields[fe.name]
+        if (!meta?.required) return false
+        return !record?.[fe.name]
+      })
+    })
+  }, [visiblePages, editMode, fields, record])
+
   return (
     <div className="mt-4">
       <div className="flex border-b border-border-subtle">
@@ -651,6 +760,9 @@ function NotebookRenderer({
             }`}
           >
             {page.string}
+            {pageHasMissing[pi] && (
+              <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-red-400" />
+            )}
           </button>
         ))}
       </div>
@@ -668,6 +780,91 @@ function NotebookRenderer({
           />
         )}
       </div>
+    </div>
+  )
+}
+
+function HelpPopover({ text }: { text: string }) {
+  const [open, setOpen] = useState(false)
+  const btnRef = useRef<HTMLButtonElement>(null)
+  return (
+    <span className="relative inline-flex">
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={() => setOpen(!open)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        className="inline-flex items-center text-[10px] text-blue-400 cursor-help hover:text-blue-500"
+      >
+        ?
+      </button>
+      {open &&
+        btnRef.current &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999]" onMouseDown={() => setOpen(false)}>
+            <div
+              className="absolute z-[10000] mt-1 w-72 rounded-lg border border-border-subtle bg-surface p-3 text-xs leading-relaxed text-text-secondary shadow-lg"
+              style={{
+                top: btnRef.current?.getBoundingClientRect().bottom + 4,
+                left: Math.min(
+                  btnRef.current?.getBoundingClientRect().left,
+                  window.innerWidth - 300,
+                ),
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              {text}
+            </div>
+          </div>,
+          document.body,
+        )}
+    </span>
+  )
+}
+
+const MAX_BUTTON_BOX = 4
+
+function ButtonBoxRenderer({
+  buttons,
+  record,
+  model,
+  recordId,
+}: {
+  buttons: StatButtonElement[]
+  record?: Record<string, unknown>
+  model: string
+  recordId?: number
+}) {
+  const [overflowOpen, setOverflowOpen] = useState(false)
+  const primary = buttons.slice(0, MAX_BUTTON_BOX)
+  const overflow = buttons.slice(MAX_BUTTON_BOX)
+
+  return (
+    <div className="flex flex-wrap gap-1 border-b border-border-subtle pb-3 mb-3">
+      {primary.map((btn, bi) => (
+        <StatButton key={bi} button={btn} record={record} model={model} recordId={recordId} />
+      ))}
+      {overflow.length > 0 && (
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setOverflowOpen(!overflowOpen)}
+            onBlur={() => setTimeout(() => setOverflowOpen(false), 150)}
+            className="flex items-center gap-1 rounded px-3 py-1.5 text-xs text-text-secondary hover:bg-hover"
+          >
+            More ▾
+          </button>
+          {overflowOpen && (
+            <div className="absolute left-0 top-full z-10 mt-1 min-w-[140px] rounded-lg border border-border-subtle bg-surface shadow-lg">
+              {overflow.map((btn, bi) => (
+                <div key={bi} className="px-2 py-1">
+                  <StatButton button={btn} record={record} model={model} recordId={recordId} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -709,17 +906,13 @@ function FormLayoutNode({
             const visibleBtns = bbe.buttons.filter((b) => isButtonVisible(b, record))
             if (visibleBtns.length === 0) return null
             return (
-              <div key={i} className="flex flex-wrap gap-1 border-b border-border-subtle pb-3 mb-3">
-                {visibleBtns.map((btn, bi) => (
-                  <StatButton
-                    key={bi}
-                    button={btn}
-                    record={record}
-                    model={model}
-                    recordId={recordId}
-                  />
-                ))}
-              </div>
+              <ButtonBoxRenderer
+                key={i}
+                buttons={visibleBtns}
+                record={record}
+                model={model}
+                recordId={recordId}
+              />
             )
           }
           case 'group': {
@@ -790,6 +983,9 @@ function FormLayoutNode({
                     onChange={(v) => onChange?.(el.name, v)}
                     readOnly={readOnly}
                     meta={meta}
+                    record={record}
+                    model={model}
+                    recordId={recordId}
                   />
                 </div>
               )
@@ -808,18 +1004,14 @@ function FormLayoutNode({
                     onChange={(v) => onChange?.(el.name, v)}
                     readOnly={readOnly}
                     meta={meta}
+                    record={record}
+                    model={model}
+                    recordId={recordId}
                   />
                   <label className="text-xs font-medium text-text-secondary">
                     {el.string || meta.string || el.name}
                     {editMode && fieldRequired && <span className="ml-0.5 text-red-400">*</span>}
-                    {meta.help && (
-                      <span
-                        className="ml-1 inline-flex items-center text-[10px] text-blue-400 cursor-help"
-                        title={meta.help}
-                      >
-                        ?
-                      </span>
-                    )}
+                    {meta.help && <HelpPopover text={meta.help} />}
                   </label>
                 </div>
               )
@@ -833,14 +1025,7 @@ function FormLayoutNode({
                 <label className="truncate text-xs font-medium text-text-secondary py-1 text-right">
                   {el.string || meta.string || el.name}
                   {editMode && fieldRequired && <span className="ml-0.5 text-red-400">*</span>}
-                  {meta.help && (
-                    <span
-                      className="ml-1 inline-flex items-center text-[10px] text-blue-400 cursor-help"
-                      title={meta.help}
-                    >
-                      ?
-                    </span>
-                  )}
+                  {meta.help && <HelpPopover text={meta.help} />}
                 </label>
                 <Widget
                   field={el}
@@ -848,6 +1033,9 @@ function FormLayoutNode({
                   onChange={(v) => onChange?.(el.name, v)}
                   readOnly={readOnly}
                   meta={meta}
+                  record={record}
+                  model={model}
+                  recordId={recordId}
                 />
               </div>
             )
@@ -878,3 +1066,34 @@ const SYSTEM_FIELDS = new Set([
   'write_uid',
   'display_name',
 ])
+
+function FormTimestamps({ record }: { record?: Record<string, unknown> }) {
+  if (!record) return null
+  const fmtDate = (v: unknown) => {
+    if (!v) return ''
+    const s = String(v).slice(0, 19).replace('T', ' ')
+    return s || ''
+  }
+  const fmtUid = (v: unknown) => {
+    if (!v) return ''
+    if (Array.isArray(v) && v.length >= 2) return String(v[1])
+    return String(v)
+  }
+  const items = [
+    { label: 'Created', date: record.create_date, uid: record.create_uid },
+    { label: 'Modified', date: record.write_date, uid: record.write_uid },
+  ]
+  if (!items.some((i) => i.date)) return null
+  return (
+    <div className="mt-4 border-t border-border-subtle pt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-text-muted">
+      {items.map(({ label, date, uid }) =>
+        date ? (
+          <span key={label}>
+            {label}: {fmtDate(date)}
+            {fmtUid(uid) ? ` by ${fmtUid(uid)}` : ''}
+          </span>
+        ) : null,
+      )}
+    </div>
+  )
+}

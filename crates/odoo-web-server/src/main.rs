@@ -114,6 +114,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/session/login", post(session_login))
         .route("/api/session/logout", post(session_logout))
         .route("/api/odoo/{*path}", post(proxy_odoo))
+        .route("/api/web/image/{*path}", get(proxy_image))
         .route("/api/report/download", get(download_report))
         .route("/ws/events", get(ws_events_handler))
         .fallback_service(ServeDir::new(&frontend_dir).append_index_html_on_directories(true))
@@ -170,6 +171,16 @@ async fn proxy_odoo(
     body: axum::body::Bytes,
 ) -> Result<impl IntoResponse, AppError> {
     proxy::proxy_odoo(state, &path, headers, body).await
+}
+
+// ── Image proxy ────────────────────────────────────────────────────
+
+async fn proxy_image(
+    State(state): State<AppState>,
+    path: axum::extract::Path<String>,
+    headers: HeaderMap,
+) -> Result<impl IntoResponse, AppError> {
+    proxy::proxy_image(state, path, headers).await
 }
 
 // ── Report download proxy ──────────────────────────────────────────

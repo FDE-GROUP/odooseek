@@ -702,9 +702,16 @@ describe('OdooFormRenderer', () => {
       expect(screen.getByText('Edit')).toBeInTheDocument()
     })
 
-    const helpIcon = screen.getByTitle('Enter the partner name')
-    expect(helpIcon).toBeInTheDocument()
-    expect(helpIcon.textContent).toBe('?')
+    // HelpPopover renders a button with "?" text
+    const helpButtons = screen.getAllByText('?')
+    expect(helpButtons.length).toBeGreaterThan(0)
+    // Click to open popover
+    const helpBtn = helpButtons.find((el) => el.tagName === 'BUTTON')
+    expect(helpBtn).toBeTruthy()
+    helpBtn?.click()
+    await waitFor(() => {
+      expect(screen.getByText('Enter the partner name')).toBeInTheDocument()
+    })
   })
 
   test('renders boolean field with checkbox before label', async () => {

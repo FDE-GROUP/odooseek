@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { callKw, fieldsGet } from '../lib/api'
+import { parseDomainString } from '../lib/expression-evaluator'
 import type { FieldElement, O2mCommand, OdooFieldMeta, ViewField } from '../lib/odoo-types'
 
 export interface FieldWidgetProps {
@@ -8,27 +9,49 @@ export interface FieldWidgetProps {
   value: unknown
   onChange: (value: unknown) => void
   readOnly?: boolean
-  meta?: { selection?: [string, string][]; type?: string; relation?: string }
+  meta?: { selection?: [string, string][]; type?: string; relation?: string; domain?: unknown }
+  record?: Record<string, unknown>
+  model?: string
+  recordId?: number
 }
 
 // Odoo 19 style: edit mode = bottom border only, read-only = plain text
 const FIELD_INPUT_CLASS =
   'w-full border-0 border-b border-border-default bg-transparent px-1 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none'
 
-function CharWidget({ field, value, onChange, readOnly }: FieldWidgetProps) {
-  if (readOnly) return <span className="text-sm text-text-primary">{(value as string) ?? ''}</span>
+function CharWidget({ field, value, onChange, readOnly, meta }: FieldWidgetProps) {
+  if (readOnly) {
+    const v = (value as string) ?? ''
+    if (field.widget === 'password' && v)
+      return <span className="text-sm text-text-primary">{'•'.repeat(v.length)}</span>
+    return <span className="text-sm text-text-primary">{v}</span>
+  }
+  const isPassword = field.widget === 'password'
+  const maxLength = (meta as Record<string, unknown> & { size?: number })?.size
+    ? Number((meta as Record<string, unknown> & { size?: number }).size)
+    : undefined
   return (
     <input
-      type="text"
+      type={isPassword ? 'password' : 'text'}
       value={(value as string) ?? ''}
       onChange={(e) => onChange(e.target.value)}
       placeholder={field.placeholder}
+      maxLength={maxLength}
       className={FIELD_INPUT_CLASS}
     />
   )
 }
 
 function TextWidget({ field, value, onChange, readOnly }: FieldWidgetProps) {
+  const textRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    if (textRef.current) {
+      textRef.current.style.height = 'auto'
+      textRef.current.style.height = `${textRef.current.scrollHeight}px`
+    }
+  }, [])
+
   if (readOnly)
     return (
       <span className="text-sm text-text-primary whitespace-pre-wrap">
@@ -37,11 +60,35 @@ function TextWidget({ field, value, onChange, readOnly }: FieldWidgetProps) {
     )
   return (
     <textarea
+      ref={textRef}
       value={(value as string) ?? ''}
       onChange={(e) => onChange(e.target.value)}
       placeholder={field.placeholder}
-      rows={3}
-      className={FIELD_INPUT_CLASS}
+      rows={1}
+      className={`${FIELD_INPUT_CLASS} resize-none overflow-hidden`}
+    />
+  )
+}
+
+function HtmlWidget({ field, value, onChange, readOnly }: FieldWidgetProps) {
+  if (readOnly) {
+    const html = (value as string) ?? ''
+    if (!html) return <span className="text-sm text-text-muted">—</span>
+    return (
+      <div
+        className="prose prose-sm max-w-none text-sm text-text-primary"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: HTML content from trusted Odoo backend
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    )
+  }
+  return (
+    <textarea
+      value={(value as string) ?? ''}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={field.placeholder}
+      rows={6}
+      className={`${FIELD_INPUT_CLASS} min-h-[100px]`}
     />
   )
 }
@@ -70,6 +117,44 @@ function FloatWidget({ field: _field, value, onChange, readOnly }: FieldWidgetPr
       onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
       className={FIELD_INPUT_CLASS}
     />
+  )
+}
+
+function MonetaryWidget({ field, value, onChange, readOnly, record }: FieldWidgetProps) {
+  const opts = (field.options as Record<string, unknown>) ?? {}
+  const currencyField = (opts.currency_field as string) ?? 'currency_id'
+  const currencyRaw = record?.[currencyField]
+  const symbol = Array.isArray(currencyRaw) ? String(currencyRaw[1] ?? '') : ''
+  const digits = opts.digits as [number, number] | undefined
+  const decimals = digits?.[1] ?? 2
+
+  if (readOnly) {
+    const formatted =
+      value != null
+        ? Number(value).toLocaleString(undefined, {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+          })
+        : ''
+    return (
+      <span className="text-sm text-text-primary">
+        {symbol && <span className="mr-1 text-text-muted">{symbol}</span>}
+        {formatted}
+      </span>
+    )
+  }
+
+  return (
+    <div className="flex items-center">
+      {symbol && <span className="mr-1 text-sm text-text-muted">{symbol}</span>}
+      <input
+        type="number"
+        step={String(10 ** -decimals)}
+        value={value != null ? Number(value) : ''}
+        onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
+        className={FIELD_INPUT_CLASS}
+      />
+    </div>
   )
 }
 
@@ -181,7 +266,12 @@ function Many2OneWidget({ field: _field, value, onChange, readOnly, meta }: Fiel
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
   const [results, setResults] = useState<Array<{ id: number; display_name: string }>>([])
+  const [focusIdx, setFocusIdx] = useState(-1)
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const listRef = useRef<HTMLDivElement>(null)
+  const opts = (_field.options as Record<string, unknown>) ?? {}
+  const noCreate = opts.no_create === true || opts.no_create === '1'
+  const noOpen = opts.no_open === true || opts.no_open === '1'
 
   const display =
     Array.isArray(value) && value.length === 2 ? `${value[1] ?? ''}` : value ? `#${value}` : ''
@@ -196,21 +286,54 @@ function Many2OneWidget({ field: _field, value, onChange, readOnly, meta }: Fiel
       timer.current = setTimeout(async () => {
         const relation = meta?.relation
         if (!relation) return
-        const res = await callKw<Array<{ id: number; display_name: string }>>(
+        const domain = parseDomainString(typeof meta.domain === 'string' ? meta.domain : null)
+        const baseDomain = domain && domain.length > 0 ? domain : []
+        const res = await callKw<{ records: Array<{ id: number; display_name: string }> }>(
           relation,
-          'web_name_search',
+          'web_search_read',
           [],
-          { name: q, operator: 'ilike', limit: 8, specification: { display_name: {} } },
+          {
+            domain: [...baseDomain, ['display_name', 'ilike', q]],
+            specification: { display_name: {} },
+            limit: 8,
+          },
         )
-        setResults(res ?? [])
+        setResults(res?.records ?? [])
+        setFocusIdx(-1)
       }, 200)
     },
-    [meta?.relation],
+    [meta?.relation, meta?.domain],
   )
 
   if (readOnly) {
+    if (display && !noOpen) {
+      return <span className="text-sm text-accent cursor-pointer">{display}</span>
+    }
     return <span className="text-sm text-text-primary">{display || '—'}</span>
   }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!open || results.length === 0) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setFocusIdx((i) => Math.min(i + 1, results.length - 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setFocusIdx((i) => Math.max(i - 1, 0))
+    } else if (e.key === 'Enter' && focusIdx >= 0 && focusIdx < results.length) {
+      e.preventDefault()
+      const r = results[focusIdx]
+      onChange([r.id, r.display_name])
+      setOpen(false)
+    } else if (e.key === 'Escape') {
+      setOpen(false)
+    }
+  }
+
+  const canCreate =
+    !noCreate &&
+    search.trim() &&
+    !results.some((r) => r.display_name.toLowerCase() === search.trim().toLowerCase())
 
   return (
     <div className="relative">
@@ -227,12 +350,16 @@ function Many2OneWidget({ field: _field, value, onChange, readOnly, meta }: Fiel
           doSearch('')
         }}
         onBlur={() => setTimeout(() => setOpen(false), 200)}
+        onKeyDown={handleKeyDown}
         placeholder={_field.placeholder || 'Search...'}
         className="w-full border-0 border-b border-border-default bg-transparent px-1 py-2 text-sm text-text-primary focus:border-accent focus:outline-none placeholder:text-text-muted"
       />
-      {open && (results.length > 0 || search.trim()) && (
-        <div className="absolute z-10 mt-1 w-full rounded-lg border border-border-subtle bg-surface shadow-lg">
-          {results.map((r) => (
+      {open && (results.length > 0 || canCreate) && (
+        <div
+          ref={listRef}
+          className="absolute z-10 mt-1 w-full rounded-lg border border-border-subtle bg-surface shadow-lg"
+        >
+          {results.map((r, ri) => (
             <button
               key={r.id}
               type="button"
@@ -240,35 +367,36 @@ function Many2OneWidget({ field: _field, value, onChange, readOnly, meta }: Fiel
                 onChange([r.id, r.display_name])
                 setOpen(false)
               }}
-              className="w-full px-3 py-1.5 text-left text-sm text-text-primary hover:bg-hover/50"
+              className={`w-full px-3 py-1.5 text-left text-sm text-text-primary hover:bg-hover/50 ${
+                ri === focusIdx ? 'bg-hover/50' : ''
+              }`}
             >
               {r.display_name}
             </button>
           ))}
-          {search.trim() &&
-            !results.some((r) => r.display_name.toLowerCase() === search.trim().toLowerCase()) && (
-              <button
-                type="button"
-                onMouseDown={async () => {
-                  if (!meta?.relation) return
-                  const newId = await callKw<number>(meta.relation, 'create', [
-                    { name: search.trim() },
-                  ])
-                  onChange([newId, search.trim()])
-                  setOpen(false)
-                }}
-                className="w-full border-t border-border-subtle px-3 py-1.5 text-left text-sm text-accent hover:bg-accent/10"
-              >
-                Create "{search.trim()}"
-              </button>
-            )}
+          {canCreate && (
+            <button
+              type="button"
+              onMouseDown={async () => {
+                if (!meta?.relation) return
+                const newId = await callKw<number>(meta.relation, 'create', [
+                  { name: search.trim() },
+                ])
+                onChange([newId, search.trim()])
+                setOpen(false)
+              }}
+              className="w-full border-t border-border-subtle px-3 py-1.5 text-left text-sm text-accent hover:bg-accent/10"
+            >
+              Create "{search.trim()}"
+            </button>
+          )}
         </div>
       )}
     </div>
   )
 }
 
-function BinaryWidget({ field, value, onChange, readOnly, meta }: FieldWidgetProps) {
+function BinaryWidget({ field, value, onChange, readOnly, meta, record }: FieldWidgetProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const isImage =
     field.widget === 'image' ||
@@ -277,24 +405,40 @@ function BinaryWidget({ field, value, onChange, readOnly, meta }: FieldWidgetPro
         field.name?.includes('photo') ||
         field.name?.includes('avatar')))
 
-  const filenameField = (field.options as Record<string, unknown>)?.filename as string | undefined
+  if (isImage) {
+    return (
+      <ImageFieldWidget
+        field={field}
+        value={value}
+        onChange={onChange}
+        readOnly={readOnly}
+        meta={meta}
+      />
+    )
+  }
+
+  const opts = (field.options as Record<string, unknown>) ?? {}
+  const filenameField = opts.filename as string | undefined
+  const acceptFilter = opts.accept as string | undefined
   const base64 = value as string | false | null | undefined
   const hasValue = base64 != null && base64 !== false && base64 !== ''
+  const fileName = filenameField ? String(record?.[filenameField] ?? '') : ''
+  const fileSize = hasValue && typeof base64 === 'string' ? Math.round((base64.length * 3) / 4) : 0
+  const sizeLabel =
+    fileSize > 1048576
+      ? `${(fileSize / 1048576).toFixed(1)} MB`
+      : fileSize > 1024
+        ? `${Math.round(fileSize / 1024)} KB`
+        : fileSize > 0
+          ? `${fileSize} B`
+          : ''
 
   if (readOnly) {
-    if (isImage && hasValue) {
-      return (
-        <img
-          src={`data:image/png;base64,${base64}`}
-          alt={field.string || field.name}
-          className="max-h-32 max-w-32 rounded border border-border-subtle object-contain"
-        />
-      )
-    }
     if (hasValue) {
       return (
         <span className="text-sm text-text-primary">
-          {filenameField ? `📎 ${filenameField}` : '📎 File attached'}
+          📎 {fileName || 'File attached'}
+          {sizeLabel && <span className="ml-1 text-text-muted">({sizeLabel})</span>}
         </span>
       )
     }
@@ -302,32 +446,120 @@ function BinaryWidget({ field, value, onChange, readOnly, meta }: FieldWidgetPro
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {isImage && hasValue && (
+    <div className="flex items-center gap-2">
+      <input
+        ref={inputRef}
+        type="file"
+        accept={acceptFilter}
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (!file) return
+          const reader = new FileReader()
+          reader.onload = () => {
+            const dataUrl = reader.result as string
+            onChange(dataUrl.split(',')[1])
+          }
+          reader.readAsDataURL(file)
+        }}
+        className="text-sm text-text-secondary file:mr-2 file:rounded file:border-0 file:bg-accent/10 file:px-3 file:py-1 file:text-xs file:font-medium file:text-accent hover:file:bg-accent/20"
+      />
+      {hasValue && (
+        <button
+          type="button"
+          onClick={() => onChange(false)}
+          className="rounded border border-border-default px-2 py-1 text-xs text-text-secondary hover:bg-hover"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  )
+}
+
+function ImageFieldWidget({ field, value, onChange, readOnly, model, recordId }: FieldWidgetProps) {
+  const [zoomed, setZoomed] = useState(false)
+  const opts = (field.options as Record<string, unknown>) ?? {}
+  const maxW = Number(opts.max_width) || 1024
+  const maxH = Number(opts.max_height) || 1024
+  const base64 = value as string | false | null | undefined
+  const hasBase64 = base64 != null && base64 !== false && base64 !== ''
+
+  // Prefer base64 data; fallback to Odoo /web/image URL when record exists
+  const src = hasBase64
+    ? `data:image/png;base64,${base64}`
+    : model && recordId
+      ? `/api/web/image/${model}/${recordId}/${field.name}`
+      : ''
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const img = new Image()
+    img.onload = () => {
+      let { width, height } = img
+      if (width > maxW) {
+        height *= maxW / width
+        width = maxW
+      }
+      if (height > maxH) {
+        width *= maxH / height
+        height = maxH
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      canvas.getContext('2d')?.drawImage(img, 0, 0, width, height)
+      const b64 = canvas.toDataURL('image/png').split(',')[1]
+      onChange(b64)
+      URL.revokeObjectURL(img.src)
+    }
+    img.src = URL.createObjectURL(file)
+  }
+
+  if (readOnly) {
+    if (!src) return <span className="text-sm text-text-muted">—</span>
+    return (
+      <>
         <img
-          src={`data:image/png;base64,${base64}`}
+          src={src}
+          alt={field.string || field.name}
+          onClick={() => setZoomed(true)}
+          className="max-h-32 max-w-32 cursor-zoom-in rounded border border-border-subtle object-contain hover:opacity-90 transition-opacity"
+        />
+        {zoomed && (
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60"
+            onClick={() => setZoomed(false)}
+          >
+            <img
+              src={src}
+              alt={field.string || field.name}
+              className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        )}
+      </>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {src && (
+        <img
+          src={src}
           alt={field.string || field.name}
           className="max-h-32 max-w-32 rounded border border-border-subtle object-contain"
         />
       )}
       <div className="flex items-center gap-2">
         <input
-          ref={inputRef}
           type="file"
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (!file) return
-            const reader = new FileReader()
-            reader.onload = () => {
-              const dataUrl = reader.result as string
-              const b64 = dataUrl.split(',')[1]
-              onChange(b64)
-            }
-            reader.readAsDataURL(file)
-          }}
+          accept="image/*"
+          onChange={handleUpload}
           className="text-sm text-text-secondary file:mr-2 file:rounded file:border-0 file:bg-accent/10 file:px-3 file:py-1 file:text-xs file:font-medium file:text-accent hover:file:bg-accent/20"
         />
-        {hasValue && (
+        {hasBase64 && (
           <button
             type="button"
             onClick={() => onChange(false)}
@@ -473,9 +705,10 @@ function encodeM2mValue(tags: [number, string][]): unknown {
   return [[6, 0, tags.map(([id]) => id)]]
 }
 
-export function PriorityWidget({ value, readOnly, onChange }: FieldWidgetProps) {
+export function PriorityWidget({ value, readOnly, onChange, meta }: FieldWidgetProps) {
+  const selection = meta?.selection ?? []
+  const max = selection.length || 3
   const stars = Number(value) || 0
-  const max = 3
   if (readOnly) {
     return (
       <span className="inline-flex gap-0.5 text-sm">
@@ -494,6 +727,7 @@ export function PriorityWidget({ value, readOnly, onChange }: FieldWidgetProps) 
           key={i}
           type="button"
           onClick={() => onChange(i + 1)}
+          title={selection[i]?.[1] ?? `Level ${i + 1}`}
           className={`text-sm ${i < stars ? 'text-amber-500' : 'text-border-default hover:text-amber-400'}`}
         >
           {i < stars ? '★' : '☆'}
@@ -931,6 +1165,34 @@ function HandleWidget({ readOnly }: FieldWidgetProps) {
   )
 }
 
+// ── Attachment Image Widget ────────────────────────────────────────
+
+function AttachmentImageWidget({ value, readOnly, meta }: FieldWidgetProps) {
+  if (readOnly) {
+    if (!value) return <span className="text-sm text-text-muted">—</span>
+    if (Array.isArray(value) && value.length >= 1) {
+      const name = value.length >= 2 ? String(value[1]) : ''
+      return (
+        <img
+          src={`/api/web/image/${value[0]}`}
+          alt={name}
+          className="max-h-32 max-w-32 rounded border border-border-subtle object-contain"
+        />
+      )
+    }
+    return <span className="text-sm text-text-primary">{String(value)}</span>
+  }
+  return (
+    <Many2OneWidget
+      value={value}
+      onChange={() => {}}
+      readOnly={false}
+      field={{ type: 'field', name: 'attachment_id' }}
+      meta={meta}
+    />
+  )
+}
+
 // ── Color Picker Widget ─────────────────────────────────────────────
 
 function ColorPickerWidget({ value, onChange, readOnly }: FieldWidgetProps) {
@@ -969,14 +1231,31 @@ function ColorPickerWidget({ value, onChange, readOnly }: FieldWidgetProps) {
 
 // ── Progressbar Widget (form) ───────────────────────────────────────
 
-function ProgressbarWidget({ value }: FieldWidgetProps) {
+function ProgressbarWidget({ value, onChange, readOnly }: FieldWidgetProps) {
   const pct = Math.min(100, Math.max(0, Number(value) ?? 0))
+  const barRef = useRef<HTMLDivElement>(null)
+
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (readOnly || !barRef.current) return
+    const rect = barRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const newPct = Math.round((x / rect.width) * 100)
+    onChange(Math.min(100, Math.max(0, newPct)))
+  }
+
   return (
     <div className="flex items-center gap-2">
-      <div className="h-2 flex-1 rounded-full bg-border-default/30">
-        <div className="h-2 rounded-full bg-accent transition-all" style={{ width: `${pct}%` }} />
+      <div
+        ref={barRef}
+        className={`h-3 flex-1 rounded-full bg-border-default/30 ${readOnly ? '' : 'cursor-pointer'}`}
+        onClick={handleClick}
+      >
+        <div
+          className={`h-3 rounded-full transition-all ${pct >= 100 ? 'bg-emerald-500' : 'bg-accent'}`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
-      <span className="text-xs text-text-muted">{pct}%</span>
+      <span className="text-xs text-text-muted w-8 text-right">{pct}%</span>
     </div>
   )
 }
@@ -988,7 +1267,7 @@ export const TYPE_WIDGETS: Record<string, React.ComponentType<FieldWidgetProps>>
   text: TextWidget,
   integer: IntegerWidget,
   float: FloatWidget,
-  monetary: FloatWidget,
+  monetary: MonetaryWidget,
   boolean: BooleanWidget,
   date: DateWidget,
   datetime: DatetimeWidget,
@@ -1000,7 +1279,7 @@ export const TYPE_WIDGETS: Record<string, React.ComponentType<FieldWidgetProps>>
   one2many: One2ManyWidget,
   binary: BinaryWidget,
   image: BinaryWidget,
-  html: TextWidget,
+  html: HtmlWidget,
   reference: Many2OneWidget,
 }
 
@@ -1032,4 +1311,5 @@ const WIDGET_OVERRIDES: Record<string, React.ComponentType<FieldWidgetProps>> = 
   handle: HandleWidget,
   color_picker: ColorPickerWidget,
   progressbar: ProgressbarWidget,
+  attachment_image: AttachmentImageWidget,
 }
