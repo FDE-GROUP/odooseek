@@ -16,7 +16,13 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import './calendar-theme.css'
 
-const DnDCalendar = withDragAndDrop(RBC_Calendar)
+const DnDCalendar =
+  typeof withDragAndDrop === 'function'
+    ? withDragAndDrop(RBC_Calendar)
+    : // CJS interop: import may return { default: fn } instead of fn directly
+      (
+        withDragAndDrop as unknown as { default: (c: typeof RBC_Calendar) => typeof RBC_Calendar }
+      ).default(RBC_Calendar)
 
 const localizer = dateFnsLocalizer({
   format: format as unknown as Record<string, unknown>,
