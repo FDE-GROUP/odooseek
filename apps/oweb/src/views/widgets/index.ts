@@ -18,6 +18,8 @@ import {
   TextWidget,
 } from './basic'
 import { BinaryWidget, ImageFieldWidget } from './media'
+import { OrgChartWidget } from './OrgChart'
+import { PresenceIcon } from './PresenceIcon'
 import {
   AttachmentImageWidget,
   Many2ManyCheckboxesWidget,
@@ -102,9 +104,11 @@ export {
   Many2OneWidget,
   MonetaryWidget,
   One2ManyWidget,
+  OrgChartWidget,
   PercentageWidget,
   PercentPieWidget,
   PhoneWidget,
+  PresenceIcon,
   PriorityWidget,
   ProgressbarWidget,
   RadioWidget,
@@ -176,6 +180,9 @@ const WIDGET_OVERRIDES: Record<string, React.ComponentType<FieldWidgetProps>> = 
   web_ribbon: WebRibbonWidget,
   kanban_activity: KanbanActivityWidget,
   rotting: RottingWidget,
+  // HR
+  presence_icon: PresenceIcon,
+  org_chart: OrgChartWidget,
 }
 
 export function getFieldWidget(
