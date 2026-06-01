@@ -22,6 +22,9 @@ import { Route as CrmIndexRouteImport } from './routes/crm/index'
 import { Route as AccountingIndexRouteImport } from './routes/accounting/index'
 import { Route as SaleOrdersRouteImport } from './routes/sale/orders'
 import { Route as InventoryPickingsRouteImport } from './routes/inventory/pickings'
+import { Route as HrWorkLocationsRouteImport } from './routes/hr/work-locations'
+import { Route as HrPlansRouteImport } from './routes/hr/plans'
+import { Route as HrJobsRouteImport } from './routes/hr/jobs'
 import { Route as HrEmployeesRouteImport } from './routes/hr/employees'
 import { Route as HrDirectoryRouteImport } from './routes/hr/directory'
 import { Route as HrDepartmentsRouteImport } from './routes/hr/departments'
@@ -100,6 +103,21 @@ const InventoryPickingsRoute = InventoryPickingsRouteImport.update({
   path: '/inventory/pickings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HrWorkLocationsRoute = HrWorkLocationsRouteImport.update({
+  id: '/hr/work-locations',
+  path: '/hr/work-locations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HrPlansRoute = HrPlansRouteImport.update({
+  id: '/hr/plans',
+  path: '/hr/plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HrJobsRoute = HrJobsRouteImport.update({
+  id: '/hr/jobs',
+  path: '/hr/jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HrEmployeesRoute = HrEmployeesRouteImport.update({
   id: '/hr/employees',
   path: '/hr/employees',
@@ -174,6 +192,9 @@ export interface FileRoutesByFullPath {
   '/hr/departments': typeof HrDepartmentsRoute
   '/hr/directory': typeof HrDirectoryRoute
   '/hr/employees': typeof HrEmployeesRoute
+  '/hr/jobs': typeof HrJobsRoute
+  '/hr/plans': typeof HrPlansRoute
+  '/hr/work-locations': typeof HrWorkLocationsRoute
   '/inventory/pickings': typeof InventoryPickingsRoute
   '/sale/orders': typeof SaleOrdersRoute
   '/accounting/': typeof AccountingIndexRoute
@@ -201,6 +222,9 @@ export interface FileRoutesByTo {
   '/hr/departments': typeof HrDepartmentsRoute
   '/hr/directory': typeof HrDirectoryRoute
   '/hr/employees': typeof HrEmployeesRoute
+  '/hr/jobs': typeof HrJobsRoute
+  '/hr/plans': typeof HrPlansRoute
+  '/hr/work-locations': typeof HrWorkLocationsRoute
   '/inventory/pickings': typeof InventoryPickingsRoute
   '/sale/orders': typeof SaleOrdersRoute
   '/accounting': typeof AccountingIndexRoute
@@ -229,6 +253,9 @@ export interface FileRoutesById {
   '/hr/departments': typeof HrDepartmentsRoute
   '/hr/directory': typeof HrDirectoryRoute
   '/hr/employees': typeof HrEmployeesRoute
+  '/hr/jobs': typeof HrJobsRoute
+  '/hr/plans': typeof HrPlansRoute
+  '/hr/work-locations': typeof HrWorkLocationsRoute
   '/inventory/pickings': typeof InventoryPickingsRoute
   '/sale/orders': typeof SaleOrdersRoute
   '/accounting/': typeof AccountingIndexRoute
@@ -258,6 +285,9 @@ export interface FileRouteTypes {
     | '/hr/departments'
     | '/hr/directory'
     | '/hr/employees'
+    | '/hr/jobs'
+    | '/hr/plans'
+    | '/hr/work-locations'
     | '/inventory/pickings'
     | '/sale/orders'
     | '/accounting/'
@@ -285,6 +315,9 @@ export interface FileRouteTypes {
     | '/hr/departments'
     | '/hr/directory'
     | '/hr/employees'
+    | '/hr/jobs'
+    | '/hr/plans'
+    | '/hr/work-locations'
     | '/inventory/pickings'
     | '/sale/orders'
     | '/accounting'
@@ -312,6 +345,9 @@ export interface FileRouteTypes {
     | '/hr/departments'
     | '/hr/directory'
     | '/hr/employees'
+    | '/hr/jobs'
+    | '/hr/plans'
+    | '/hr/work-locations'
     | '/inventory/pickings'
     | '/sale/orders'
     | '/accounting/'
@@ -340,6 +376,9 @@ export interface RootRouteChildren {
   HrDepartmentsRoute: typeof HrDepartmentsRoute
   HrDirectoryRoute: typeof HrDirectoryRoute
   HrEmployeesRoute: typeof HrEmployeesRoute
+  HrJobsRoute: typeof HrJobsRoute
+  HrPlansRoute: typeof HrPlansRoute
+  HrWorkLocationsRoute: typeof HrWorkLocationsRoute
   InventoryPickingsRoute: typeof InventoryPickingsRoute
   SaleOrdersRoute: typeof SaleOrdersRoute
   AccountingIndexRoute: typeof AccountingIndexRoute
@@ -448,6 +487,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InventoryPickingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hr/work-locations': {
+      id: '/hr/work-locations'
+      path: '/hr/work-locations'
+      fullPath: '/hr/work-locations'
+      preLoaderRoute: typeof HrWorkLocationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hr/plans': {
+      id: '/hr/plans'
+      path: '/hr/plans'
+      fullPath: '/hr/plans'
+      preLoaderRoute: typeof HrPlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hr/jobs': {
+      id: '/hr/jobs'
+      path: '/hr/jobs'
+      fullPath: '/hr/jobs'
+      preLoaderRoute: typeof HrJobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/hr/employees': {
       id: '/hr/employees'
       path: '/hr/employees'
@@ -548,6 +608,9 @@ const rootRouteChildren: RootRouteChildren = {
   HrDepartmentsRoute: HrDepartmentsRoute,
   HrDirectoryRoute: HrDirectoryRoute,
   HrEmployeesRoute: HrEmployeesRoute,
+  HrJobsRoute: HrJobsRoute,
+  HrPlansRoute: HrPlansRoute,
+  HrWorkLocationsRoute: HrWorkLocationsRoute,
   InventoryPickingsRoute: InventoryPickingsRoute,
   SaleOrdersRoute: SaleOrdersRoute,
   AccountingIndexRoute: AccountingIndexRoute,

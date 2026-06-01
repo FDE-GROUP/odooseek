@@ -14,6 +14,7 @@ import {
   PercentageWidget,
   TextWidget,
 } from './basic'
+import { BackgroundImageWidget } from './BackgroundImage'
 import { BinaryWidget, ImageFieldWidget } from './media'
 import { OrgChartWidget } from './OrgChart'
 import { PresenceIcon } from './PresenceIcon'
@@ -185,6 +186,7 @@ const WIDGET_OVERRIDES: Record<string, React.ComponentType<FieldWidgetProps>> = 
   kanban_activity: KanbanActivityWidget,
   rotting: RottingWidget,
   // HR
+  background_image: BackgroundImageWidget,
   presence_icon: PresenceIcon,
   org_chart: OrgChartWidget,
   version_timeline: VersionTimeline,

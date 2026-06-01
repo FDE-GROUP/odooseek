@@ -32,6 +32,13 @@ function resolveValue(expr: string, record: Record<string, unknown>): unknown {
 
 /** Evaluate a QWeb condition expression against a record */
 export function evalCondition(expr: string, record: Record<string, unknown>): boolean {
+  // Odoo kanban: record.image_1024.raw_value
+  const rawMatch = expr.match(/^record\.(\w+)\.raw_value$/)
+  if (rawMatch) {
+    const val = record[rawMatch[1]]
+    return val != null && val !== false && val !== ''
+  }
+
   // Handle: "!record.field"
   const notMatch = expr.match(/^!\s*record\.(\w+)$/)
   if (notMatch) {

@@ -147,6 +147,12 @@ describe('evalCondition', () => {
     expect(evalCondition('record.a || record.b', record)).toBe(true)
     expect(evalCondition('record.c || record.d', record)).toBe(false)
   })
+
+  test('evaluates Odoo kanban raw_value conditions', () => {
+    expect(evalCondition('record.image_1024.raw_value', { image_1024: 'abc' })).toBe(true)
+    expect(evalCondition('record.image_1024.raw_value', { image_1024: false })).toBe(false)
+    expect(evalCondition('record.image_128.raw_value', {})).toBe(false)
+  })
 })
 
 describe('getValue', () => {

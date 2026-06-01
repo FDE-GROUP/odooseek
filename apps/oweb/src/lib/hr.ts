@@ -3,6 +3,9 @@
 export const HR_EMPLOYEE_MODEL = 'hr.employee'
 export const HR_EMPLOYEE_PUBLIC_MODEL = 'hr.employee.public'
 export const HR_DEPARTMENT_MODEL = 'hr.department'
+export const HR_JOB_MODEL = 'hr.job'
+export const HR_WORK_LOCATION_MODEL = 'hr.work.location'
+export const MAIL_ACTIVITY_PLAN_MODEL = 'mail.activity.plan'
 export const HR_VERSION_MODEL = 'hr.version'
 
 /** Fields safe for directory / public employee views (Odoo hr.employee.public). */
@@ -33,6 +36,9 @@ export const HR_MENU_ROUTE_BY_LABEL: Record<string, string> = {
   Directory: '/hr/directory',
   Departments: '/hr/departments',
   'Human Resources': '/hr/employees',
+  Jobs: '/hr/jobs',
+  'Work Locations': '/hr/work-locations',
+  'Onboarding / Offboarding': '/hr/plans',
 }
 
 export const HR_MENU_ROUTE_BY_XML_FRAGMENT: Record<string, string> = {
@@ -42,6 +48,10 @@ export const HR_MENU_ROUTE_BY_XML_FRAGMENT: Record<string, string> = {
   menu_hr_department_kanban: '/hr/departments',
   menu_hr_root: '/hr/employees',
   menu_hr_main: '/hr/employees',
+  menu_view_hr_job: '/hr/jobs',
+  menu_hr_work_location_tree: '/hr/work-locations',
+  menu_config_plan_plan: '/hr/plans',
+  mail_activity_plan_action: '/hr/plans',
 }
 
 export function resolveHrMenuRoute(menu: { name?: string; xmlid?: string }): string | undefined {

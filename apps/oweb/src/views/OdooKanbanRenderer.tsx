@@ -49,8 +49,12 @@ export function OdooKanbanRenderer({
   const highlightColor = kanbanView.highlightColor
   const progressbar = kanbanView.progressbar
 
-  // Ensure groupBy + name always in search_read fields
-  const searchFields = [...kanbanView.fields]
+  // Ensure groupBy + name + template fields (e.g. image_1024 in HR kanban aside)
+  const searchFields = useMemo(() => {
+    const names = new Set(kanbanView.fields)
+    collectKanbanFieldNames(templateNodes).forEach((n) => names.add(n))
+    return [...names]
+  }, [kanbanView.fields, templateNodes])
   if (groupBy && !searchFields.includes(groupBy)) searchFields.push(groupBy)
   if (!searchFields.includes('name')) searchFields.push('name')
 
@@ -544,8 +548,7 @@ function KanbanCard({
       )}
       <CardActions recordId={recordId} onEdit={onClick} onDelete={onDelete} onArchive={onArchive} />
       {asideNode ? (
-        <div className="flex flex-row gap-3">
-          <div className="flex-1">{content}</div>
+        <div className="flex flex-row gap-2">
           <div className="shrink-0">
             <KanbanNode
               node={asideNode}
@@ -555,6 +558,7 @@ function KanbanCard({
               recordId={recordId}
             />
           </div>
+          <div className="min-w-0 flex-1">{content}</div>
         </div>
       ) : (
         content
@@ -693,6 +697,25 @@ function KanbanNode({
     case 'field': {
       const meta = fields[node.name]
       if (!meta) return null
+
+      if (node.widget === 'background_image') {
+        const Widget = getFieldWidget(
+          { type: 'field', name: node.name, widget: node.widget, options: node.options },
+          meta.type,
+        )
+        return (
+          <Widget
+            field={{ type: 'field', name: node.name, widget: node.widget, options: node.options }}
+            value={record[node.name]}
+            onChange={NOOP}
+            readOnly
+            meta={meta}
+            record={record}
+            model={model}
+            recordId={recordId}
+          />
+        )
+      }
 
       if (
         node.widget === 'image' &&
@@ -897,4 +920,21 @@ function KanbanNode({
         </div>
       )
   }
+}
+
+function collectKanbanFieldNames(nodes: KanbanTemplateNode[] | undefined): string[] {
+  if (!nodes?.length) return []
+  const names: string[] = []
+  for (const node of nodes) {
+    if (node.type === 'field' && node.name) names.push(node.name)
+    if (
+      node.type === 'html' ||
+      node.type === 'condition' ||
+      node.type === 'loop' ||
+      node.type === 'footer'
+    ) {
+      names.push(...collectKanbanFieldNames(node.children))
+    }
+  }
+  return names
 }
