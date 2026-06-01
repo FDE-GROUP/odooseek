@@ -1053,6 +1053,27 @@ function isGroupColumnsLayout(elements: FormElement[]): boolean {
   return items.every((e) => e.type === 'group')
 }
 
+/** Tailwind 12-column spans for HR/Odoo `col-lg-N` layout (static classes for JIT). */
+const LAYOUT_COL_SPAN: Record<number, string> = {
+  1: 'lg:col-span-1',
+  2: 'lg:col-span-2',
+  3: 'lg:col-span-3',
+  4: 'lg:col-span-4',
+  5: 'lg:col-span-5',
+  6: 'lg:col-span-6',
+  7: 'lg:col-span-7',
+  8: 'lg:col-span-8',
+  9: 'lg:col-span-9',
+  10: 'lg:col-span-10',
+  11: 'lg:col-span-11',
+  12: 'lg:col-span-12',
+}
+
+function layoutColSpanClass(span?: number): string {
+  const n = span ?? 12
+  return LAYOUT_COL_SPAN[n] ?? 'lg:col-span-12'
+}
+
 function partitionSheetElements(elements: FormElement[]) {
   const buttonBoxes: ButtonBoxElement[] = []
   const titleElements: FormElement[] = []
@@ -1331,6 +1352,38 @@ function FormLayoutNode({
               />
             )
           }
+          case 'layout_row':
+            return (
+              <div
+                key={`layout-row-${i}`}
+                id={el.id}
+                className="o_form_layout_row mb-4 grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-6"
+              >
+                {el.columns.map((col, ci) => (
+                  <div
+                    key={`layout-col-${ci}`}
+                    id={col.id}
+                    className={`o_form_layout_column min-w-0 ${layoutColSpanClass(col.colSpan)} ${col.class?.includes('o_hr_column') ? 'o_hr_column' : ''}`}
+                  >
+                    <FormLayoutNode
+                      elements={col.elements}
+                      record={record}
+                      fields={fields}
+                      model={model}
+                      recordId={recordId}
+                      editMode={editMode}
+                      onChange={onChange}
+                      onAction={onAction}
+                      onButtonAction={onButtonAction}
+                      session={session}
+                      level={level + 1}
+                    />
+                  </div>
+                ))}
+              </div>
+            )
+          case 'layout_column':
+            return null
           case 'group': {
             if (!passesXmlGroups(el.groups, session)) return null
             if (evalModifier(el.invisible, record)) return null

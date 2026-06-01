@@ -116,9 +116,28 @@ export type FormElement =
   | NewlineElement
   | LabelElement
   | TitleBlockElement
+  | LayoutRowElement
+  | LayoutColumnElement
 
 export interface TitleBlockElement {
   type: 'title_block'
+  elements: FormElement[]
+}
+
+/** Bootstrap row (e.g. HR Work tab `col-lg-7` + `col-lg-5`). */
+export interface LayoutRowElement {
+  type: 'layout_row'
+  id?: string
+  class?: string
+  columns: LayoutColumnElement[]
+}
+
+export interface LayoutColumnElement {
+  type: 'layout_column'
+  id?: string
+  class?: string
+  /** Bootstrap 12-grid span from `col-lg-N` / `col-N`. */
+  colSpan?: number
   elements: FormElement[]
 }
 

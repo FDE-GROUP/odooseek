@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import type { ViewField } from '../types'
+import type { FormElement, ViewField } from '../types'
 import {
+  parseBootstrapColSpan,
   parseCalendarXml,
   parseFormXml,
   parseGraphXml,
@@ -57,7 +58,56 @@ describe('parseListXml', () => {
   })
 })
 
+describe('parseBootstrapColSpan', () => {
+  test('reads col-lg-7 and col-lg-5', () => {
+    expect(parseBootstrapColSpan('o_hr_column col-lg-7 d-flex')).toBe(7)
+    expect(parseBootstrapColSpan('col-lg-5')).toBe(5)
+  })
+})
+
 describe('parseFormXml', () => {
+  test('parses HR work tab row with org chart column', () => {
+    const xml = `<form string="Employee">
+      <sheet>
+        <notebook>
+          <page string="Work">
+            <div class="row" id="o_hr_work_information_container">
+              <div id="o_work_information" class="o_hr_column col-lg-7 d-flex flex-column">
+                <group string="work">
+                  <field name="department_id"/>
+                </group>
+              </div>
+              <div id="o_employee_org_chart" class="o_hr_column col-lg-5">
+                <field name="child_ids" widget="hr_org_chart" nolabel="1"/>
+              </div>
+            </div>
+          </page>
+        </notebook>
+      </sheet>
+    </form>`
+
+    const result = parseFormXml(xml)
+    const sheet = result.elements[0] as { type: 'sheet'; elements: FormElement[] }
+    const notebook = sheet.elements[0] as {
+      type: 'notebook'
+      pages: { elements: FormElement[] }[]
+    }
+    const row = notebook.pages[0].elements[0] as {
+      type: 'layout_row'
+      id?: string
+      columns: { type: string; colSpan?: number; elements: FormElement[] }[]
+    }
+    expect(row.type).toBe('layout_row')
+    expect(row.id).toBe('o_hr_work_information_container')
+    expect(row.columns).toHaveLength(2)
+    expect(row.columns[0].colSpan).toBe(7)
+    expect(row.columns[1].colSpan).toBe(5)
+    const orgField = row.columns[1].elements.find(
+      (e) => e.type === 'field' && e.name === 'child_ids',
+    )
+    expect(orgField).toMatchObject({ widget: 'hr_org_chart' })
+  })
+
   test('parses basic form with sheet', () => {
     const xml = `<form string="Partner">
       <sheet>

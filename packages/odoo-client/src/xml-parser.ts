@@ -127,6 +127,50 @@ function parseButtonBox(el: Element): ButtonBoxElement {
   return { type: 'button_box', name: el.getAttribute('name') ?? undefined, buttons }
 }
 
+/** Parse `col-lg-7` / `col-6` from Bootstrap column classes (12-grid). */
+export function parseBootstrapColSpan(className: string): number | undefined {
+  const lg = className.match(/\bcol-lg-(\d{1,2})\b/)
+  if (lg) {
+    const n = Number(lg[1])
+    if (n >= 1 && n <= 12) return n
+  }
+  const col = className.match(/\bcol-(\d{1,2})\b/)
+  if (col) {
+    const n = Number(col[1])
+    if (n >= 1 && n <= 12) return n
+  }
+  return undefined
+}
+
+function isLayoutRowDiv(el: Element): boolean {
+  const cls = el.getAttribute('class') ?? ''
+  const classes = cls.split(/\s+/).filter(Boolean)
+  if (classes.includes('row')) return true
+  const id = el.getAttribute('id') ?? ''
+  if (!id.endsWith('_container')) return false
+  return Array.from(el.children).some(
+    (c) => c.tagName === 'div' && /\bcol(-lg)?-\d+/.test(c.getAttribute('class') ?? ''),
+  )
+}
+
+function parseLayoutRow(el: Element): FormElement {
+  const columns = Array.from(el.children)
+    .filter((c) => c.tagName === 'div')
+    .map((col) => ({
+      type: 'layout_column' as const,
+      id: col.getAttribute('id') ?? undefined,
+      class: col.getAttribute('class') ?? undefined,
+      colSpan: parseBootstrapColSpan(col.getAttribute('class') ?? ''),
+      elements: parseFormElements(col),
+    }))
+  return {
+    type: 'layout_row',
+    id: el.getAttribute('id') ?? undefined,
+    class: el.getAttribute('class') ?? undefined,
+    columns,
+  }
+}
+
 function parseFormElements(container: Element): FormElement[] {
   const elements: FormElement[] = []
 
@@ -147,6 +191,11 @@ function parseFormElements(container: Element): FormElement[] {
           type: 'title_block',
           elements: parseFormElements(child),
         })
+      } else if (isLayoutRowDiv(child)) {
+        elements.push(parseLayoutRow(child))
+      } else {
+        const nested = parseFormElements(child)
+        if (nested.length > 0) elements.push(...nested)
       }
     } else if (tag === 'h1' || tag === 'h2' || tag === 'h3') {
       elements.push(...parseFormElements(child))

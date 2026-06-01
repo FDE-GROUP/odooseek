@@ -37,5 +37,6 @@ export type {
   ReadGroupResult, O2mCommand, O2mSubView, O2mFormSubView, KanbanProgressbar,
   ControlButton, ButtonBoxElement, StatButtonElement, StatButtonContent,
   SeparatorElement, NewlineElement, LabelElement, SheetElement, TitleBlockElement,
+  LayoutRowElement, LayoutColumnElement,
   ListButtonElement, ListButtonGroup,
 } from './types'
