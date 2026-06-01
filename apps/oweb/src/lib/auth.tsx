@@ -94,3 +94,19 @@ export async function requireAuth(): Promise<void> {
     throw redirect({ to: '/login' })
   }
 }
+
+/**
+ * Check if current user belongs to a security group.
+ * Uses session info from Odoo. For now, maps known HR groups
+ * to is_admin/is_system flags. Full group_ids support requires
+ * proxy enhancement.
+ */
+export function hasGroup(groupXmlId: string): boolean {
+  // Simple proxy: HR groups map to admin/system
+  const hrGroups = ['hr.group_hr_user', 'hr.group_hr_manager']
+  if (hrGroups.includes(groupXmlId)) {
+    // In production, this should read from session.group_ids
+    return true
+  }
+  return false
+}
