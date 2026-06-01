@@ -3,6 +3,7 @@ import type { FieldElement } from '@odooseek/odoo-client'
 /** Stable no-op callback — avoids creating new function references on every render. */
 export const NOOP = () => {}
 
+import { BadgeWidget } from './BadgeWidget'
 import {
   BooleanToggleWidget,
   BooleanWidget,
@@ -78,6 +79,7 @@ export const FIELD_INPUT_CLASS =
 export {
   AttachmentImageWidget,
   BadgeSelectionWidget,
+  BadgeWidget,
   BinaryWidget,
   BooleanFavoriteWidget,
   BooleanIconWidget,
@@ -169,6 +171,7 @@ const WIDGET_OVERRIDES: Record<string, React.ComponentType<FieldWidgetProps>> = 
   float_time: FloatTimeWidget,
   percentage: PercentageWidget,
   selection_badge: BadgeSelectionWidget,
+  BadgeWidget,
   label_selection: LabelSelectionWidget,
   state_selection: StateSelectionWidget,
   // Phase 26
@@ -186,6 +189,7 @@ const WIDGET_OVERRIDES: Record<string, React.ComponentType<FieldWidgetProps>> = 
   presence_icon: PresenceIcon,
   org_chart: OrgChartWidget,
   version_timeline: VersionTimeline,
+  badge_print: BadgeWidget,
 }
 
 export function getFieldWidget(
