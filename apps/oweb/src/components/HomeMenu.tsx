@@ -28,6 +28,8 @@ const ICON_FALLBACK: Record<string, string> = {
   Calendar: 'oi oi-schedule-today',
   Settings: 'oi oi-settings-adjust',
   Apps: 'oi oi-apps',
+  Employees: 'oi oi-user-profile',
+  'Human Resources': 'oi oi-user-profile',
 }
 
 function getAppIconClass(app: OdooMenuEntry): string | null {

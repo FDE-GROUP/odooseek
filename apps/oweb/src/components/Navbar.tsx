@@ -61,6 +61,7 @@ export function Navbar() {
       sale: 'sale',
       inventory: 'stock',
       accounting: 'account',
+      hr: 'hr',
     }
     const topSegment = currentPath.split('/')[1]
     const knownModule = routeAppMap[topSegment]

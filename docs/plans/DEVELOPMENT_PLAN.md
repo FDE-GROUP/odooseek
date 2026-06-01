@@ -606,5 +606,27 @@ packages/odoo-types/    ← 16 models × 150 rows 生成类型 · 零运行时
 
 ---
 
-**文档版本**: 10.0 (Phase 23-40 完成)
+**文档版本**: 11.0 (Phase 41 开始)
 **更新日期**: 2026-06-01
+
+---
+
+## 三十二、Phase 41-47：HR 模块原生功能对齐 🚧 进行中 (6/1)
+
+> 详细技术方案：`HR_ALIGNMENT_PLAN.md`
+
+| Phase | Issue | 内容 |
+|:-----:|:-----:|------|
+| 41 | #151 | 基础对齐：专属路由（/hr/employees, /hr/employee/$id, /hr/departments, /hr/directory）+ codegen 10 模型类型 + Navbar 菜单映射 |
+| 42 | #152 | 组织架构图 widget（react-d3-tree）+ 考勤状态图标（4 种 present/absent/away/off） |
+| 43 | #153 | hr.version 版本化架构：timeline 选择器、历史版本浏览（只读）、版本对比 |
+| 44 | #154 | 印章打印：employee badge QWeb-PDF 报告 |
+| 45 | #155 | Wizard 系统：多步对话框（离职/薪资分配/合同模板） |
+| 46 | #156 | 安全集成：hasGroup() + 字段可见性 + 公开目录 |
+| 47 | #157 | HR 设置面板 + 演示数据 |
+
+**Phase 41 文件**:
+- `apps/oweb/src/routes/hr/` — 6 个新路由文件（index, employees, employee.$id, departments, department.$id, directory）
+- `packages/odoo-codegen/config/models.json` — 新增 10 个 HR 模型
+- `apps/oweb/src/components/Navbar.tsx` — routeAppMap 添加 `hr: 'hr'`
+- `apps/oweb/src/components/HomeMenu.tsx` — Employees/Human Resources 图标
