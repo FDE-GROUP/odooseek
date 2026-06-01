@@ -57,6 +57,7 @@ import {
   UrlWidget,
   WebRibbonWidget,
 } from './utility'
+import { VersionTimeline } from './VersionTimeline'
 
 export interface FieldWidgetProps {
   field: FieldElement
@@ -119,6 +120,7 @@ export {
   StatusbarWidget,
   TextWidget,
   UrlWidget,
+  VersionTimeline,
 }
 
 // ── Widget Registry ─────────────────────────────────────────────────
@@ -183,6 +185,7 @@ const WIDGET_OVERRIDES: Record<string, React.ComponentType<FieldWidgetProps>> = 
   // HR
   presence_icon: PresenceIcon,
   org_chart: OrgChartWidget,
+  version_timeline: VersionTimeline,
 }
 
 export function getFieldWidget(
