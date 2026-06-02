@@ -5,6 +5,7 @@ import {
   generateReport,
   getCachedViews,
   type OdooAction,
+  orderedViewTypesFromActWindow,
   parseSearchXml,
   setCachedViews,
 } from '@odooseek/odoo-client'
@@ -13,6 +14,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import { ControlPanel } from '../components/ControlPanel'
 import { DataExportDialog } from '../components/DataExportDialog'
 import { type FormDialogItem, FormDialogOverlay } from '../components/FormDialog'
+import type { FormEditActionsProps } from '../components/FormEditActions'
 import { ImportDialog } from '../components/ImportDialog'
 import { SearchPanel } from '../components/SearchPanel'
 import {
@@ -29,10 +31,11 @@ import { useRecordActions } from '../hooks/useRecordActions'
 import { useToast } from '../hooks/useToast'
 import { HR_EMPLOYEE_MODEL } from '../lib/hr'
 import { HR_WIZARD_STEPS } from '../lib/hr-wizards'
-import type { ListPagerInfo } from './list-pager'
-import { OdooListRenderer } from './OdooListRenderer'
 
 // Lazy-loaded views — only fetched when the user switches to that view type
+const OdooListRenderer = lazy(() =>
+  import('./OdooListRenderer').then((m) => ({ default: m.OdooListRenderer })),
+)
 const OdooFormRenderer = lazy(() =>
   import('./OdooFormRenderer').then((m) => ({ default: m.OdooFormRenderer })),
 )
@@ -114,6 +117,29 @@ export function OdooViewLoader({
   const [internalViewType, setInternalViewType] = useState(viewType)
   const [_internalRecordId, setInternalRecordId] = useState<number | undefined>(_recordId)
   const toast = useToast()
+  const [formEditActions, setFormEditActions] = useState<FormEditActionsProps | null>(null)
+  const handleFormEditActionsChange = useCallback((actions: FormEditActionsProps | null) => {
+    setFormEditActions((prev) => {
+      if (prev === actions) return prev
+      if (!prev && !actions) return prev
+      if (
+        prev &&
+        actions &&
+        prev.editMode === actions.editMode &&
+        prev.isDirty === actions.isDirty &&
+        prev.justSaved === actions.justSaved &&
+        prev.saveError === actions.saveError &&
+        prev.isSaving === actions.isSaving &&
+        prev.compact === actions.compact &&
+        prev.onEdit === actions.onEdit &&
+        prev.onSave === actions.onSave &&
+        prev.onCancel === actions.onCancel
+      ) {
+        return prev
+      }
+      return actions
+    })
+  }, [])
 
   // Sync external props when they change
   useEffect(() => {
@@ -140,14 +166,15 @@ export function OdooViewLoader({
   const [showExport, setShowExport] = useState(false)
   const [searchPanelDomain, setSearchPanelDomain] = useState<unknown[]>([])
   const [mobileSearchPanelOpen, setMobileSearchPanelOpen] = useState(false)
-  const [listPager, setListPager] = useState<ListPagerInfo | null>(null)
   useEffect(() => {
     setRecordId(_recordId)
+    setInternalRecordId(_recordId)
   }, [_recordId])
 
   useEffect(() => {
-    if (viewType !== 'list') setListPager(null)
-  }, [viewType])
+    setRecordId(undefined)
+    setInternalRecordId(undefined)
+  }, [model])
 
   const effectiveDomain = useMemo(
     () => [...initialDomain, ...domain, ...searchPanelDomain],
@@ -186,7 +213,8 @@ export function OdooViewLoader({
           return
         }
         if (action.res_model) {
-          const newViewType = (action.view_mode?.split(',')[0] as ViewType) ?? 'list'
+          const newViewType =
+            orderedViewTypesFromActWindow(action.view_mode, action.views)[0] ?? 'list'
           if (action.res_id) {
             onRowClick?.(action.res_id)
           } else if (action.res_model !== model || newViewType !== viewType) {
@@ -525,23 +553,12 @@ export function OdooViewLoader({
         onPrintAction={handlePrintAction}
         model={model}
         selectedIds={recordId ? [recordId] : []}
-        pagerProps={
-          viewType === 'list' && listPager
-            ? {
-                visible: true,
-                offset: listPager.offset,
-                total: listPager.total,
-                limit: listPager.limit,
-                onPageChange: listPager.onPageChange,
-                onLimitChange: listPager.onLimitChange,
-              }
-            : undefined
-        }
         onDuplicate={viewType === 'form' && recordId ? handleDuplicate : undefined}
         onArchive={viewType === 'form' && recordId ? handleArchive : undefined}
         onUnarchive={viewType === 'form' && recordId ? handleUnarchive : undefined}
         onDelete={viewType === 'form' && recordId ? handleDelete : undefined}
         hasActiveField={hasActiveField}
+        formEditActions={viewType === 'form' ? formEditActions : null}
         searchPanelToggle={
           searchPanel
             ? {
@@ -554,16 +571,16 @@ export function OdooViewLoader({
       />
       {viewType === 'list' && (
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <OdooListRenderer
-            model={model}
-            arch={activeView.arch}
-            fields={fields}
-            domain={effectiveDomain}
-            groupBy={groupBy}
-            onRowClick={onRowClick}
-            externalPager
-            onPagerChange={setListPager}
-          />
+          <Suspense fallback={<ListSkeleton />}>
+            <OdooListRenderer
+              model={model}
+              arch={activeView.arch}
+              fields={fields}
+              domain={effectiveDomain}
+              groupBy={groupBy}
+              onRowClick={onRowClick}
+            />
+          </Suspense>
         </div>
       )}
       {viewType === 'form' && (
@@ -581,6 +598,8 @@ export function OdooViewLoader({
                   onRecordCreated={onRecordCreated}
                   onDirtyChange={onDirtyChange}
                   onAction={handleFormAction}
+                  externalEditActions
+                  onEditActionsChange={handleFormEditActionsChange}
                 />
               </HrVersionProvider>
             ) : (
@@ -594,6 +613,8 @@ export function OdooViewLoader({
                 onRecordCreated={onRecordCreated}
                 onDirtyChange={onDirtyChange}
                 onAction={handleFormAction}
+                externalEditActions
+                onEditActionsChange={handleFormEditActionsChange}
               />
             )}
           </div>

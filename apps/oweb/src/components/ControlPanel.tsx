@@ -1,8 +1,11 @@
 import type { ViewToolbar, ViewType } from '@odooseek/odoo-client'
-import { useState } from 'react'
-import { ChevronDown, Filter } from '@/lib/lucide-icons'
+import { useEffect, useRef, useState } from 'react'
+import { ChevronDown, Filter, Plus } from '@/lib/lucide-icons'
 import { OdooViewSwitcher } from '../views/OdooViewSwitcher'
+import { AnchoredDropdown } from './AnchoredDropdown'
 import { Breadcrumbs } from './Breadcrumbs'
+import { cpAccentTintPill, cpNeutralPill, cpPillBtn } from './control-panel-styles'
+import { FormEditActions, type FormEditActionsProps } from './FormEditActions'
 import { Pagination } from './Pagination'
 import { SearchBar, type SearchBarProps } from './SearchBar'
 
@@ -47,6 +50,8 @@ export interface ControlPanelProps {
   onExport?: () => void
   /** Mobile drawer toggle for left SearchPanel (visible only below md). */
   searchPanelToggle?: { visible: boolean; open: boolean; onToggle: () => void }
+  /** Form view: Edit / Save / Cancel (shown before Action menu). */
+  formEditActions?: FormEditActionsProps | null
 }
 
 export function ControlPanel({
@@ -70,8 +75,41 @@ export function ControlPanel({
   onExport,
   selectedIds,
   searchPanelToggle,
+  formEditActions,
 }: ControlPanelProps) {
   const [openMenu, setOpenMenu] = useState<'print' | 'action' | null>(null)
+  const printBtnRef = useRef<HTMLButtonElement>(null)
+  const actionBtnRef = useRef<HTMLButtonElement>(null)
+  const menuCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const clearMenuCloseTimer = () => {
+    if (menuCloseTimerRef.current) {
+      clearTimeout(menuCloseTimerRef.current)
+      menuCloseTimerRef.current = null
+    }
+  }
+
+  const openMenuOnHover = (menu: 'print' | 'action') => {
+    clearMenuCloseTimer()
+    setOpenMenu(menu)
+  }
+
+  const scheduleMenuClose = () => {
+    clearMenuCloseTimer()
+    menuCloseTimerRef.current = setTimeout(() => setOpenMenu(null), 200)
+  }
+
+  useEffect(() => () => clearMenuCloseTimer(), [])
+
+  const menuHoverHandlers = (menu: 'print' | 'action') => ({
+    onMouseEnter: () => openMenuOnHover(menu),
+    onMouseLeave: scheduleMenuClose,
+  })
+
+  const menuPanelHoverHandlers = {
+    onPanelMouseEnter: clearMenuCloseTimer,
+    onPanelMouseLeave: scheduleMenuClose,
+  }
 
   const hasPrint = (toolbar?.print?.length ?? 0) > 0
   const hasAction =
@@ -95,11 +133,175 @@ export function ControlPanel({
     setOpenMenu(null)
   }
 
+  const showCreateButton = showCreate && !!onCreateClick && currentView !== 'form'
+
+  const showSecondaryToolbar =
+    !!formEditActions ||
+    showMenus ||
+    (!!onImport && currentView !== 'form') ||
+    (!!onExport && currentView !== 'form')
+
+  const createButton = showCreateButton ? (
+    <button type="button" onClick={onCreateClick} className={cpAccentTintPill()}>
+      <Plus className="h-3.5 w-3.5" aria-hidden />
+      Create
+    </button>
+  ) : null
+
+  const secondaryToolbar = showSecondaryToolbar ? (
+    <div className="flex shrink-0 flex-wrap items-center gap-2">
+      {showMenus && (
+        <div className="flex items-center gap-1">
+          {hasPrint && (
+            <div className="relative" {...menuHoverHandlers('print')}>
+              <button
+                ref={printBtnRef}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  openMenuOnHover('print')
+                }}
+                className={cpNeutralPill()}
+              >
+                Print
+                <ChevronDown className="h-3 w-3" />
+              </button>
+              <AnchoredDropdown
+                open={openMenu === 'print'}
+                onClose={() => setOpenMenu(null)}
+                anchorRef={printBtnRef}
+                width={176}
+                closeOnBackdropClick={false}
+                {...menuPanelHoverHandlers}
+              >
+                {toolbar?.print.map((a) => (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => handlePrintAction(a.id)}
+                    className="flex w-full items-center px-3 py-2 text-left text-xs text-text-primary hover:bg-hover/50"
+                  >
+                    {a.name}
+                  </button>
+                ))}
+              </AnchoredDropdown>
+            </div>
+          )}
+          {formEditActions && <FormEditActions {...formEditActions} />}
+          {hasAction && (
+            <div className="relative" {...menuHoverHandlers('action')}>
+              <button
+                ref={actionBtnRef}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  openMenuOnHover('action')
+                }}
+                className={cpNeutralPill()}
+              >
+                Action
+                <ChevronDown className="h-3 w-3" />
+              </button>
+              <AnchoredDropdown
+                open={openMenu === 'action'}
+                onClose={() => setOpenMenu(null)}
+                anchorRef={actionBtnRef}
+                width={192}
+                closeOnBackdropClick={false}
+                {...menuPanelHoverHandlers}
+              >
+                {toolbar?.action?.map((a) => (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => handleActionExecuted(a.id)}
+                    className="flex w-full items-center px-3 py-2 text-left text-xs text-text-primary hover:bg-hover/50"
+                  >
+                    {a.name}
+                  </button>
+                ))}
+                {onDuplicate && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onDuplicate()
+                      setOpenMenu(null)
+                    }}
+                    className="flex w-full items-center px-3 py-2 text-left text-xs text-text-primary hover:bg-hover/50"
+                  >
+                    Duplicate
+                  </button>
+                )}
+                {onArchive && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onArchive()
+                      setOpenMenu(null)
+                    }}
+                    className="flex w-full items-center px-3 py-2 text-left text-xs text-text-primary hover:bg-hover/50"
+                  >
+                    Archive
+                  </button>
+                )}
+                {onUnarchive && hasActiveField && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onUnarchive()
+                      setOpenMenu(null)
+                    }}
+                    className="flex w-full items-center px-3 py-2 text-left text-xs text-text-primary hover:bg-hover/50"
+                  >
+                    Unarchive
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onDelete()
+                      setOpenMenu(null)
+                    }}
+                    className="flex w-full items-center px-3 py-2 text-left text-xs text-danger hover:bg-danger/10"
+                  >
+                    Delete
+                  </button>
+                )}
+              </AnchoredDropdown>
+            </div>
+          )}
+        </div>
+      )}
+      {onImport && currentView !== 'form' && (
+        <button
+          type="button"
+          onClick={onImport}
+          className={cpPillBtn(
+            'border border-border-default text-text-secondary hover:bg-hover hover:text-text-primary',
+          )}
+        >
+          Import
+        </button>
+      )}
+      {onExport && currentView !== 'form' && (
+        <button
+          type="button"
+          onClick={onExport}
+          className={cpPillBtn(
+            'border border-border-default text-text-secondary hover:bg-hover hover:text-text-primary',
+          )}
+        >
+          Export
+        </button>
+      )}
+    </div>
+  ) : null
+
   return (
     <div className="flex shrink-0 flex-col">
-      {/* Row 1: Breadcrumbs (left) + View Switcher + Menus + Create (right) */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle bg-surface/30 px-4 py-0">
-        {breadcrumbs && (
+      {breadcrumbs && (
+        <div className="border-b border-border-subtle bg-surface/30 px-4 py-1.5">
           <Breadcrumbs
             model={breadcrumbs.model}
             viewType={breadcrumbs.viewType}
@@ -107,185 +309,55 @@ export function ControlPanel({
             recordName={breadcrumbs.recordName}
             onBackToList={breadcrumbs.onBackToList}
           />
-        )}
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-          {showMenus && (
-            <div className="flex items-center gap-1">
-              {hasPrint && (
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setOpenMenu(openMenu === 'print' ? null : 'print')
-                    }}
-                    className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-text-secondary hover:bg-hover hover:text-text-primary"
-                  >
-                    Print
-                    <ChevronDown className="h-3 w-3" />
-                  </button>
-                  {openMenu === 'print' && (
-                    <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-lg border border-border-subtle bg-surface shadow-lg">
-                      {toolbar?.print.map((a) => (
-                        <button
-                          key={a.id}
-                          type="button"
-                          onClick={() => handlePrintAction(a.id)}
-                          className="flex w-full items-center px-3 py-2 text-left text-xs text-text-primary hover:bg-hover/50"
-                        >
-                          {a.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-              {hasAction && (
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setOpenMenu(openMenu === 'action' ? null : 'action')
-                    }}
-                    className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-text-secondary hover:bg-hover hover:text-text-primary"
-                  >
-                    Action
-                    <ChevronDown className="h-3 w-3" />
-                  </button>
-                  {openMenu === 'action' && (
-                    <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-border-subtle bg-surface shadow-lg">
-                      {toolbar?.action?.map((a) => (
-                        <button
-                          key={a.id}
-                          type="button"
-                          onClick={() => handleActionExecuted(a.id)}
-                          className="flex w-full items-center px-3 py-2 text-left text-xs text-text-primary hover:bg-hover/50"
-                        >
-                          {a.name}
-                        </button>
-                      ))}
-                      {onDuplicate && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            onDuplicate()
-                            setOpenMenu(null)
-                          }}
-                          className="flex w-full items-center px-3 py-2 text-left text-xs text-text-primary hover:bg-hover/50"
-                        >
-                          Duplicate
-                        </button>
-                      )}
-                      {onArchive && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            onArchive()
-                            setOpenMenu(null)
-                          }}
-                          className="flex w-full items-center px-3 py-2 text-left text-xs text-text-primary hover:bg-hover/50"
-                        >
-                          Archive
-                        </button>
-                      )}
-                      {onUnarchive && hasActiveField && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            onUnarchive()
-                            setOpenMenu(null)
-                          }}
-                          className="flex w-full items-center px-3 py-2 text-left text-xs text-text-primary hover:bg-hover/50"
-                        >
-                          Unarchive
-                        </button>
-                      )}
-                      {onDelete && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            onDelete()
-                            setOpenMenu(null)
-                          }}
-                          className="flex w-full items-center px-3 py-2 text-left text-xs text-danger hover:bg-danger/10"
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
+        </div>
+      )}
+
+      {/* Create → Search → Print/Action/Import/Export | view switcher (right) */}
+      {(showSearch || createButton || secondaryToolbar || showViewSwitcher) && (
+        <div className="flex flex-wrap items-center gap-2 border-b border-border-subtle px-4 py-2 md:flex-nowrap md:gap-3">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+            {showSearch && searchPanelToggle?.visible && (
+              <button
+                type="button"
+                onClick={searchPanelToggle.onToggle}
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium md:hidden ${
+                  searchPanelToggle.open
+                    ? 'border-accent bg-accent/10 text-accent'
+                    : 'border-border-default text-text-secondary hover:bg-hover'
+                }`}
+                aria-expanded={searchPanelToggle.open}
+                aria-label="Toggle category filters"
+              >
+                <Filter className="h-3.5 w-3.5" />
+                Filters
+              </button>
+            )}
+            {createButton}
+            {showSearch && (
+              <div className="min-w-0 w-full flex-1 basis-full md:w-auto md:max-w-xl md:basis-auto">
+                <SearchBar
+                  compact
+                  onSearch={searchProps.onSearch}
+                  onGroupByChange={searchProps.onGroupByChange}
+                  placeholder={searchProps.placeholder}
+                  searchFields={searchProps.searchFields}
+                  filters={searchProps.filters}
+                  groupByFilters={searchProps.groupByFilters}
+                  model={searchProps.model}
+                />
+              </div>
+            )}
+            {secondaryToolbar}
+          </div>
+          {showViewSwitcher && (
+            <div className="ml-auto flex shrink-0">
+              <OdooViewSwitcher
+                currentView={currentView ?? 'list'}
+                onSwitch={onSwitchView}
+                availableViews={availableViews}
+              />
             </div>
           )}
-          {showCreate && onCreateClick && currentView !== 'form' && (
-            <button
-              type="button"
-              onClick={onCreateClick}
-              className="rounded-lg bg-accent px-3 py-1 text-xs font-semibold text-on-accent hover:bg-accent/90"
-            >
-              Create
-            </button>
-          )}
-          {onImport && currentView !== 'form' && (
-            <button
-              type="button"
-              onClick={onImport}
-              className="rounded-lg border border-border-default px-3 py-1 text-xs font-medium text-text-secondary hover:bg-hover"
-            >
-              Import
-            </button>
-          )}
-          {onExport && currentView !== 'form' && (
-            <button
-              type="button"
-              onClick={onExport}
-              className="rounded-lg border border-border-default px-3 py-1 text-xs font-medium text-text-secondary hover:bg-hover"
-            >
-              Export
-            </button>
-          )}
-          {showViewSwitcher && (
-            <OdooViewSwitcher
-              currentView={currentView ?? 'list'}
-              onSwitch={onSwitchView}
-              availableViews={availableViews}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* Row 2: Search bar (full width, only when visible) */}
-      {showSearch && (
-        <div className="flex items-center gap-2 overflow-x-auto border-b border-border-subtle p-4">
-          {searchPanelToggle?.visible && (
-            <button
-              type="button"
-              onClick={searchPanelToggle.onToggle}
-              className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium md:hidden ${
-                searchPanelToggle.open
-                  ? 'border-accent bg-accent/10 text-accent'
-                  : 'border-border-default text-text-secondary hover:bg-hover'
-              }`}
-              aria-expanded={searchPanelToggle.open}
-              aria-label="Toggle category filters"
-            >
-              <Filter className="h-3.5 w-3.5" />
-              Filters
-            </button>
-          )}
-          <div className="min-w-0 flex-1">
-            <SearchBar
-              onSearch={searchProps.onSearch}
-              onGroupByChange={searchProps.onGroupByChange}
-              placeholder={searchProps.placeholder}
-              searchFields={searchProps.searchFields}
-              filters={searchProps.filters}
-              groupByFilters={searchProps.groupByFilters}
-              model={searchProps.model}
-            />
-          </div>
         </div>
       )}
 

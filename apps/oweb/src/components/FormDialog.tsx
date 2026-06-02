@@ -1,10 +1,15 @@
 import type { OdooAction, OdooFieldMeta } from '@odooseek/odoo-client'
 import { callKw } from '@odooseek/odoo-client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import React, { Suspense, useCallback, useMemo, useRef } from 'react'
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useToast } from '../hooks/useToast'
 import { ACTIVITY_DIALOG_WIZARD_MODELS, parseActionContext } from '../lib/activity-actions'
 import type { OdooFormRendererRef } from '../views/OdooFormRenderer'
+
+const LazyFormDialogInner = lazy(() =>
+  import('./FormDialogInner').then((m) => ({ default: m.FormDialogInner })),
+)
 
 interface FormDialogItem {
   id: number
@@ -48,7 +53,10 @@ function FormDialogBody({
   zIndex: number
 }) {
   const queryClient = useQueryClient()
+  const toast = useToast()
   const formRef = useRef<OdooFormRendererRef>(null)
+  const failureNotifiedRef = useRef(false)
+  const [dismissed, setDismissed] = useState(false)
   const action = item.action
   const model = action.res_model ?? parentModel
   const actionContext = useMemo(() => parseActionContext(action.context), [action.context])
@@ -56,7 +64,12 @@ function FormDialogBody({
     action.views && action.views.length > 0 && action.views[0][0] ? action.views[0][0] : undefined
   const needsWizardCreate = ACTIVITY_DIALOG_WIZARD_MODELS.has(model)
 
-  const { data: wizardRecordId, isLoading: isCreatingWizard } = useQuery({
+  const {
+    data: wizardRecordId,
+    isLoading: isCreatingWizard,
+    isError: wizardCreateFailed,
+    error: wizardCreateError,
+  } = useQuery({
     queryKey: ['odoo', 'dialog', 'wizard-create', model, item.id, actionContext],
     queryFn: () => callKw<number>(model, 'create', [{}], { context: actionContext }),
     enabled: needsWizardCreate && !action.res_id,
@@ -68,7 +81,12 @@ function FormDialogBody({
 
   const canLoadForm = !needsWizardCreate || dialogRecordId != null
 
-  const { data: viewData, isLoading } = useQuery({
+  const {
+    data: viewData,
+    isLoading: isLoadingViews,
+    isError: viewsLoadFailed,
+    error: viewsLoadError,
+  } = useQuery({
     queryKey: ['odoo', 'dialog', 'get_views', model, item.id, dialogRecordId],
     queryFn: async () => {
       const data = await callKw<{
@@ -79,6 +97,7 @@ function FormDialogBody({
     },
     enabled: canLoadForm,
     staleTime: 5 * 60_000,
+    retry: false,
   })
 
   const handleClose = useCallback(() => {
@@ -93,7 +112,56 @@ function FormDialogBody({
   const activeView = viewData?.views?.form
   const fields: Record<string, OdooFieldMeta> = viewData?.models?.[model]?.fields ?? {}
 
+  const notifyFailure = useCallback(
+    (message: string) => {
+      if (failureNotifiedRef.current) return
+      failureNotifiedRef.current = true
+      setDismissed(true)
+      toast.error(message)
+      handleClose()
+    },
+    [toast, handleClose],
+  )
+
+  useEffect(() => {
+    failureNotifiedRef.current = false
+    setDismissed(false)
+  }, [item.id])
+
+  useEffect(() => {
+    if (wizardCreateFailed) {
+      const msg =
+        wizardCreateError instanceof Error ? wizardCreateError.message : 'Failed to open dialog'
+      notifyFailure(msg)
+    }
+  }, [wizardCreateFailed, wizardCreateError, notifyFailure])
+
+  useEffect(() => {
+    if (!canLoadForm || isCreatingWizard || isLoadingViews) return
+    if (viewsLoadFailed) {
+      const msg =
+        viewsLoadError instanceof Error ? viewsLoadError.message : `View not found for ${model}`
+      notifyFailure(msg)
+      return
+    }
+    if (!activeView) {
+      notifyFailure(`View not found for ${model}`)
+    }
+  }, [
+    canLoadForm,
+    isCreatingWizard,
+    isLoadingViews,
+    viewsLoadFailed,
+    viewsLoadError,
+    activeView,
+    model,
+    notifyFailure,
+  ])
+
   const title = action.name ?? action.display_name ?? model
+  const showForm = Boolean(activeView) && !dismissed
+
+  if (dismissed) return null
 
   return createPortal(
     <div className="fixed inset-0" style={{ zIndex }}>
@@ -111,22 +179,13 @@ function FormDialogBody({
             </button>
           </div>
           <div className="flex-1 overflow-auto">
-            {isLoading || (needsWizardCreate && !dialogRecordId && isCreatingWizard) ? (
+            {!showForm ||
+            isLoadingViews ||
+            (needsWizardCreate && !dialogRecordId && isCreatingWizard) ? (
               <div className="flex items-center justify-center py-12">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" />
               </div>
-            ) : !activeView ? (
-              <div className="p-8 text-center text-sm text-text-muted">
-                <p>View not found for {model}</p>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="mt-3 rounded bg-accent px-3 py-1 text-xs text-on-accent"
-                >
-                  Close
-                </button>
-              </div>
-            ) : (
+            ) : activeView ? (
               <Suspense
                 fallback={
                   <div className="flex items-center justify-center py-12">
@@ -134,7 +193,7 @@ function FormDialogBody({
                   </div>
                 }
               >
-                <FormDialogInner
+                <LazyFormDialogInner
                   ref={formRef}
                   model={model}
                   arch={activeView.arch}
@@ -144,7 +203,7 @@ function FormDialogBody({
                   onClose={handleClose}
                 />
               </Suspense>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
@@ -152,39 +211,3 @@ function FormDialogBody({
     document.body,
   )
 }
-
-const FormDialogInner = React.lazy(() =>
-  import('../views/OdooFormRenderer').then((mod) => {
-    const Inner = React.forwardRef(function Inner(
-      props: {
-        model: string
-        arch: string
-        fields: Record<string, OdooFieldMeta>
-        recordId?: number
-        context?: Record<string, unknown>
-        onClose: () => void
-      },
-      ref: React.Ref<OdooFormRendererRef>,
-    ) {
-      const handleAction = useCallback(
-        (act: OdooAction) => {
-          if (act.type === 'ir.actions.act_window_close') {
-            props.onClose()
-          }
-        },
-        [props.onClose],
-      )
-      return mod.OdooFormRenderer({
-        model: props.model,
-        arch: props.arch,
-        fields: props.fields,
-        recordId: props.recordId,
-        context: props.context,
-        onAction: handleAction,
-        ref,
-      })
-    })
-    Inner.displayName = 'FormDialogInner'
-    return { default: Inner }
-  }),
-)

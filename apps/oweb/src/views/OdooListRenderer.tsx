@@ -29,7 +29,6 @@ import { ExportDialog } from '../components/ExportDialog'
 import { Pagination } from '../components/Pagination'
 import { useDialog } from '../hooks/useDialog'
 import { useRecordActions } from '../hooks/useRecordActions'
-import type { ListPagerInfo } from './list-pager'
 import { getFieldWidget } from './widgets'
 
 function renderListCellContent(content: ReturnType<typeof renderCell>): React.ReactNode {
@@ -56,9 +55,6 @@ interface ListRendererProps {
   domain?: unknown[]
   groupBy?: string[]
   onRowClick?: (recordId: number) => void
-  /** When true, pagination renders in ControlPanel via onPagerChange instead of below the table. */
-  externalPager?: boolean
-  onPagerChange?: (info: ListPagerInfo | null) => void
 }
 
 interface InlineEditState {
@@ -101,8 +97,6 @@ export function OdooListRenderer({
   domain = [],
   groupBy = [],
   onRowClick,
-  externalPager = false,
-  onPagerChange,
 }: ListRendererProps) {
   const t = useTranslations()
   const queryClient = useQueryClient()
@@ -345,21 +339,6 @@ export function OdooListRenderer({
     setLimit(newLimit)
     setOffset(0)
   }, [])
-
-  useEffect(() => {
-    if (!onPagerChange) return
-    if (groupByActive || totalCount == null) {
-      onPagerChange(null)
-      return
-    }
-    onPagerChange({
-      offset,
-      limit,
-      total: totalCount,
-      onPageChange: handlePageChange,
-      onLimitChange: handleLimitChange,
-    })
-  }, [onPagerChange, groupByActive, totalCount, offset, limit, handlePageChange, handleLimitChange])
 
   const invalidateList = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['odoo', 'data', model] })
@@ -1146,53 +1125,44 @@ export function OdooListRenderer({
       <div className="flex shrink-0 items-center justify-between px-1">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold text-text-primary">{listView.string || model}</h3>
-          {!groupByActive && data.length > 0 && listView.exportXlsx !== false && (
-            <>
+          {!groupByActive && data.length > 0 && (
+            <div ref={colMenuRef} className="relative">
               <button
                 type="button"
-                onClick={handleExportClick}
-                className="rounded border border-border-default px-2 py-0.5 text-[10px] text-text-muted hover:bg-hover hover:text-text-primary"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setColMenuOpen(!colMenuOpen)
+                }}
+                className="rounded border border-border-default p-1 text-text-muted hover:bg-hover hover:text-text-primary"
               >
-                Export
+                <Settings className="h-3.5 w-3.5" />
               </button>
-              <div ref={colMenuRef} className="relative">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setColMenuOpen(!colMenuOpen)
-                  }}
-                  className="rounded border border-border-default p-1 text-text-muted hover:bg-hover hover:text-text-primary"
-                >
-                  <Settings className="h-3.5 w-3.5" />
-                </button>
-                {colMenuOpen && (
-                  <div className="absolute left-0 top-full z-50 mt-1 w-48 rounded-lg border border-border-subtle bg-surface p-2 shadow-lg">
-                    <div className="mb-1 text-[10px] font-medium uppercase text-text-muted">
-                      Columns
-                    </div>
-                    {allVisibleColumns.filter(isViewField).map((col) => {
-                      const meta = fields[col.name]
-                      const label = col.string || meta?.string || col.name
-                      return (
-                        <label
-                          key={col.name}
-                          className="flex cursor-pointer items-center gap-2 rounded px-1 py-0.5 text-xs text-text-primary hover:bg-hover"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={!hiddenCols.has(col.name)}
-                            onChange={() => toggleColumn(col.name)}
-                            className="h-4 w-4 cursor-pointer rounded accent-accent"
-                          />
-                          {label}
-                        </label>
-                      )
-                    })}
+              {colMenuOpen && (
+                <div className="absolute left-0 top-full z-50 mt-1 w-48 rounded-lg border border-border-subtle bg-surface p-2 shadow-lg">
+                  <div className="mb-1 text-[10px] font-medium uppercase text-text-muted">
+                    Columns
                   </div>
-                )}
-              </div>
-            </>
+                  {allVisibleColumns.filter(isViewField).map((col) => {
+                    const meta = fields[col.name]
+                    const label = col.string || meta?.string || col.name
+                    return (
+                      <label
+                        key={col.name}
+                        className="flex cursor-pointer items-center gap-2 rounded px-1 py-0.5 text-xs text-text-primary hover:bg-hover"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={!hiddenCols.has(col.name)}
+                          onChange={() => toggleColumn(col.name)}
+                          className="h-4 w-4 cursor-pointer rounded accent-accent"
+                        />
+                        {label}
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -1205,13 +1175,21 @@ export function OdooListRenderer({
               {listView.controlButtons?.find((b) => b.type === 'create')?.string ?? 'Add'}
             </button>
           )}
-          <span className="text-xs text-text-muted">
-            {groupByActive
-              ? `${groupData?.length ?? 0} groups`
-              : totalCount != null
-                ? `${offset + 1}-${Math.min(offset + data.length, totalCount)} / ${totalCount}${listView.countLimit && totalCount >= listView.countLimit ? '+' : ''}`
+          {!groupByActive && totalCount != null ? (
+            <Pagination
+              offset={offset}
+              total={totalCount}
+              limit={limit}
+              onPageChange={handlePageChange}
+              onLimitChange={handleLimitChange}
+            />
+          ) : (
+            <span className="text-xs text-text-muted">
+              {groupByActive
+                ? `${groupData?.length ?? 0} groups`
                 : `${data.length} record${data.length !== 1 ? 's' : ''}`}
-          </span>
+            </span>
+          )}
         </div>
       </div>
 
@@ -1781,16 +1759,6 @@ export function OdooListRenderer({
               )}
             </table>
           </div>
-
-          {!externalPager && !groupByActive && totalCount != null && (
-            <Pagination
-              offset={offset}
-              total={totalCount}
-              limit={limit}
-              onPageChange={handlePageChange}
-              onLimitChange={handleLimitChange}
-            />
-          )}
         </>
       ) : null}
     </div>

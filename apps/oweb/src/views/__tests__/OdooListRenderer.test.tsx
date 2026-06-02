@@ -160,7 +160,7 @@ describe('OdooListRenderer', () => {
     })
   })
 
-  test('Export button is present with data', async () => {
+  test('Export is not shown in list header (use ControlPanel Export)', async () => {
     mockCallKw
       .mockResolvedValueOnce([{ id: 1, name: 'Alice', email: 'a@b.com' }])
       .mockResolvedValueOnce(1)
@@ -168,8 +168,9 @@ describe('OdooListRenderer', () => {
     render(<OdooListRenderer model="res.partner" arch={listArch} fields={fields} />, { wrapper })
 
     await waitFor(() => {
-      expect(screen.getByText('Export')).toBeInTheDocument()
+      expect(screen.getByText('Alice')).toBeInTheDocument()
     })
+    expect(screen.queryByText('Export')).not.toBeInTheDocument()
   })
 })
 

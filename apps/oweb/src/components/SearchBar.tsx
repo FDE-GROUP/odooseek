@@ -108,6 +108,8 @@ export interface SearchBarProps {
   filters?: SearchFilter[]
   groupByFilters?: SearchGroupBy[]
   model?: string
+  /** Match control panel toolbar height (h-7) when embedded in ControlPanel. */
+  compact?: boolean
 }
 
 function combineDomains(domainGroups: unknown[][]): unknown[] {
@@ -150,6 +152,7 @@ export function SearchBar({
   filters = [],
   groupByFilters = [],
   model,
+  compact = false,
 }: SearchBarProps) {
   const [keyword, setKeyword] = useState('')
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set())
@@ -574,8 +577,10 @@ export function SearchBar({
   const hasAny = activeFilterFacets.length > 0 || activeGroupByFacets.length > 0 || !!keyword
 
   return (
-    <div className="relative space-y-2">
-      <div className="relative flex min-w-0 flex-1 items-center rounded-lg border border-border-default bg-surface transition-colors focus-within:border-accent">
+    <div className={compact ? 'relative' : 'relative space-y-2'}>
+      <div
+        className={`relative flex min-w-0 flex-1 items-center rounded-lg border border-border-default bg-surface transition-colors focus-within:border-accent ${compact ? 'h-7' : ''}`}
+      >
         {/* Search icon */}
         <span className="shrink-0 pl-3 text-text-muted">
           <svg
@@ -592,7 +597,9 @@ export function SearchBar({
         </span>
 
         {/* Facets + Input area */}
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1 px-2 py-1">
+        <div
+          className={`flex min-w-0 flex-1 flex-wrap items-center gap-1 px-2 ${compact ? 'py-0' : 'py-1'}`}
+        >
           {activeFilterFacets.map((f, i) => (
             <FacetChip
               key={`facet-f-${i}`}
@@ -631,7 +638,7 @@ export function SearchBar({
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={hasAny ? '' : placeholder}
-            className="min-w-[80px] flex-1 border-0 bg-transparent py-1 text-xs text-text-primary placeholder:text-text-muted outline-none"
+            className={`min-w-[80px] flex-1 border-0 bg-transparent text-xs text-text-primary placeholder:text-text-muted outline-none ${compact ? 'py-0' : 'py-1'}`}
           />
         </div>
 

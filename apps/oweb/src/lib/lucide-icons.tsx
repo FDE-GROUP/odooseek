@@ -20,6 +20,7 @@ export {
   Moon,
   Palette,
   PieChart as PieChartIcon,
+  Plus,
   Search,
   Settings,
   Sun,

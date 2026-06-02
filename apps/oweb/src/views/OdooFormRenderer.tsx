@@ -30,10 +30,12 @@ import { createPortal } from 'react-dom'
 import { ActivityPanel } from '../components/ActivityPanel'
 import { Chatter } from '../components/Chatter'
 import { useConfirmDialog } from '../components/ConfirmDialog'
+import { FormEditActions, type FormEditActionsProps } from '../components/FormEditActions'
 import { FormSheetSkeleton } from '../components/Skeleton'
 import { mergeVersionPreviewIntoRecord, useHrVersion } from '../hooks/HrVersionProvider'
 import { useAuth } from '../lib/auth'
 import { passesXmlGroups } from '../lib/field-access'
+import { readRecordWithFieldFallback, resolveFormReadFields } from '../lib/form-read-fields'
 import { getFieldWidget } from './widgets'
 
 export interface OdooFormRendererRef {
@@ -49,7 +51,12 @@ interface FormRendererProps {
   onRecordCreated?: (newId: number) => void
   onDirtyChange?: (dirty: boolean) => void
   onAction?: (action: OdooAction) => void
+  /** Render Edit/Save/Cancel in ControlPanel via `onEditActionsChange` instead of the form chrome. */
+  externalEditActions?: boolean
+  onEditActionsChange?: (actions: FormEditActionsProps | null) => void
 }
+
+export type { FormEditActionsProps }
 
 export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
   {
@@ -61,6 +68,8 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
     onRecordCreated,
     onDirtyChange,
     onAction,
+    externalEditActions = false,
+    onEditActionsChange,
   }: FormRendererProps,
   ref: React.Ref<OdooFormRendererRef>,
 ) {
@@ -81,11 +90,20 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
   const headerElement = formLayout.elements.find((e): e is HeaderElement => e.type === 'header')
   const nonHeaderElements = formLayout.elements.filter((e) => e.type !== 'header')
 
-  const { data: record } = useQuery({
-    queryKey: ['odoo', 'read', model, recordId],
-    queryFn: () =>
-      callKw<Array<Record<string, unknown>>>(model, 'read', [[recordId], Object.keys(fields)]),
-    enabled: !!recordId,
+  const readFields = useMemo(
+    () => resolveFormReadFields(formLayout.elements, fields, session ?? undefined),
+    [formLayout.elements, fields, session],
+  )
+
+  const {
+    data: record,
+    isLoading: recordLoading,
+    isError: recordError,
+    error: recordErrorDetail,
+  } = useQuery({
+    queryKey: ['odoo', 'read', model, recordId, readFields],
+    queryFn: () => readRecordWithFieldFallback(model, recordId as number, readFields),
+    enabled: !!recordId && readFields.length > 0,
   })
 
   useEffect(() => {
@@ -110,8 +128,10 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
       clearTimeout(onchangeTimer.current)
       onchangeTimer.current = setTimeout(async () => {
         const fieldsSpec: Record<string, unknown> = {}
-        for (const [k, meta] of Object.entries(fields))
-          fieldsSpec[k] = meta.onChange ? { onChange: true } : {}
+        for (const k of readFields) {
+          const meta = fields[k]
+          fieldsSpec[k] = meta?.onChange ? { onChange: true } : {}
+        }
         const result = await callKw<{
           value?: Record<string, unknown>
           warning?: { title: string; message: string; type: string }
@@ -133,12 +153,12 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
         }
       }, 300)
     },
-    [model, newRecordId, fields],
+    [model, newRecordId, fields, readFields],
   )
 
   useEffect(() => {
     if (!recordId && !record) {
-      callKw<Record<string, unknown>>(model, 'default_get', [Object.keys(fields)], { context })
+      callKw<Record<string, unknown>>(model, 'default_get', [readFields], { context })
         .then((defaults) => {
           const merged = { ...defaults }
           for (const [k, v] of Object.entries(context)) {
@@ -158,7 +178,7 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
           setEditMode(true)
         })
     }
-  }, [model, recordId, triggerOnchange, record, fields, context])
+  }, [model, recordId, triggerOnchange, record, readFields, context])
 
   const saveMutation = useMutation({
     mutationFn: (values: Record<string, unknown>) =>
@@ -385,7 +405,52 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
   }, [baseRecord, hrVersion?.isReadonlyPreview, hrVersion?.previewRecord])
   const versionReadOnly = hrVersion?.isReadonlyPreview ?? false
   const effectiveEditMode = editMode && !versionReadOnly
-  const awaitingRecord = !!recordId && !record?.[0]
+  const awaitingRecord = !!recordId && (recordLoading || (!recordError && !record?.[0]))
+
+  const handleEdit = useCallback(() => {
+    if (versionReadOnly) return
+    setFormValues(record?.[0] ? { ...record[0] } : { ...formValues })
+    setEditMode(true)
+  }, [versionReadOnly, record, formValues])
+
+  const showExternalEditActions =
+    !!recordId && !awaitingRecord && !recordError && !!record?.[0] && !versionReadOnly
+
+  useEffect(() => {
+    if (!externalEditActions || !onEditActionsChange) return
+    if (!showExternalEditActions) {
+      onEditActionsChange(null)
+      return
+    }
+    onEditActionsChange({
+      editMode: effectiveEditMode,
+      isDirty,
+      justSaved,
+      saveError,
+      onEdit: handleEdit,
+      onSave: handleSave,
+      onCancel: handleCancel,
+      isSaving: saveMutation.isPending,
+      compact: true,
+    })
+  }, [
+    externalEditActions,
+    onEditActionsChange,
+    showExternalEditActions,
+    effectiveEditMode,
+    isDirty,
+    justSaved,
+    saveError,
+    saveMutation.isPending,
+    handleEdit,
+    handleSave,
+    handleCancel,
+  ])
+
+  useEffect(() => {
+    if (!externalEditActions || !onEditActionsChange) return
+    return () => onEditActionsChange(null)
+  }, [externalEditActions, onEditActionsChange])
 
   if (!formLayout)
     return <div className="p-6 text-sm text-text-muted">Failed to parse form XML</div>
@@ -406,11 +471,8 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
         isDirty={isDirty}
         justSaved={justSaved}
         saveError={saveError}
-        onEdit={() => {
-          if (versionReadOnly) return
-          setFormValues(record?.[0] ? { ...record[0] } : { ...formValues })
-          setEditMode(true)
-        }}
+        hideActionButtons={externalEditActions}
+        onEdit={handleEdit}
         onSave={handleSave}
         onCancel={handleCancel}
         isSaving={saveMutation.isPending}
@@ -433,8 +495,17 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
       >
         <div className={recordId ? 'o_form_main' : 'o_form_main o_form_main--solo'}>
           <div className="o_form_sheet_bg">
-            {awaitingRecord ? (
+            {recordError ? (
+              <div className="rounded border border-danger/30 bg-danger/10 px-4 py-6 text-sm text-danger">
+                Failed to load record {recordId}:{' '}
+                {recordErrorDetail instanceof Error ? recordErrorDetail.message : 'Unknown error'}
+              </div>
+            ) : awaitingRecord ? (
               <FormSheetSkeleton />
+            ) : recordId && !record?.[0] ? (
+              <div className="px-4 py-6 text-sm text-text-muted">
+                Record {recordId} was not found or you may not have access.
+              </div>
             ) : (
               <div className="o_form_sheet">
                 <FormLayoutNode
@@ -550,6 +621,7 @@ function HeaderBar({
   onSave,
   onCancel,
   isSaving,
+  hideActionButtons = false,
 }: {
   headerElement?: HeaderElement
   stateField?: OdooFieldMeta
@@ -565,6 +637,7 @@ function HeaderBar({
   onSave: () => void
   onCancel: () => void
   isSaving: boolean
+  hideActionButtons?: boolean
 }) {
   const [scrolled, setScrolled] = useState(false)
 
@@ -589,15 +662,17 @@ function HeaderBar({
     ? headerElement.buttons.filter((btn) => isButtonVisible(btn, currentRecord, session))
     : []
 
-  const hasContent = stateSelection.length > 1 || visibleButtons.length > 0 || editMode
+  const hasContent =
+    stateSelection.length > 1 || visibleButtons.length > 0 || (editMode && !hideActionButtons)
 
   if (!hasContent) {
+    if (hideActionButtons) return null
     return (
       <div className="sticky top-0 z-20 flex items-center justify-between border-b border-border-subtle bg-surface px-4 py-1.5 transition-shadow">
         <div className="flex items-center gap-2">
           <span />
         </div>
-        <ActionButtons
+        <FormEditActions
           editMode={editMode}
           isDirty={isDirty}
           justSaved={justSaved}
@@ -650,87 +725,19 @@ function HeaderBar({
             <HeaderButtonGroup buttons={visibleButtons} onAction={onAction} />
           )}
         </div>
-        <ActionButtons
-          editMode={editMode}
-          isDirty={isDirty}
-          justSaved={justSaved}
-          saveError={saveError}
-          onEdit={onEdit}
-          onSave={onSave}
-          onCancel={onCancel}
-          isSaving={isSaving}
-        />
+        {!hideActionButtons && (
+          <FormEditActions
+            editMode={editMode}
+            isDirty={isDirty}
+            justSaved={justSaved}
+            saveError={saveError}
+            onEdit={onEdit}
+            onSave={onSave}
+            onCancel={onCancel}
+            isSaving={isSaving}
+          />
+        )}
       </div>
-    </div>
-  )
-}
-
-function ActionButtons({
-  editMode,
-  isDirty,
-  justSaved,
-  saveError,
-  onEdit,
-  onSave,
-  onCancel,
-  isSaving,
-}: {
-  editMode: boolean
-  isDirty: boolean
-  justSaved: boolean
-  saveError: string | null
-  onEdit: () => void
-  onSave: () => void
-  onCancel: () => void
-  isSaving: boolean
-}) {
-  return (
-    <div className="flex items-center gap-2 shrink-0">
-      {saveError && (
-        <span className="flex items-center gap-1.5 rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger transition-all duration-200">
-          <span className="h-1.5 w-1.5 rounded-full bg-danger" />
-          Invalid
-        </span>
-      )}
-      {isDirty && (
-        <span className="flex items-center gap-1.5 rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning transition-all duration-200">
-          <span className="h-1.5 w-1.5 rounded-full bg-warning animate-pulse" />
-          Unsaved
-        </span>
-      )}
-      {justSaved && !isDirty && (
-        <span className="flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success transition-all duration-200">
-          <span className="h-1.5 w-1.5 rounded-full bg-success" />
-          Saved
-        </span>
-      )}
-      {editMode ? (
-        <>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded border border-border-default px-3 py-1 text-xs font-medium text-text-secondary hover:bg-hover"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onSave}
-            disabled={isSaving}
-            className="rounded bg-accent px-3 py-1 text-xs font-semibold text-on-accent hover:bg-accent/90 disabled:opacity-50"
-          >
-            {isSaving ? 'Saving...' : 'Save'}
-          </button>
-        </>
-      ) : (
-        <button
-          type="button"
-          onClick={onEdit}
-          className="rounded bg-accent px-3 py-1 text-xs font-semibold text-on-accent hover:bg-accent/90"
-        >
-          Edit
-        </button>
-      )}
     </div>
   )
 }

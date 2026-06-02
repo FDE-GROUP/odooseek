@@ -6,6 +6,8 @@ import { ControlPanel } from '../ControlPanel'
 
 vi.mock('@/lib/lucide-icons', () => ({
   ChevronDown: () => <span>v</span>,
+  Filter: () => <span>f</span>,
+  Plus: () => <span>+</span>,
 }))
 
 vi.mock('@tanstack/react-router', () => ({
