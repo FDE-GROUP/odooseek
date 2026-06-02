@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { resolveOdooImageFromRecord, resolveOdooImageSrc } from '../odoo-image'
 
 describe('resolveOdooImageSrc', () => {
-  test('returns data URL for base64', () => {
+  test('returns data URL for base64 without record id', () => {
     expect(resolveOdooImageSrc({ raw: 'aGVsbG8=' })).toBe('data:image/png;base64,aGVsbG8=')
   })
 
@@ -28,11 +28,34 @@ describe('resolveOdooImageSrc', () => {
       'https://cdn.example/x.png',
     )
   })
+
+  test('JPEG base64 starting with /9j/ uses web/image when record id is known', () => {
+    const jpegB64 = '/9j/4AAQSkZJRg'
+    expect(
+      resolveOdooImageSrc({
+        raw: jpegB64,
+        model: 'hr.employee',
+        recordId: 3,
+        field: 'image_128',
+      }),
+    ).toBe('/api/web/image/hr.employee/3/image_128')
+  })
+
+  test('JPEG base64 without record id keeps full payload in data URL', () => {
+    const jpegB64 = '/9j/4AAQSkZJRg'
+    expect(resolveOdooImageSrc({ raw: jpegB64 })).toBe(`data:image/jpeg;base64,${jpegB64}`)
+  })
+
+  test('passes through /api/web/image paths', () => {
+    expect(resolveOdooImageSrc({ raw: '/api/web/image/hr.employee/1/image_128' })).toBe(
+      '/api/web/image/hr.employee/1/image_128',
+    )
+  })
 })
 
 describe('resolveOdooImageFromRecord', () => {
-  test('prefers image_128 on record', () => {
-    const src = resolveOdooImageFromRecord({ image_128: 'abc123+/=' }, 'hr.employee', 1)
-    expect(src).toMatch(/^data:image\/png;base64,/)
+  test('prefers web/image for inline base64 when model and id exist', () => {
+    const src = resolveOdooImageFromRecord({ image_128: '/9j/abc123+/=' }, 'hr.employee', 1)
+    expect(src).toBe('/api/web/image/hr.employee/1/image_128')
   })
 })

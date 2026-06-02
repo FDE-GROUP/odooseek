@@ -13,10 +13,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Settings } from '@/lib/lucide-icons'
 import { useToast } from '../hooks/useToast'
-import { mailActivityFormAction, mailActivityScheduleAction } from '../lib/activity-actions'
+import {
+  activityDomainForModel,
+  fetchActivityDataForModel,
+  fetchActivityTypesForModel,
+  mailActivityFormAction,
+  mailActivityScheduleAction,
+} from '../lib/activity-actions'
 import { resolveOdooImageFromRecord } from '../lib/odoo-image'
-
-const ACTIVITY_RECORD_FILTER: unknown[] = ['activity_ids.active', 'in', [true, false]]
 
 const STATE_CELL_CLASS: Record<string, string> = {
   planned: 'bg-emerald-600 text-white',
@@ -49,6 +53,7 @@ interface ActivityRendererProps {
   arch: string
   fields: Record<string, OdooFieldMeta>
   domain?: unknown[]
+  context?: Record<string, unknown>
   onRecordClick?: (id: number) => void
   onOpenFormDialog: (action: OdooAction) => void
 }
@@ -294,8 +299,9 @@ function ColumnSettingsMenu({
 export function OdooActivityRenderer({
   model,
   arch,
-  fields: _fields,
+  fields,
   domain = [],
+  context = {},
   onRecordClick,
   onOpenFormDialog,
 }: ActivityRendererProps) {
@@ -310,19 +316,23 @@ export function OdooActivityRenderer({
     saveHiddenColumnIds(model, hiddenColumnIds)
   }, [model, hiddenColumnIds])
 
-  const activityDomain = useMemo(() => [...domain, ...ACTIVITY_RECORD_FILTER], [domain])
+  const activityDomain = useMemo(() => activityDomainForModel(domain, fields), [domain, fields])
 
-  const { data: activityData, isLoading: loadingActivity } = useQuery({
-    queryKey: ['odoo', 'activity-data', model, activityDomain],
-    queryFn: () =>
-      callKw<OdooActivityData>('mail.activity', 'get_activity_data', [], {
-        res_model: model,
-        domain: activityDomain,
-        limit: 100,
-        offset: 0,
-        fetch_done: false,
-      }),
+  const {
+    data: activityData,
+    isLoading: loadingActivity,
+    isError: activityDataError,
+    error: activityDataErrorDetail,
+  } = useQuery({
+    queryKey: ['odoo', 'activity-data', model, activityDomain, context],
+    queryFn: () => fetchActivityDataForModel(model, activityDomain, context),
     staleTime: 30_000,
+  })
+
+  const { data: activityTypesList, isLoading: loadingTypes } = useQuery({
+    queryKey: ['odoo', 'activity-types', model, context],
+    queryFn: () => fetchActivityTypesForModel(model, context),
+    staleTime: 60_000,
   })
 
   const readFields = useMemo(() => {
@@ -358,7 +368,10 @@ export function OdooActivityRenderer({
     },
   })
 
-  const activityTypes = activityData?.activity_types ?? []
+  const activityTypes = useMemo(() => {
+    if (activityTypesList && activityTypesList.length > 0) return activityTypesList
+    return activityData?.activity_types ?? []
+  }, [activityTypesList, activityData?.activity_types])
   const visibleTypes = activityTypes.filter((t) => !hiddenColumnIds.has(t.id))
   const grouped = activityData?.grouped_activities ?? {}
 
@@ -417,7 +430,7 @@ export function OdooActivityRenderer({
     [model, onOpenFormDialog, toast],
   )
 
-  if (loadingActivity || loadingRecords) {
+  if (loadingTypes || loadingActivity || loadingRecords) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center py-12">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" />
@@ -426,9 +439,18 @@ export function OdooActivityRenderer({
   }
 
   if (activityTypes.length === 0) {
+    const errMsg =
+      activityDataError && activityDataErrorDetail instanceof Error
+        ? activityDataErrorDetail.message
+        : undefined
     return (
-      <div className="flex min-h-0 flex-1 items-center justify-center p-8 text-sm text-text-muted">
-        No activity types configured for this model.
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 p-8 text-center text-sm text-text-muted">
+        <p>No activity types found for {model}.</p>
+        <p className="text-xs">
+          Install or configure the Mail app and create activity types in Odoo (Settings → Activities
+          / Technical).
+        </p>
+        {errMsg && <p className="max-w-md text-xs text-danger">{errMsg}</p>}
       </div>
     )
   }

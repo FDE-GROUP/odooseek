@@ -547,7 +547,7 @@ describe('field-widgets', () => {
     await waitFor(() => {
       const img = document.querySelector('img')
       expect(img).toBeInTheDocument()
-      expect(img?.getAttribute('src')).toContain('data:image/png;base64,dGVzdGF2YXRhcg==')
+      expect(img?.getAttribute('src')).toBe('/api/web/image/res.users/42/avatar_128')
     })
     expect(screen.getByText('John Doe')).toBeInTheDocument()
   })

@@ -16,13 +16,16 @@
     "oweb:dev": "cd apps/oweb && bun dev",
     "oweb:build": "cd apps/oweb && bun run build",
     "oweb:lint": "cd apps/oweb && bun run lint",
+    "oweb:test": "cd apps/oweb && bun run test",
     "oweb:format": "cd apps/oweb && bun run format",
     "oweb:e2e": "cd apps/oweb && bun run e2e",
     "oweb:e2e:install": "cd apps/oweb && bun run e2e:install",
+    "odoo-client:test": "cd packages/odoo-client && bun run test",
     "docker:up": "docker compose -f docker/docker-compose.yml up -d",
     "docker:down": "docker compose -f docker/docker-compose.yml down",
     "docker:build": "docker compose -f docker/docker-compose.yml build",
     "docker:server": "docker compose -f docker/docker-compose.yml up -d --build server",
-    "precommit": "cargo fmt --check --all && cargo clippy --workspace --all-targets --no-deps && cargo build --workspace && cargo doc --workspace --no-deps && cargo test --workspace -- --test-threads=1 && cd apps/oweb && bun run build && bun run lint"
+    "precommit": "cargo fmt --check --all && cargo clippy --workspace --all-targets --no-deps && cargo build --workspace && cargo doc --workspace --no-deps && cargo test --workspace -- --test-threads=1 && cd apps/oweb && bun run build && bun run lint && bun run test && cd ../../packages/odoo-client && bun run test",
+    "test:frontend": "cd apps/oweb && bun run test && cd ../../packages/odoo-client && bun run test"
   }
 }

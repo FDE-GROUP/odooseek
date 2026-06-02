@@ -658,6 +658,7 @@ export function OdooViewLoader({
               arch={activeView.arch}
               fields={fields}
               domain={effectiveDomain}
+              context={context}
               onRecordClick={onRowClick}
               onOpenFormDialog={openFormDialog}
             />

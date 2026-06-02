@@ -1,5 +1,26 @@
 import { describe, expect, test } from 'vitest'
-import { mailActivityFormAction, mailActivityScheduleAction } from '../activity-actions'
+import {
+  activityDomainForModel,
+  mailActivityFormAction,
+  mailActivityScheduleAction,
+} from '../activity-actions'
+
+describe('activityDomainForModel', () => {
+  test('adds activity_ids filter when field exists', () => {
+    const domain = activityDomainForModel([['active', '=', true]], {
+      activity_ids: { name: 'activity_ids' },
+    })
+    expect(domain).toHaveLength(2)
+    expect(domain[1]).toEqual(['activity_ids.active', 'in', [true, false]])
+    expect(domain[0]).toEqual(['active', '=', true])
+  })
+
+  test('skips filter when activity_ids missing', () => {
+    expect(activityDomainForModel([['id', '>', 0]], { name: { name: 'name' } })).toEqual([
+      ['id', '>', 0],
+    ])
+  })
+})
 
 describe('activity-actions', () => {
   test('mailActivityFormAction sets defaults', () => {
