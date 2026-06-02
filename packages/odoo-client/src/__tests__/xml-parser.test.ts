@@ -868,3 +868,67 @@ describe('parseCalendarXml', () => {
     expect(result.fields).toEqual(expect.arrayContaining(['name', 'partner_id']))
   })
 })
+
+// ── Robustness edge cases ───────────────────────────────────────────
+
+describe('xml-parser robustness', () => {
+  test('handles empty string gracefully', () => {
+    const list = parseListXml('')
+    expect(list.columns).toEqual([])
+
+    const form = parseFormXml('')
+    expect(form.elements).toEqual([])
+
+    const kanban = parseKanbanXml('')
+    expect(kanban.fields).toEqual([])
+  })
+
+  test('handles empty arch element', () => {
+    const form = parseFormXml('<form></form>')
+    expect(form.elements).toEqual([])
+
+    const list = parseListXml('<tree></tree>')
+    expect(list.columns).toEqual([])
+  })
+
+  test('handles deeply nested field inside groups', () => {
+    const form = parseFormXml(`<form>
+      <sheet>
+        <group>
+          <group>
+            <field name="deep_field" widget="url"/>
+          </group>
+        </group>
+      </sheet>
+    </form>`)
+    expect(form.elements.length).toBeGreaterThan(0)
+    // Should have at least a sheet element
+    expect(form.elements.some((e) => e.type === 'sheet')).toBe(true)
+  })
+
+  test('handles form with header and sheet', () => {
+    const form = parseFormXml(`<form>
+      <header>
+        <button name="confirm" type="object" string="Confirm"/>
+        <field name="state" widget="statusbar"/>
+      </header>
+      <sheet>
+        <field name="name"/>
+      </sheet>
+    </form>`)
+    // Form should have header and sheet elements
+    expect(form.elements.some((e) => e.type === 'header')).toBe(true)
+    expect(form.elements.some((e) => e.type === 'sheet')).toBe(true)
+  })
+
+  test('handles unknown tags gracefully', () => {
+    const form = parseFormXml(`<form>
+      <unknown_tag>
+        <field name="name"/>
+      </unknown_tag>
+      <field name="email"/>
+    </form>`)
+    // Should at least parse the direct field element
+    expect(form.elements.length).toBeGreaterThan(0)
+  })
+})

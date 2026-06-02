@@ -172,4 +172,56 @@ describe('api', () => {
     const body = JSON.parse(mockFetch.mock.calls[0][1].body)
     expect(body.params.kwargs.limit).toBe(5)
   })
+
+  test('Odoo RPC error with debug info', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        jsonrpc: '2.0', id: 1,
+        error: { code: 1, message: 'Validation error', data: { message: 'Name required', debug: 'Traceback...' } },
+      }),
+    })
+    globalThis.fetch = mockFetch
+
+    await expect(callKw('res.partner', 'create', [{ name: '' }])).rejects.toThrow('Name required')
+  })
+
+  test('Odoo RPC error with debug first line', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        jsonrpc: '2.0', id: 1,
+        error: { code: 2, message: 'Error', data: { debug: 'First line\nSecond line' } },
+      }),
+    })
+    globalThis.fetch = mockFetch
+
+    await expect(callKw('res.partner', 'write', [[1], {}])).rejects.toThrow('First line')
+  })
+
+  test('consistent call ID increments', async () => {
+    // Reset module to start from ID=1
+    vi.resetModules()
+    const freshApi = await import('../api')
+
+    const ids: number[] = []
+    const mockFetch = vi.fn().mockImplementation((_url: string, init: RequestInit) => {
+      const body = JSON.parse(init!.body as string)
+      ids.push(body.id)
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ result: 1 }),
+      })
+    })
+    globalThis.fetch = mockFetch
+
+    await freshApi.callKw('m1', 'method', [])
+    await freshApi.callKw('m2', 'method', [])
+    await freshApi.callKw('m3', 'method', [])
+
+    // With fresh module, IDs should start from 1
+    expect(ids[0]).toBe(1)
+    expect(ids[1]).toBe(2)
+    expect(ids[2]).toBe(3)
+  })
 })
