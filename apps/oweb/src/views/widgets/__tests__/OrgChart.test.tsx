@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 import {
-  countTreeNodes,
   buildTree,
+  countTreeNodes,
   findOrgRootId,
   type OrgNode,
   parentIdOf,
