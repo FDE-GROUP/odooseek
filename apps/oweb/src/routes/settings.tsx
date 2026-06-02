@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { HrSettingsPanel } from '../components/HrSettingsPanel'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { useAuth, useHasGroup } from '../lib/auth'
 import { HR_EMPLOYEE_MODEL, HR_EMPLOYEES_SEARCH_DEFAULT } from '../lib/hr'
@@ -139,7 +140,11 @@ function SettingsPage() {
               <Section title="Human Resources">
                 <KVRow label="Module" value="hr (installed)" />
                 <KVRow label="HR access" value={isHrOfficer ? 'Yes' : 'No'} />
+                <KVRow label="HR manager" value={isHrManager ? 'Yes' : 'No'} />
                 <KVRow label="Employee model" value={HR_EMPLOYEE_MODEL} />
+                <div className="mt-4 border-t border-border-subtle/40 pt-4">
+                  <HrSettingsPanel canEdit={isHrManager} />
+                </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link
                     to="/hr/employees"
