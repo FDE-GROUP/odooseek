@@ -10,6 +10,16 @@ export const HR_WORK_LOCATION_MODEL = 'hr.work.location'
 export const MAIL_ACTIVITY_PLAN_MODEL = 'mail.activity.plan'
 export const HR_VERSION_MODEL = 'hr.version'
 
+/** Odoo xml ids for HR menu actions (view_mode / views order). */
+export const HR_ACTION_XML_ID = {
+  employees: 'hr.open_view_employee_list_my',
+  directory: 'hr.hr_employee_public_action',
+  departments: 'hr.hr_department_kanban_action',
+  jobs: 'hr.action_hr_job',
+  workLocations: 'hr.hr_work_location_action',
+  plans: 'hr.mail_activity_plan_action',
+} as const
+
 /** Fields safe for directory / public employee views (Odoo hr.employee.public). */
 export const HR_DIRECTORY_FIELDS = [
   'id',

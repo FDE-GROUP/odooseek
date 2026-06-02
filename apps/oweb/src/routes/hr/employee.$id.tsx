@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { ModuleRoute } from '../../components/ModuleRoute'
 import { requireAuth } from '../../lib/auth'
-import { HR_EMPLOYEE_MODEL } from '../../lib/hr'
+import { HR_EMPLOYEE_MODEL, hrEmployeeRecordPath } from '../../lib/hr'
 
 function HrEmployeeForm() {
   const { id } = Route.useParams()
@@ -12,10 +12,10 @@ function HrEmployeeForm() {
   return (
     <ModuleRoute
       model={HR_EMPLOYEE_MODEL}
-      defaultView="form"
+      fallbackView="form"
       recordId={recordId}
       listPath="/hr/employees"
-      recordPath={(rid) => `/hr/employee/${rid}`}
+      recordPath={hrEmployeeRecordPath}
     />
   )
 }

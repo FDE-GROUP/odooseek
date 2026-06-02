@@ -13,7 +13,7 @@ function ContactPartnerForm() {
   return (
     <ModuleRoute
       model={PARTNER_MODEL}
-      defaultView="form"
+      fallbackView="form"
       recordId={recordId}
       listPath="/contacts/partners"
       recordPath={(rid) => `/contacts/partner/${rid}`}

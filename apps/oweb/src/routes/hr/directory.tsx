@@ -1,16 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { ModuleRoute } from '../../components/ModuleRoute'
 import { requireAuth } from '../../lib/auth'
-import { HR_EMPLOYEE_PUBLIC_MODEL } from '../../lib/hr'
+import { HR_ACTION_XML_ID, HR_EMPLOYEE_PUBLIC_MODEL, hrEmployeeRecordPath } from '../../lib/hr'
 
 function HrDirectory() {
   return (
     <ModuleRoute
       model={HR_EMPLOYEE_PUBLIC_MODEL}
-      defaultView="kanban"
+      actionXmlId={HR_ACTION_XML_ID.directory}
       domain={[['active', '=', true]]}
       listPath="/hr/directory"
-      recordPath={(id) => `/hr/employee/${id}`}
+      recordPath={hrEmployeeRecordPath}
     />
   )
 }

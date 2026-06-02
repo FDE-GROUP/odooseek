@@ -2,7 +2,7 @@ import type { ViewType } from '@odooseek/odoo-client'
 import { resolveAction } from '@odooseek/odoo-client'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, useBlocker, useSearch } from '@tanstack/react-router'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'use-intl'
 import { useAutosaveGuard } from '../hooks/useAutosaveGuard'
 import { parseWebSearch, type WebSearch } from '../lib/web-search'
@@ -12,10 +12,12 @@ import { OdooViewLoader } from '../views/OdooViewLoader'
 function WebPage() {
   const t = useTranslations()
   const search = useSearch({ from: '/web' }) as WebSearch
-  const [viewType, setViewType] = useState<ViewType>((search.viewType as ViewType) ?? 'list')
+  const searchViewType = search.viewType as ViewType | undefined
+  const [viewType, setViewType] = useState<ViewType>(searchViewType ?? 'list')
   const [recordId, setRecordId] = useState<number | undefined>()
   const [isFormDirty, setIsFormDirty] = useState(false)
   const formRef = useRef<OdooFormRendererRef>(null)
+  const viewInitialized = useRef(false)
 
   const { data: actionData, isLoading: resolvingAction } = useQuery({
     queryKey: ['odoo', 'action', search.action],
@@ -25,22 +27,31 @@ function WebPage() {
   })
 
   const model = search.model ?? actionData?.model ?? 'res.partner'
-  const actionViewModes = actionData?.viewMode
   const actionDomain = actionData?.domain
   const actionContext = (actionData?.context ?? {}) as Record<string, unknown>
+  const availableViews = actionData?.viewTypes
+  const defaultView = actionData?.defaultViewType ?? 'list'
 
-  const availableViews = useMemo(() => {
-    if (!actionViewModes) return undefined
-    return actionViewModes
-      .split(',')
-      .map((v) => v.trim() as ViewType)
-      .filter((v) =>
-        ['list', 'form', 'kanban', 'pivot', 'graph', 'calendar', 'activity'].includes(v),
-      )
-  }, [actionViewModes])
+  useEffect(() => {
+    viewInitialized.current = false
+    setRecordId(undefined)
+  }, [search.action, search.model])
 
-  const defaultView = availableViews?.[0] ?? 'list'
-  const effectiveViewType = viewType ?? defaultView
+  useEffect(() => {
+    if (searchViewType) {
+      setViewType(searchViewType)
+      viewInitialized.current = true
+      return
+    }
+    if (resolvingAction || viewInitialized.current) return
+    setViewType(defaultView)
+    viewInitialized.current = true
+    if (actionData?.resId && defaultView === 'form') {
+      setRecordId(actionData.resId)
+    }
+  }, [searchViewType, resolvingAction, defaultView, actionData?.resId])
+
+  const effectiveViewType = searchViewType ?? viewType
 
   const blocker = useBlocker({
     shouldBlockFn: () => isFormDirty,

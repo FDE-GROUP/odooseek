@@ -27,6 +27,13 @@ export { formatFloatTime, parseFloatTime, formatPercentage, parsePercentage, for
 export { cacheKey, getCachedViews, setCachedViews, getColumnPrefs, setColumnPrefs } from './view-cache'
 
 export {
+  normalizeViewMode,
+  parseActionViewModes,
+  orderedViewTypesFromActWindow,
+  defaultViewTypeFromActWindow,
+} from './view-mode'
+
+export {
   renderCell,
   isListCellImage,
   FIELD_TYPE_WIDTHS,

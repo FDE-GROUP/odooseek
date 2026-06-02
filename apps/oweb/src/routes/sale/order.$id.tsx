@@ -4,7 +4,7 @@ import { requireAuth } from '../../lib/auth'
 
 function SaleOrderForm() {
   const { id } = Route.useParams()
-  return <ModuleRoute model="sale.order" defaultView="form" recordId={Number(id)} />
+  return <ModuleRoute model="sale.order" fallbackView="form" recordId={Number(id)} />
 }
 
 export const Route = createFileRoute('/sale/order/$id')({

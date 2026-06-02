@@ -15,6 +15,11 @@ interface JsonRpcResponse<T> {
 }
 
 import { parseDomainString } from './expression-evaluator.js'
+import {
+  defaultViewTypeFromActWindow,
+  orderedViewTypesFromActWindow,
+} from './view-mode.js'
+import type { ViewType } from './types.js'
 
 let _callId = 0
 
@@ -186,6 +191,9 @@ export type OdooAction = {
 export async function resolveAction(actionId: number): Promise<{
   model: string
   viewMode: string
+  viewTypes: ViewType[]
+  defaultViewType: ViewType
+  resId?: number
   domain: unknown[]
   context: Record<string, unknown>
 }> {
@@ -201,6 +209,8 @@ export async function resolveAction(actionId: number): Promise<{
     const action = await jsonRpc<{
       res_model?: string
       view_mode?: string
+      views?: unknown
+      res_id?: number | false
       domain?: unknown[] | string
       context?: Record<string, unknown> | string
     }>('/api/odoo/web/action/run', { action_id: actionId })
@@ -208,9 +218,15 @@ export async function resolveAction(actionId: number): Promise<{
     if (!action?.res_model) {
       throw new Error(`Server action ${actionId} returned no res_model`)
     }
+    const viewMode = action.view_mode || 'list'
+    const viewTypes = orderedViewTypesFromActWindow(viewMode, action.views)
     return {
       model: action.res_model,
-      viewMode: action.view_mode || 'list',
+      viewMode,
+      viewTypes,
+      defaultViewType: viewTypes[0] ?? 'list',
+      resId:
+        typeof action.res_id === 'number' && action.res_id > 0 ? action.res_id : undefined,
       domain: Array.isArray(action.domain)
         ? action.domain
         : (parseDomainString(action.domain as string) ?? []),
@@ -223,18 +239,30 @@ export async function resolveAction(actionId: number): Promise<{
     Array<{
       res_model: string
       view_mode: string
+      views?: unknown
+      res_id?: number | false
       domain: unknown[] | string
       context: Record<string, unknown> | string
     }>
-  >('ir.actions.act_window', 'read', [[actionId], ['res_model', 'view_mode', 'domain', 'context']])
+  >('ir.actions.act_window', 'read', [
+    [actionId],
+    ['res_model', 'view_mode', 'views', 'res_id', 'domain', 'context'],
+  ])
 
   if (!action?.res_model) {
     throw new Error(`Action ${actionId} has no res_model`)
   }
 
+  const viewMode = action.view_mode || 'list'
+  const viewTypes = orderedViewTypesFromActWindow(viewMode, action.views)
+  const resId =
+    typeof action.res_id === 'number' && action.res_id > 0 ? action.res_id : undefined
   return {
     model: action.res_model,
-    viewMode: action.view_mode || 'list',
+    viewMode,
+    viewTypes,
+    defaultViewType: defaultViewTypeFromActWindow(viewMode, action.views),
+    resId,
     domain: Array.isArray(action.domain)
       ? action.domain
       : (parseDomainString(action.domain as string) ?? []),

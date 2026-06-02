@@ -4,7 +4,7 @@ import { requireAuth } from '../../lib/auth'
 
 function InventoryPickingForm() {
   const { id } = Route.useParams()
-  return <ModuleRoute model="stock.picking" defaultView="form" recordId={Number(id)} />
+  return <ModuleRoute model="stock.picking" fallbackView="form" recordId={Number(id)} />
 }
 
 export const Route = createFileRoute('/inventory/picking/$id')({
