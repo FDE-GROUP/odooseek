@@ -4,6 +4,8 @@ import {
   countOrgChartEntries,
   type OrgChartData,
   type OrgNode,
+  parseEmployeeIdsSearch,
+  teamDomainFromEmployeeIds,
   visibleOrgChartEntries,
 } from '../hr-org-chart'
 
@@ -27,6 +29,19 @@ describe('buildOrgChartFromNodes', () => {
     expect(data.self?.id).toBe(2)
     expect(data.children.map((c) => c.id)).toEqual([3, 4])
     expect(data.children[0]?.direct_sub_count).toBe(0)
+  })
+})
+
+describe('team navigation helpers', () => {
+  test('parseEmployeeIdsSearch splits comma-separated ids', () => {
+    expect(parseEmployeeIdsSearch('1, 2,3')).toEqual([1, 2, 3])
+    expect(parseEmployeeIdsSearch('')).toBeUndefined()
+    expect(parseEmployeeIdsSearch('bad,0,-1')).toBeUndefined()
+  })
+
+  test('teamDomainFromEmployeeIds builds id in domain', () => {
+    expect(teamDomainFromEmployeeIds([5, 6])).toEqual([['id', 'in', [5, 6]]])
+    expect(teamDomainFromEmployeeIds([])).toBeUndefined()
   })
 })
 

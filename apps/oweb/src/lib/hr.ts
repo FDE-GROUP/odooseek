@@ -65,6 +65,20 @@ export function hrEmployeeRecordPath(id: number): string {
   return `/hr/employee/${id}`
 }
 
+/** Search params for `/hr/employees` (org chart team filter). */
+export type HrEmployeesSearch = {
+  ids: string | undefined
+}
+
+export const HR_EMPLOYEES_SEARCH_DEFAULT: HrEmployeesSearch = { ids: undefined }
+
+export function hrEmployeesNavigateOptions(ids?: number[]) {
+  return {
+    to: '/hr/employees' as const,
+    search: { ids: ids?.length ? ids.join(',') : undefined },
+  }
+}
+
 export function hrDepartmentRecordPath(id: number): string {
   return `/hr/department/${id}`
 }

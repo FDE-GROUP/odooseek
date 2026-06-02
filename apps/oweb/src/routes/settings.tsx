@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { useAuth, useHasGroup } from '../lib/auth'
-import { HR_EMPLOYEE_MODEL } from '../lib/hr'
+import { HR_EMPLOYEE_MODEL, HR_EMPLOYEES_SEARCH_DEFAULT } from '../lib/hr'
 
 function SettingsPage() {
   const { session } = useAuth()
@@ -143,6 +143,7 @@ function SettingsPage() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link
                     to="/hr/employees"
+                    search={HR_EMPLOYEES_SEARCH_DEFAULT}
                     className="rounded-md border border-border-default bg-surface px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-hover hover:text-text-primary"
                   >
                     Open Employees

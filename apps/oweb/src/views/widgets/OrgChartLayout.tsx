@@ -1,11 +1,13 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { HR_EMPLOYEE_MODEL } from '../../lib/hr'
 import {
   HR_ORG_CHART_DISPLAY_LIMIT,
   type OrgChartData,
   type OrgChartEmployee,
+  type OrgChartSubordinatesType,
 } from '../../lib/hr-org-chart'
 import { resolveOdooImageSrc } from '../../lib/odoo-image'
+import { OrgChartSubPopover } from './OrgChartSubPopover'
 import './org-chart-layout.css'
 
 interface OrgChartLayoutProps {
@@ -14,6 +16,7 @@ interface OrgChartLayoutProps {
   onEmployeeClick: (id: number) => void
   onMoreManagers?: () => void
   onSeeAll?: () => void
+  onOpenTeam: (employeeId: number, type: OrgChartSubordinatesType) => void
 }
 
 function OrgChartEntry({
@@ -21,17 +24,29 @@ function OrgChartEntry({
   variant,
   isSelf,
   onClick,
+  popoverOpen,
+  onPopoverToggle,
+  onPopoverClose,
+  onOpenTeam,
+  onEmployeeClick,
 }: {
   employee: OrgChartEmployee
   variant: 'manager' | 'self' | 'sub'
   isSelf: boolean
   onClick?: () => void
+  popoverOpen: boolean
+  onPopoverToggle: () => void
+  onPopoverClose: () => void
+  onOpenTeam: (employeeId: number, type: OrgChartSubordinatesType) => void
+  onEmployeeClick: (id: number) => void
 }) {
   const src = resolveOdooImageSrc({
     model: HR_EMPLOYEE_MODEL,
     recordId: employee.id,
     field: 'avatar_128',
   })
+
+  const showSubPopover = employee.indirect_sub_count > 0 && variant !== 'manager'
 
   const body = (
     <>
@@ -56,10 +71,15 @@ function OrgChartEntry({
           </div>
         ) : null}
       </div>
-      {employee.indirect_sub_count > 0 && variant !== 'manager' ? (
-        <span className="ms-2 shrink-0 rounded-full border border-border-default bg-surface px-2 py-0.5 text-[10px] text-text-secondary">
-          {employee.indirect_sub_count}
-        </span>
+      {showSubPopover ? (
+        <OrgChartSubPopover
+          employee={employee}
+          open={popoverOpen}
+          onToggle={onPopoverToggle}
+          onClose={onPopoverClose}
+          onOpenEmployee={onEmployeeClick}
+          onOpenTeam={onOpenTeam}
+        />
       ) : null}
     </>
   )
@@ -90,11 +110,37 @@ export function OrgChartLayout({
   onEmployeeClick,
   onMoreManagers,
   onSeeAll,
+  onOpenTeam,
 }: OrgChartLayoutProps) {
+  const [popoverEmployeeId, setPopoverEmployeeId] = useState<number | null>(null)
   const { managers, self, children, managers_more: managersMore } = data
   const hasManagers = managers.length > 0
   const hasChildren = children.length > 0
   const empty = !hasManagers && !hasChildren && !self
+
+  const renderEntry = (
+    employee: OrgChartEmployee,
+    variant: 'manager' | 'self' | 'sub',
+    onClick?: () => void,
+  ) => (
+    <OrgChartEntryMemo
+      key={employee.id}
+      employee={employee}
+      variant={variant}
+      isSelf={employee.id === viewEmployeeId}
+      onClick={onClick}
+      popoverOpen={popoverEmployeeId === employee.id}
+      onPopoverToggle={() =>
+        setPopoverEmployeeId((current) => (current === employee.id ? null : employee.id))
+      }
+      onPopoverClose={() => setPopoverEmployeeId(null)}
+      onOpenTeam={(id, type) => {
+        setPopoverEmployeeId(null)
+        onOpenTeam(id, type)
+      }}
+      onEmployeeClick={onEmployeeClick}
+    />
+  )
 
   if (empty) {
     return (
@@ -126,21 +172,15 @@ export function OrgChartLayout({
               </button>
             </div>
           )}
-          {managers.map((employee) => (
-            <OrgChartEntryMemo
-              key={employee.id}
-              employee={employee}
-              variant="manager"
-              isSelf={employee.id === viewEmployeeId}
-              onClick={() => onEmployeeClick(employee.id)}
-            />
-          ))}
+          {managers.map((employee) =>
+            renderEntry(employee, 'manager', () => onEmployeeClick(employee.id)),
+          )}
         </div>
       )}
 
       {self && (
         <div className={`org-chart__self-wrap ${hasManagers ? 'org-chart__has-managers' : ''}`}>
-          <OrgChartEntryMemo employee={self} variant="self" isSelf={self.id === viewEmployeeId} />
+          {renderEntry(self, 'self')}
         </div>
       )}
 
@@ -148,15 +188,9 @@ export function OrgChartLayout({
         <div
           className={`org-chart__group-down relative ${hasManagers ? 'org-chart__has-managers' : ''}`}
         >
-          {visibleChildren.map((employee) => (
-            <OrgChartEntryMemo
-              key={employee.id}
-              employee={employee}
-              variant="sub"
-              isSelf={employee.id === viewEmployeeId}
-              onClick={() => onEmployeeClick(employee.id)}
-            />
-          ))}
+          {visibleChildren.map((employee) =>
+            renderEntry(employee, 'sub', () => onEmployeeClick(employee.id)),
+          )}
           {showSeeAll && onSeeAll && (
             <div className="org-chart__entry flex overflow-visible py-2">
               <button

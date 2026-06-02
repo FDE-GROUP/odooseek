@@ -34,6 +34,8 @@ export interface OrgChartData {
 export const HR_ORG_CHART_MAX_MANAGERS = 5
 export const HR_ORG_CHART_DISPLAY_LIMIT = 19
 
+export type OrgChartSubordinatesType = 'direct' | 'indirect' | 'total'
+
 interface OrgChartRpcResult {
   self?: OrgChartEmployee
   managers?: OrgChartEmployee[]
@@ -141,4 +143,52 @@ export async function fetchHrOrgChart(
     children: result.children ?? [],
     managers_more: result.managers_more ?? false,
   }
+}
+
+export function teamDomainFromEmployeeIds(ids: number[]): unknown[] | undefined {
+  const valid = ids.filter((id) => Number.isFinite(id) && id > 0)
+  if (!valid.length) return undefined
+  return [['id', 'in', valid]]
+}
+
+export function parseEmployeeIdsSearch(ids?: string): number[] | undefined {
+  if (!ids?.trim()) return undefined
+  const parsed = ids
+    .split(',')
+    .map((part) => Number(part.trim()))
+    .filter((id) => Number.isFinite(id) && id > 0)
+  return parsed.length ? parsed : undefined
+}
+
+/** Odoo `/hr/get_subordinates` — ids for direct, indirect, or all subordinates. */
+export async function fetchHrSubordinates(
+  employeeId: number,
+  subordinatesType: OrgChartSubordinatesType = 'direct',
+): Promise<number[]> {
+  const res = await fetch('/api/odoo-http/hr/get_subordinates', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      method: 'call',
+      params: {
+        employee_id: employeeId,
+        subordinates_type: subordinatesType,
+        context: {},
+      },
+      id: 1,
+    }),
+  })
+
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`)
+  }
+
+  const payload = (await res.json()) as { result?: number[]; error?: { message: string } }
+  if (payload.error) {
+    throw new Error(payload.error.message)
+  }
+
+  return Array.isArray(payload.result) ? payload.result : []
 }

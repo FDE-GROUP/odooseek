@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { ModuleRoute } from '../../components/ModuleRoute'
 import { requireAuth } from '../../lib/auth'
-import { HR_EMPLOYEE_MODEL, hrEmployeeRecordPath } from '../../lib/hr'
+import { HR_EMPLOYEE_MODEL, HR_EMPLOYEES_SEARCH_DEFAULT, hrEmployeeRecordPath } from '../../lib/hr'
 
 function HrEmployeeForm() {
   const { id } = Route.useParams()
@@ -25,7 +25,8 @@ export const Route = createFileRoute('/hr/employee/$id')({
   beforeLoad: requireAuth,
   parseParams: ({ id }) => {
     const n = Number(id)
-    if (!Number.isFinite(n) || n <= 0) throw redirect({ to: '/hr/employees' })
+    if (!Number.isFinite(n) || n <= 0)
+      throw redirect({ to: '/hr/employees', search: HR_EMPLOYEES_SEARCH_DEFAULT })
     return { id: String(n) }
   },
 })

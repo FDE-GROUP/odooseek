@@ -3,11 +3,18 @@ import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
 import { OrgChartViewport } from '../../components/OrgChartViewport'
-import { HR_DEPARTMENT_MODEL, HR_EMPLOYEE_MODEL, hrEmployeeRecordPath } from '../../lib/hr'
+import {
+  HR_DEPARTMENT_MODEL,
+  HR_EMPLOYEE_MODEL,
+  hrEmployeeRecordPath,
+  hrEmployeesNavigateOptions,
+} from '../../lib/hr'
 import {
   buildOrgChartFromNodes,
   countOrgChartEntries,
   fetchHrOrgChart,
+  fetchHrSubordinates,
+  type OrgChartSubordinatesType,
   type OrgNode,
   parentIdOf,
 } from '../../lib/hr-org-chart'
@@ -202,9 +209,25 @@ export function OrgChartWidget(props: FieldWidgetProps) {
   )
 
   const handleMoreManagers = useCallback(() => setMaxLevel(100), [])
-  const handleSeeAll = useCallback(() => {
-    if (data?.viewEmployeeId) handleEmployeeClick(data.viewEmployeeId)
-  }, [data?.viewEmployeeId, handleEmployeeClick])
+
+  const openTeamList = useCallback(
+    async (employeeId: number, type: OrgChartSubordinatesType) => {
+      try {
+        const ids = await fetchHrSubordinates(employeeId, type)
+        if (!ids.length) return
+        navigate(hrEmployeesNavigateOptions(ids))
+      } catch {
+        handleEmployeeClick(employeeId)
+      }
+    },
+    [navigate, handleEmployeeClick],
+  )
+
+  const handleSeeAll = useCallback(async () => {
+    const selfId = data?.viewEmployeeId
+    if (!selfId) return
+    await openTeamList(selfId, 'direct')
+  }, [data?.viewEmployeeId, openTeamList])
 
   if (!employeeId && !isDepartmentForm) {
     return (
@@ -236,6 +259,7 @@ export function OrgChartWidget(props: FieldWidgetProps) {
         onEmployeeClick={handleEmployeeClick}
         onMoreManagers={data.chart.managers_more ? handleMoreManagers : undefined}
         onSeeAll={handleSeeAll}
+        onOpenTeam={openTeamList}
       />
     </OrgChartViewport>
   )
