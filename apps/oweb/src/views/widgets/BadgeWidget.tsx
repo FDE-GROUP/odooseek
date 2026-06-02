@@ -1,5 +1,8 @@
-import { createElement, useCallback, useRef } from 'react'
+import { generateReportByXmlId } from '@odooseek/odoo-client'
+import { createElement, useCallback, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
+import { useToast } from '../../hooks/useToast'
+import { HR_BADGE_REPORT_XML_ID } from '../../lib/hr'
 import { resolveOdooImageFromRecord } from '../../lib/odoo-image'
 import type { FieldWidgetProps } from './index'
 
@@ -34,12 +37,14 @@ function BadgePreview({
 
 export function BadgeWidget({ record, readOnly, model, recordId }: FieldWidgetProps) {
   const printHostRef = useRef<HTMLDivElement>(null)
+  const toast = useToast()
+  const [busy, setBusy] = useState(false)
   const barcode = record?.barcode as string | undefined
   const name = (record?.display_name as string) || (record?.name as string) || ''
   const jobTitle = (record?.job_title as string) || (record?.job_id as [number, string])?.[1] || ''
   const imageSrc = resolveOdooImageFromRecord(record, model, recordId)
 
-  const handlePrint = useCallback(() => {
+  const handleBrowserPrint = useCallback(() => {
     const host = printHostRef.current
     if (!host) return
     const printWindow = window.open('', '_blank', 'width=600,height=800')
@@ -62,6 +67,22 @@ export function BadgeWidget({ record, readOnly, model, recordId }: FieldWidgetPr
     })
   }, [name, jobTitle, barcode, imageSrc])
 
+  const handlePrint = useCallback(async () => {
+    if (!recordId) {
+      handleBrowserPrint()
+      return
+    }
+    setBusy(true)
+    try {
+      await generateReportByXmlId(HR_BADGE_REPORT_XML_ID, [recordId])
+    } catch {
+      toast.info('PDF badge unavailable — opening browser print preview')
+      handleBrowserPrint()
+    } finally {
+      setBusy(false)
+    }
+  }, [recordId, handleBrowserPrint, toast])
+
   if (!barcode) {
     return readOnly ? null : <div className="text-xs text-text-muted py-1">No barcode set</div>
   }
@@ -71,9 +92,10 @@ export function BadgeWidget({ record, readOnly, model, recordId }: FieldWidgetPr
       <button
         type="button"
         onClick={handlePrint}
-        className="rounded-md border border-border-default bg-surface px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-hover hover:text-text-primary transition-colors"
+        disabled={busy}
+        className="rounded-md border border-border-default bg-surface px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-hover hover:text-text-primary transition-colors disabled:opacity-50"
       >
-        Print Badge
+        {busy ? 'Generating…' : 'Print Badge'}
       </button>
       <div ref={printHostRef} className="sr-only" aria-hidden>
         <BadgePreview name={name} jobTitle={jobTitle} barcode={barcode} imageSrc={imageSrc} />

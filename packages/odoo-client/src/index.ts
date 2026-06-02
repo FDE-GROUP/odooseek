@@ -45,7 +45,7 @@ export {
 export { readModel, searchReadModel, readSingleModel, writeModel, createModel, unlinkModel, defaultGetModel } from './typed-api'
 export type { RpcContext } from './typed-api'
 
-export { generateReport } from './report'
+export { generateReport, generateReportByXmlId } from './report'
 
 export type {
   ViewType, OdooFieldMeta, ViewField,

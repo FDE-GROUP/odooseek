@@ -1,13 +1,15 @@
 /// <reference types="vitest" />
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { callKw } from '../api'
-import { generateReport } from '../report'
+import { callKw, loadAction } from '../api'
+import { generateReport, generateReportByXmlId } from '../report'
 
 vi.mock('../api', () => ({
   callKw: vi.fn(),
+  loadAction: vi.fn(),
 }))
 
 const mockCallKw = vi.mocked(callKw)
+const mockLoadAction = vi.mocked(loadAction)
 
 describe('generateReport', () => {
   const mockOpen = vi.fn()
@@ -100,5 +102,51 @@ describe('generateReport', () => {
     mockCallKw.mockResolvedValue([undefined])
 
     await expect(generateReport(123, [1])).rejects.toThrow('Report action 123 not found')
+  })
+})
+
+describe('generateReportByXmlId', () => {
+  const mockOpen = vi.fn()
+  const originalOpen = window.open
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    window.open = mockOpen
+  })
+
+  afterEach(() => {
+    window.open = originalOpen
+  })
+
+  test('loads report action by xml id then opens download URL', async () => {
+    mockLoadAction.mockResolvedValue({
+      type: 'ir.actions.report',
+      id: 55,
+      report_name: 'hr.print_employee_badge',
+      report_type: 'qweb-pdf',
+    })
+    mockCallKw.mockResolvedValue([
+      {
+        report_name: 'hr.print_employee_badge',
+        report_type: 'pdf',
+        model: 'hr.employee',
+      },
+    ])
+
+    await generateReportByXmlId('hr.hr_employee_print_badge', [7])
+
+    expect(mockLoadAction).toHaveBeenCalledWith('hr.hr_employee_print_badge')
+    expect(mockOpen).toHaveBeenCalledTimes(1)
+    const url = mockOpen.mock.calls[0][0] as string
+    expect(url).toContain('report_id=55')
+    expect(url).toContain('ids=7')
+  })
+
+  test('throws if xml id action has no database id', async () => {
+    mockLoadAction.mockResolvedValue({ type: 'ir.actions.report' })
+
+    await expect(generateReportByXmlId('hr.hr_employee_print_badge', [1])).rejects.toThrow(
+      'Report action hr.hr_employee_print_badge not found',
+    )
   })
 })

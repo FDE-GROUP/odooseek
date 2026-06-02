@@ -1,4 +1,4 @@
-import { callKw } from './api'
+import { callKw, loadAction } from './api'
 
 interface ReportAction {
   report_name: string
@@ -32,4 +32,14 @@ export async function generateReport(actionId: number, ids: number[]): Promise<v
   })
   const url = `/api/report/download?${params}`
   window.open(url, '_blank')
+}
+
+/// Resolve a report action by xml id and open the download URL.
+export async function generateReportByXmlId(xmlId: string, ids: number[]): Promise<void> {
+  const action = await loadAction(xmlId)
+  const actionId = action.id
+  if (!actionId) {
+    throw new Error(`Report action ${xmlId} not found`)
+  }
+  await generateReport(actionId, ids)
 }

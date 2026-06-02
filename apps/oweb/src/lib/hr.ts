@@ -11,6 +11,9 @@ export const MAIL_ACTIVITY_PLAN_MODEL = 'mail.activity.plan'
 export const HR_VERSION_MODEL = 'hr.version'
 
 /** Odoo xml ids for HR menu actions (view_mode / views order). */
+/** Odoo `ir.actions.report` xml id for employee badge PDF (QWeb). */
+export const HR_BADGE_REPORT_XML_ID = 'hr.hr_employee_print_badge'
+
 export const HR_ACTION_XML_ID = {
   employees: 'hr.open_view_employee_list_my',
   directory: 'hr.hr_employee_public_action',
