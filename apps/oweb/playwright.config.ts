@@ -36,11 +36,13 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   timeout: 60_000,
   expect: { timeout: 15_000 },
+  globalSetup: './e2e/global-setup.ts',
   use: {
     baseURL,
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    trace: 'on',
+    screenshot: 'on',
     video: 'retain-on-failure',
+    storageState: '.e2e-auth.json',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   // Requires Odoo + BFF already running; Vite dev server optional when E2E_BASE_URL points at BFF :3000

@@ -61,6 +61,21 @@ const QUICK_ACTIONS: QuickAction[] = [
     color: 'bg-rose-500/10 text-rose-500',
     domain: [['type', '=', 'opportunity']],
   },
+  {
+    label: 'Purchase',
+    model: 'purchase.order',
+    view: 'kanban',
+    icon: 'oi oi-shopping-cart',
+    color: 'bg-amber-500/10 text-amber-500',
+    domain: [['state', 'in', ['draft', 'sent', 'to approve']]],
+  },
+  {
+    label: 'Projects',
+    model: 'project.task',
+    view: 'kanban',
+    icon: 'oi oi-project',
+    color: 'bg-sky-500/10 text-sky-500',
+  },
 ]
 
 const STAGE_STATS = [
@@ -71,6 +86,12 @@ const STAGE_STATS = [
     label: 'Pipeline by Stage',
   },
   { model: 'sale.order', domain: [], groupField: 'state', label: 'Orders by State' },
+  {
+    model: 'purchase.order',
+    domain: [],
+    groupField: 'state',
+    label: 'Purchase Orders by State',
+  },
 ]
 
 const RECENT_MODELS = [
@@ -85,6 +106,12 @@ const RECENT_MODELS = [
     domain: [],
     fields: ['name', 'partner_id', 'state', 'amount_total'],
     label: 'Recent Orders',
+  },
+  {
+    model: 'project.task',
+    domain: [['is_closed', '=', false]],
+    fields: ['name', 'project_id', 'stage_id', 'priority'],
+    label: 'Open Tasks',
   },
 ]
 
@@ -218,6 +245,13 @@ const OVERVIEW_STATS = [
   { model: 'crm.lead', domain: [['type', '=', 'lead']], label: 'Leads' },
   { model: 'crm.lead', domain: [['type', '=', 'opportunity']], label: 'Opportunities' },
   { model: 'sale.order', domain: [], label: 'Sale Orders' },
+  {
+    model: 'purchase.order',
+    domain: [['state', 'in', ['draft', 'sent', 'to approve']]],
+    label: 'RFQs',
+  },
+  { model: 'purchase.order', domain: [['state', '=', 'purchase']], label: 'Purchase Orders' },
+  { model: 'project.task', domain: [['is_closed', '=', false]], label: 'Open Tasks' },
   { model: 'stock.picking', domain: [], label: 'Pickings' },
 ]
 

@@ -16,12 +16,18 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SaleIndexRouteImport } from './routes/sale/index'
+import { Route as PurchaseIndexRouteImport } from './routes/purchase/index'
+import { Route as ProjectIndexRouteImport } from './routes/project/index'
 import { Route as InventoryIndexRouteImport } from './routes/inventory/index'
 import { Route as HrIndexRouteImport } from './routes/hr/index'
 import { Route as CrmIndexRouteImport } from './routes/crm/index'
 import { Route as ContactsIndexRouteImport } from './routes/contacts/index'
 import { Route as AccountingIndexRouteImport } from './routes/accounting/index'
 import { Route as SaleOrdersRouteImport } from './routes/sale/orders'
+import { Route as PurchaseRfqsRouteImport } from './routes/purchase/rfqs'
+import { Route as PurchaseOrdersRouteImport } from './routes/purchase/orders'
+import { Route as ProjectTasksRouteImport } from './routes/project/tasks'
+import { Route as ProjectProjectsRouteImport } from './routes/project/projects'
 import { Route as InventoryPickingsRouteImport } from './routes/inventory/pickings'
 import { Route as HrWorkLocationsRouteImport } from './routes/hr/work-locations'
 import { Route as HrPlansRouteImport } from './routes/hr/plans'
@@ -29,14 +35,19 @@ import { Route as HrJobsRouteImport } from './routes/hr/jobs'
 import { Route as HrEmployeesRouteImport } from './routes/hr/employees'
 import { Route as HrDirectoryRouteImport } from './routes/hr/directory'
 import { Route as HrDepartmentsRouteImport } from './routes/hr/departments'
+import { Route as CrmTeamsRouteImport } from './routes/crm/teams'
 import { Route as CrmPipelineRouteImport } from './routes/crm/pipeline'
 import { Route as CrmLeadsRouteImport } from './routes/crm/leads'
 import { Route as ContactsPartnersRouteImport } from './routes/contacts/partners'
 import { Route as AccountingMovesRouteImport } from './routes/accounting/moves'
 import { Route as SaleOrderIdRouteImport } from './routes/sale/order.$id'
+import { Route as PurchaseOrderIdRouteImport } from './routes/purchase/order.$id'
+import { Route as ProjectTaskIdRouteImport } from './routes/project/task.$id'
+import { Route as ProjectProjectIdRouteImport } from './routes/project/project.$id'
 import { Route as InventoryPickingIdRouteImport } from './routes/inventory/picking.$id'
 import { Route as HrEmployeeIdRouteImport } from './routes/hr/employee.$id'
 import { Route as HrDepartmentIdRouteImport } from './routes/hr/department.$id'
+import { Route as CrmTeamIdRouteImport } from './routes/crm/team.$id'
 import { Route as CrmLeadIdRouteImport } from './routes/crm/lead.$id'
 import { Route as ContactsPartnerIdRouteImport } from './routes/contacts/partner.$id'
 import { Route as AccountingMoveIdRouteImport } from './routes/accounting/move.$id'
@@ -76,6 +87,16 @@ const SaleIndexRoute = SaleIndexRouteImport.update({
   path: '/sale/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PurchaseIndexRoute = PurchaseIndexRouteImport.update({
+  id: '/purchase/',
+  path: '/purchase/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectIndexRoute = ProjectIndexRouteImport.update({
+  id: '/project/',
+  path: '/project/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InventoryIndexRoute = InventoryIndexRouteImport.update({
   id: '/inventory/',
   path: '/inventory/',
@@ -104,6 +125,26 @@ const AccountingIndexRoute = AccountingIndexRouteImport.update({
 const SaleOrdersRoute = SaleOrdersRouteImport.update({
   id: '/sale/orders',
   path: '/sale/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PurchaseRfqsRoute = PurchaseRfqsRouteImport.update({
+  id: '/purchase/rfqs',
+  path: '/purchase/rfqs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PurchaseOrdersRoute = PurchaseOrdersRouteImport.update({
+  id: '/purchase/orders',
+  path: '/purchase/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectTasksRoute = ProjectTasksRouteImport.update({
+  id: '/project/tasks',
+  path: '/project/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectProjectsRoute = ProjectProjectsRouteImport.update({
+  id: '/project/projects',
+  path: '/project/projects',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InventoryPickingsRoute = InventoryPickingsRouteImport.update({
@@ -141,6 +182,11 @@ const HrDepartmentsRoute = HrDepartmentsRouteImport.update({
   path: '/hr/departments',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CrmTeamsRoute = CrmTeamsRouteImport.update({
+  id: '/crm/teams',
+  path: '/crm/teams',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CrmPipelineRoute = CrmPipelineRouteImport.update({
   id: '/crm/pipeline',
   path: '/crm/pipeline',
@@ -166,6 +212,21 @@ const SaleOrderIdRoute = SaleOrderIdRouteImport.update({
   path: '/sale/order/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PurchaseOrderIdRoute = PurchaseOrderIdRouteImport.update({
+  id: '/purchase/order/$id',
+  path: '/purchase/order/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectTaskIdRoute = ProjectTaskIdRouteImport.update({
+  id: '/project/task/$id',
+  path: '/project/task/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectProjectIdRoute = ProjectProjectIdRouteImport.update({
+  id: '/project/project/$id',
+  path: '/project/project/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InventoryPickingIdRoute = InventoryPickingIdRouteImport.update({
   id: '/inventory/picking/$id',
   path: '/inventory/picking/$id',
@@ -179,6 +240,11 @@ const HrEmployeeIdRoute = HrEmployeeIdRouteImport.update({
 const HrDepartmentIdRoute = HrDepartmentIdRouteImport.update({
   id: '/hr/department/$id',
   path: '/hr/department/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrmTeamIdRoute = CrmTeamIdRouteImport.update({
+  id: '/crm/team/$id',
+  path: '/crm/team/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CrmLeadIdRoute = CrmLeadIdRouteImport.update({
@@ -208,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/contacts/partners': typeof ContactsPartnersRoute
   '/crm/leads': typeof CrmLeadsRoute
   '/crm/pipeline': typeof CrmPipelineRoute
+  '/crm/teams': typeof CrmTeamsRoute
   '/hr/departments': typeof HrDepartmentsRoute
   '/hr/directory': typeof HrDirectoryRoute
   '/hr/employees': typeof HrEmployeesRoute
@@ -215,19 +282,29 @@ export interface FileRoutesByFullPath {
   '/hr/plans': typeof HrPlansRoute
   '/hr/work-locations': typeof HrWorkLocationsRoute
   '/inventory/pickings': typeof InventoryPickingsRoute
+  '/project/projects': typeof ProjectProjectsRoute
+  '/project/tasks': typeof ProjectTasksRoute
+  '/purchase/orders': typeof PurchaseOrdersRoute
+  '/purchase/rfqs': typeof PurchaseRfqsRoute
   '/sale/orders': typeof SaleOrdersRoute
   '/accounting/': typeof AccountingIndexRoute
   '/contacts/': typeof ContactsIndexRoute
   '/crm/': typeof CrmIndexRoute
   '/hr/': typeof HrIndexRoute
   '/inventory/': typeof InventoryIndexRoute
+  '/project/': typeof ProjectIndexRoute
+  '/purchase/': typeof PurchaseIndexRoute
   '/sale/': typeof SaleIndexRoute
   '/accounting/move/$id': typeof AccountingMoveIdRoute
   '/contacts/partner/$id': typeof ContactsPartnerIdRoute
   '/crm/lead/$id': typeof CrmLeadIdRoute
+  '/crm/team/$id': typeof CrmTeamIdRoute
   '/hr/department/$id': typeof HrDepartmentIdRoute
   '/hr/employee/$id': typeof HrEmployeeIdRoute
   '/inventory/picking/$id': typeof InventoryPickingIdRoute
+  '/project/project/$id': typeof ProjectProjectIdRoute
+  '/project/task/$id': typeof ProjectTaskIdRoute
+  '/purchase/order/$id': typeof PurchaseOrderIdRoute
   '/sale/order/$id': typeof SaleOrderIdRoute
 }
 export interface FileRoutesByTo {
@@ -241,6 +318,7 @@ export interface FileRoutesByTo {
   '/contacts/partners': typeof ContactsPartnersRoute
   '/crm/leads': typeof CrmLeadsRoute
   '/crm/pipeline': typeof CrmPipelineRoute
+  '/crm/teams': typeof CrmTeamsRoute
   '/hr/departments': typeof HrDepartmentsRoute
   '/hr/directory': typeof HrDirectoryRoute
   '/hr/employees': typeof HrEmployeesRoute
@@ -248,19 +326,29 @@ export interface FileRoutesByTo {
   '/hr/plans': typeof HrPlansRoute
   '/hr/work-locations': typeof HrWorkLocationsRoute
   '/inventory/pickings': typeof InventoryPickingsRoute
+  '/project/projects': typeof ProjectProjectsRoute
+  '/project/tasks': typeof ProjectTasksRoute
+  '/purchase/orders': typeof PurchaseOrdersRoute
+  '/purchase/rfqs': typeof PurchaseRfqsRoute
   '/sale/orders': typeof SaleOrdersRoute
   '/accounting': typeof AccountingIndexRoute
   '/contacts': typeof ContactsIndexRoute
   '/crm': typeof CrmIndexRoute
   '/hr': typeof HrIndexRoute
   '/inventory': typeof InventoryIndexRoute
+  '/project': typeof ProjectIndexRoute
+  '/purchase': typeof PurchaseIndexRoute
   '/sale': typeof SaleIndexRoute
   '/accounting/move/$id': typeof AccountingMoveIdRoute
   '/contacts/partner/$id': typeof ContactsPartnerIdRoute
   '/crm/lead/$id': typeof CrmLeadIdRoute
+  '/crm/team/$id': typeof CrmTeamIdRoute
   '/hr/department/$id': typeof HrDepartmentIdRoute
   '/hr/employee/$id': typeof HrEmployeeIdRoute
   '/inventory/picking/$id': typeof InventoryPickingIdRoute
+  '/project/project/$id': typeof ProjectProjectIdRoute
+  '/project/task/$id': typeof ProjectTaskIdRoute
+  '/purchase/order/$id': typeof PurchaseOrderIdRoute
   '/sale/order/$id': typeof SaleOrderIdRoute
 }
 export interface FileRoutesById {
@@ -275,6 +363,7 @@ export interface FileRoutesById {
   '/contacts/partners': typeof ContactsPartnersRoute
   '/crm/leads': typeof CrmLeadsRoute
   '/crm/pipeline': typeof CrmPipelineRoute
+  '/crm/teams': typeof CrmTeamsRoute
   '/hr/departments': typeof HrDepartmentsRoute
   '/hr/directory': typeof HrDirectoryRoute
   '/hr/employees': typeof HrEmployeesRoute
@@ -282,19 +371,29 @@ export interface FileRoutesById {
   '/hr/plans': typeof HrPlansRoute
   '/hr/work-locations': typeof HrWorkLocationsRoute
   '/inventory/pickings': typeof InventoryPickingsRoute
+  '/project/projects': typeof ProjectProjectsRoute
+  '/project/tasks': typeof ProjectTasksRoute
+  '/purchase/orders': typeof PurchaseOrdersRoute
+  '/purchase/rfqs': typeof PurchaseRfqsRoute
   '/sale/orders': typeof SaleOrdersRoute
   '/accounting/': typeof AccountingIndexRoute
   '/contacts/': typeof ContactsIndexRoute
   '/crm/': typeof CrmIndexRoute
   '/hr/': typeof HrIndexRoute
   '/inventory/': typeof InventoryIndexRoute
+  '/project/': typeof ProjectIndexRoute
+  '/purchase/': typeof PurchaseIndexRoute
   '/sale/': typeof SaleIndexRoute
   '/accounting/move/$id': typeof AccountingMoveIdRoute
   '/contacts/partner/$id': typeof ContactsPartnerIdRoute
   '/crm/lead/$id': typeof CrmLeadIdRoute
+  '/crm/team/$id': typeof CrmTeamIdRoute
   '/hr/department/$id': typeof HrDepartmentIdRoute
   '/hr/employee/$id': typeof HrEmployeeIdRoute
   '/inventory/picking/$id': typeof InventoryPickingIdRoute
+  '/project/project/$id': typeof ProjectProjectIdRoute
+  '/project/task/$id': typeof ProjectTaskIdRoute
+  '/purchase/order/$id': typeof PurchaseOrderIdRoute
   '/sale/order/$id': typeof SaleOrderIdRoute
 }
 export interface FileRouteTypes {
@@ -310,6 +409,7 @@ export interface FileRouteTypes {
     | '/contacts/partners'
     | '/crm/leads'
     | '/crm/pipeline'
+    | '/crm/teams'
     | '/hr/departments'
     | '/hr/directory'
     | '/hr/employees'
@@ -317,19 +417,29 @@ export interface FileRouteTypes {
     | '/hr/plans'
     | '/hr/work-locations'
     | '/inventory/pickings'
+    | '/project/projects'
+    | '/project/tasks'
+    | '/purchase/orders'
+    | '/purchase/rfqs'
     | '/sale/orders'
     | '/accounting/'
     | '/contacts/'
     | '/crm/'
     | '/hr/'
     | '/inventory/'
+    | '/project/'
+    | '/purchase/'
     | '/sale/'
     | '/accounting/move/$id'
     | '/contacts/partner/$id'
     | '/crm/lead/$id'
+    | '/crm/team/$id'
     | '/hr/department/$id'
     | '/hr/employee/$id'
     | '/inventory/picking/$id'
+    | '/project/project/$id'
+    | '/project/task/$id'
+    | '/purchase/order/$id'
     | '/sale/order/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -343,6 +453,7 @@ export interface FileRouteTypes {
     | '/contacts/partners'
     | '/crm/leads'
     | '/crm/pipeline'
+    | '/crm/teams'
     | '/hr/departments'
     | '/hr/directory'
     | '/hr/employees'
@@ -350,19 +461,29 @@ export interface FileRouteTypes {
     | '/hr/plans'
     | '/hr/work-locations'
     | '/inventory/pickings'
+    | '/project/projects'
+    | '/project/tasks'
+    | '/purchase/orders'
+    | '/purchase/rfqs'
     | '/sale/orders'
     | '/accounting'
     | '/contacts'
     | '/crm'
     | '/hr'
     | '/inventory'
+    | '/project'
+    | '/purchase'
     | '/sale'
     | '/accounting/move/$id'
     | '/contacts/partner/$id'
     | '/crm/lead/$id'
+    | '/crm/team/$id'
     | '/hr/department/$id'
     | '/hr/employee/$id'
     | '/inventory/picking/$id'
+    | '/project/project/$id'
+    | '/project/task/$id'
+    | '/purchase/order/$id'
     | '/sale/order/$id'
   id:
     | '__root__'
@@ -376,6 +497,7 @@ export interface FileRouteTypes {
     | '/contacts/partners'
     | '/crm/leads'
     | '/crm/pipeline'
+    | '/crm/teams'
     | '/hr/departments'
     | '/hr/directory'
     | '/hr/employees'
@@ -383,19 +505,29 @@ export interface FileRouteTypes {
     | '/hr/plans'
     | '/hr/work-locations'
     | '/inventory/pickings'
+    | '/project/projects'
+    | '/project/tasks'
+    | '/purchase/orders'
+    | '/purchase/rfqs'
     | '/sale/orders'
     | '/accounting/'
     | '/contacts/'
     | '/crm/'
     | '/hr/'
     | '/inventory/'
+    | '/project/'
+    | '/purchase/'
     | '/sale/'
     | '/accounting/move/$id'
     | '/contacts/partner/$id'
     | '/crm/lead/$id'
+    | '/crm/team/$id'
     | '/hr/department/$id'
     | '/hr/employee/$id'
     | '/inventory/picking/$id'
+    | '/project/project/$id'
+    | '/project/task/$id'
+    | '/purchase/order/$id'
     | '/sale/order/$id'
   fileRoutesById: FileRoutesById
 }
@@ -410,6 +542,7 @@ export interface RootRouteChildren {
   ContactsPartnersRoute: typeof ContactsPartnersRoute
   CrmLeadsRoute: typeof CrmLeadsRoute
   CrmPipelineRoute: typeof CrmPipelineRoute
+  CrmTeamsRoute: typeof CrmTeamsRoute
   HrDepartmentsRoute: typeof HrDepartmentsRoute
   HrDirectoryRoute: typeof HrDirectoryRoute
   HrEmployeesRoute: typeof HrEmployeesRoute
@@ -417,19 +550,29 @@ export interface RootRouteChildren {
   HrPlansRoute: typeof HrPlansRoute
   HrWorkLocationsRoute: typeof HrWorkLocationsRoute
   InventoryPickingsRoute: typeof InventoryPickingsRoute
+  ProjectProjectsRoute: typeof ProjectProjectsRoute
+  ProjectTasksRoute: typeof ProjectTasksRoute
+  PurchaseOrdersRoute: typeof PurchaseOrdersRoute
+  PurchaseRfqsRoute: typeof PurchaseRfqsRoute
   SaleOrdersRoute: typeof SaleOrdersRoute
   AccountingIndexRoute: typeof AccountingIndexRoute
   ContactsIndexRoute: typeof ContactsIndexRoute
   CrmIndexRoute: typeof CrmIndexRoute
   HrIndexRoute: typeof HrIndexRoute
   InventoryIndexRoute: typeof InventoryIndexRoute
+  ProjectIndexRoute: typeof ProjectIndexRoute
+  PurchaseIndexRoute: typeof PurchaseIndexRoute
   SaleIndexRoute: typeof SaleIndexRoute
   AccountingMoveIdRoute: typeof AccountingMoveIdRoute
   ContactsPartnerIdRoute: typeof ContactsPartnerIdRoute
   CrmLeadIdRoute: typeof CrmLeadIdRoute
+  CrmTeamIdRoute: typeof CrmTeamIdRoute
   HrDepartmentIdRoute: typeof HrDepartmentIdRoute
   HrEmployeeIdRoute: typeof HrEmployeeIdRoute
   InventoryPickingIdRoute: typeof InventoryPickingIdRoute
+  ProjectProjectIdRoute: typeof ProjectProjectIdRoute
+  ProjectTaskIdRoute: typeof ProjectTaskIdRoute
+  PurchaseOrderIdRoute: typeof PurchaseOrderIdRoute
   SaleOrderIdRoute: typeof SaleOrderIdRoute
 }
 
@@ -484,6 +627,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SaleIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/purchase/': {
+      id: '/purchase/'
+      path: '/purchase'
+      fullPath: '/purchase/'
+      preLoaderRoute: typeof PurchaseIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/project/': {
+      id: '/project/'
+      path: '/project'
+      fullPath: '/project/'
+      preLoaderRoute: typeof ProjectIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inventory/': {
       id: '/inventory/'
       path: '/inventory'
@@ -524,6 +681,34 @@ declare module '@tanstack/react-router' {
       path: '/sale/orders'
       fullPath: '/sale/orders'
       preLoaderRoute: typeof SaleOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/purchase/rfqs': {
+      id: '/purchase/rfqs'
+      path: '/purchase/rfqs'
+      fullPath: '/purchase/rfqs'
+      preLoaderRoute: typeof PurchaseRfqsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/purchase/orders': {
+      id: '/purchase/orders'
+      path: '/purchase/orders'
+      fullPath: '/purchase/orders'
+      preLoaderRoute: typeof PurchaseOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/project/tasks': {
+      id: '/project/tasks'
+      path: '/project/tasks'
+      fullPath: '/project/tasks'
+      preLoaderRoute: typeof ProjectTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/project/projects': {
+      id: '/project/projects'
+      path: '/project/projects'
+      fullPath: '/project/projects'
+      preLoaderRoute: typeof ProjectProjectsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inventory/pickings': {
@@ -575,6 +760,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HrDepartmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/crm/teams': {
+      id: '/crm/teams'
+      path: '/crm/teams'
+      fullPath: '/crm/teams'
+      preLoaderRoute: typeof CrmTeamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/crm/pipeline': {
       id: '/crm/pipeline'
       path: '/crm/pipeline'
@@ -610,6 +802,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SaleOrderIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/purchase/order/$id': {
+      id: '/purchase/order/$id'
+      path: '/purchase/order/$id'
+      fullPath: '/purchase/order/$id'
+      preLoaderRoute: typeof PurchaseOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/project/task/$id': {
+      id: '/project/task/$id'
+      path: '/project/task/$id'
+      fullPath: '/project/task/$id'
+      preLoaderRoute: typeof ProjectTaskIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/project/project/$id': {
+      id: '/project/project/$id'
+      path: '/project/project/$id'
+      fullPath: '/project/project/$id'
+      preLoaderRoute: typeof ProjectProjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inventory/picking/$id': {
       id: '/inventory/picking/$id'
       path: '/inventory/picking/$id'
@@ -629,6 +842,13 @@ declare module '@tanstack/react-router' {
       path: '/hr/department/$id'
       fullPath: '/hr/department/$id'
       preLoaderRoute: typeof HrDepartmentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crm/team/$id': {
+      id: '/crm/team/$id'
+      path: '/crm/team/$id'
+      fullPath: '/crm/team/$id'
+      preLoaderRoute: typeof CrmTeamIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crm/lead/$id': {
@@ -666,6 +886,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactsPartnersRoute: ContactsPartnersRoute,
   CrmLeadsRoute: CrmLeadsRoute,
   CrmPipelineRoute: CrmPipelineRoute,
+  CrmTeamsRoute: CrmTeamsRoute,
   HrDepartmentsRoute: HrDepartmentsRoute,
   HrDirectoryRoute: HrDirectoryRoute,
   HrEmployeesRoute: HrEmployeesRoute,
@@ -673,19 +894,29 @@ const rootRouteChildren: RootRouteChildren = {
   HrPlansRoute: HrPlansRoute,
   HrWorkLocationsRoute: HrWorkLocationsRoute,
   InventoryPickingsRoute: InventoryPickingsRoute,
+  ProjectProjectsRoute: ProjectProjectsRoute,
+  ProjectTasksRoute: ProjectTasksRoute,
+  PurchaseOrdersRoute: PurchaseOrdersRoute,
+  PurchaseRfqsRoute: PurchaseRfqsRoute,
   SaleOrdersRoute: SaleOrdersRoute,
   AccountingIndexRoute: AccountingIndexRoute,
   ContactsIndexRoute: ContactsIndexRoute,
   CrmIndexRoute: CrmIndexRoute,
   HrIndexRoute: HrIndexRoute,
   InventoryIndexRoute: InventoryIndexRoute,
+  ProjectIndexRoute: ProjectIndexRoute,
+  PurchaseIndexRoute: PurchaseIndexRoute,
   SaleIndexRoute: SaleIndexRoute,
   AccountingMoveIdRoute: AccountingMoveIdRoute,
   ContactsPartnerIdRoute: ContactsPartnerIdRoute,
   CrmLeadIdRoute: CrmLeadIdRoute,
+  CrmTeamIdRoute: CrmTeamIdRoute,
   HrDepartmentIdRoute: HrDepartmentIdRoute,
   HrEmployeeIdRoute: HrEmployeeIdRoute,
   InventoryPickingIdRoute: InventoryPickingIdRoute,
+  ProjectProjectIdRoute: ProjectProjectIdRoute,
+  ProjectTaskIdRoute: ProjectTaskIdRoute,
+  PurchaseOrderIdRoute: PurchaseOrderIdRoute,
   SaleOrderIdRoute: SaleOrderIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -130,10 +130,7 @@ export function OdooViewLoader({
         prev.justSaved === actions.justSaved &&
         prev.saveError === actions.saveError &&
         prev.isSaving === actions.isSaving &&
-        prev.compact === actions.compact &&
-        prev.onEdit === actions.onEdit &&
-        prev.onSave === actions.onSave &&
-        prev.onCancel === actions.onCancel
+        prev.compact === actions.compact
       ) {
         return prev
       }
