@@ -62,18 +62,20 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
   { fragment: 'menu_config_plan_plan', to: '/hr/plans' },
   { fragment: 'mail_activity_plan_action', to: '/hr/plans' },
   // CRM
-  { fragment: 'menu_crm_opportunities', to: '/crm/pipeline', recordPrefix: '/crm/lead' },
-  { fragment: 'crm_opportunity_report_menu_lead', to: '/crm/leads', recordPrefix: '/crm/lead' },
-  { fragment: 'menu_crm_leads', to: '/crm/leads', recordPrefix: '/crm/lead' },
-  // Sale
-  { fragment: 'menu_sale_order', to: '/sale/orders', recordPrefix: '/sale/order' },
-  { fragment: 'menu_sale_quotations', to: '/sale/orders', recordPrefix: '/sale/order' },
-  // Inventory (stock addon xmlids)
-  { fragment: 'menu_stock_picking', to: '/inventory/pickings', recordPrefix: '/inventory/picking' },
   {
-    fragment: 'stock_picking_type_menu',
-    to: '/inventory/pickings',
-    recordPrefix: '/inventory/picking',
+    fragment: 'crm_team_action_pipeline',
+    to: '/crm/teams',
+    recordPrefix: '/crm/team',
+  },
+  {
+    fragment: 'sales_team_crm_team_action_config',
+    to: '/crm/teams',
+    recordPrefix: '/crm/team',
+  },
+  {
+    fragment: 'menu_crm_opportunities',
+    to: '/crm/pipeline',
+    recordPrefix: '/crm/lead',
   },
   {
     fragment: 'menu_action_picking_tree',
@@ -101,6 +103,68 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
     fragment: 'res_partner_menu_contacts',
     to: '/contacts/partners',
     recordPrefix: '/contacts/partner',
+  },
+  // Purchase
+  {
+    fragment: 'menu_purchase_rfq',
+    to: '/purchase/rfqs',
+    recordPrefix: '/purchase/order',
+  },
+  {
+    fragment: 'menu_purchase_form_action',
+    to: '/purchase/orders',
+    recordPrefix: '/purchase/order',
+  },
+  {
+    fragment: 'menu_procurement_management',
+    to: '/purchase/rfqs',
+    recordPrefix: '/purchase/order',
+  },
+  {
+    fragment: 'menu_purchase_root',
+    to: '/purchase/rfqs',
+    recordPrefix: '/purchase/order',
+  },
+  // Project
+  {
+    fragment: 'open_view_project_all',
+    to: '/project/projects',
+    recordPrefix: '/project/project',
+  },
+  {
+    fragment: 'action_view_all_task',
+    to: '/project/tasks',
+    recordPrefix: '/project/task',
+  },
+  {
+    fragment: 'action_view_my_task',
+    to: '/project/tasks',
+    recordPrefix: '/project/task',
+  },
+  {
+    fragment: 'project_task_action_sub_task',
+    to: '/project/tasks',
+    recordPrefix: '/project/task',
+  },
+  {
+    fragment: 'menu_project_management_all_tasks',
+    to: '/project/tasks',
+    recordPrefix: '/project/task',
+  },
+  {
+    fragment: 'menu_project_management_my_tasks',
+    to: '/project/tasks',
+    recordPrefix: '/project/task',
+  },
+  {
+    fragment: 'menu_project_management',
+    to: '/project/tasks',
+    recordPrefix: '/project/task',
+  },
+  {
+    fragment: 'menu_main_pm',
+    to: '/project/tasks',
+    recordPrefix: '/project/task',
   },
 ]
 

@@ -26,6 +26,10 @@
     "mail.activity.type",
     "mail.message",
     "mail.followers",
-    "ir.filters"
+    "ir.filters",
+    "purchase.order",
+    "purchase.order.line",
+    "project.project",
+    "project.task"
   ]
 }

@@ -15,9 +15,13 @@ export const MODEL_MODULE_ROUTES: Readonly<Record<string, ModuleRouteSpec>> = {
   'hr.employee.public': { listPath: '/hr/directory', recordPrefix: '/hr/employee' },
   'hr.department': { listPath: '/hr/departments', recordPrefix: '/hr/department' },
   'crm.lead': { listPath: '/crm/pipeline', recordPrefix: '/crm/lead' },
+  'crm.team': { listPath: '/crm/teams', recordPrefix: '/crm/team' },
   'sale.order': { listPath: '/sale/orders', recordPrefix: '/sale/order' },
   'stock.picking': { listPath: '/inventory/pickings', recordPrefix: '/inventory/picking' },
   'account.move': { listPath: '/accounting/moves', recordPrefix: '/accounting/move' },
+  'purchase.order': { listPath: '/purchase/orders', recordPrefix: '/purchase/order' },
+  'project.project': { listPath: '/project/projects', recordPrefix: '/project/project' },
+  'project.task': { listPath: '/project/tasks', recordPrefix: '/project/task' },
   'res.partner': { listPath: '/contacts/partners', recordPrefix: '/contacts/partner' },
 }
 
@@ -37,6 +41,14 @@ export const MODULE_ACTION_PATH_ROUTES: Readonly<Record<string, Readonly<Record<
     },
     stock: {
       inventory: '/inventory/pickings',
+    },
+    purchase: {
+      orders: '/purchase/orders',
+      rfqs: '/purchase/rfqs',
+    },
+    project: {
+      projects: '/project/projects',
+      tasks: '/project/tasks',
     },
     contacts: {
       contacts: '/contacts/partners',
