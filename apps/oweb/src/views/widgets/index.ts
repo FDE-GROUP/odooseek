@@ -15,9 +15,11 @@ import {
   PercentageWidget,
   TextWidget,
 } from './basic'
+import { DaterangeWidget } from './daterange'
 import { BinaryWidget, ImageFieldWidget } from './media'
 import { OrgChartWidget } from './OrgChart'
 import { PresenceIcon } from './PresenceIcon'
+import { PropertiesWidget } from './properties'
 import {
   AttachmentImageWidget,
   Many2ManyCheckboxesWidget,
@@ -37,6 +39,7 @@ import {
   StateSelectionWidget,
   StatusbarWidget,
 } from './selection'
+import { SignatureWidget } from './signature'
 import {
   BooleanFavoriteWidget,
   BooleanIconWidget,
@@ -88,6 +91,7 @@ export {
   CharWidget,
   ColorPickerWidget,
   CopyClipboardWidget,
+  DaterangeWidget,
   DatetimeWidget,
   DateWidget,
   EmailWidget,
@@ -114,9 +118,11 @@ export {
   PresenceIcon,
   PriorityWidget,
   ProgressbarWidget,
+  PropertiesWidget,
   RadioWidget,
   RemainingDaysWidget,
   SelectionWidget,
+  SignatureWidget,
   StateBadgeWidget,
   StateSelectionWidget,
   StatusbarWidget,
@@ -185,6 +191,11 @@ const WIDGET_OVERRIDES: Record<string, React.ComponentType<FieldWidgetProps>> = 
   web_ribbon: WebRibbonWidget,
   kanban_activity: KanbanActivityWidget,
   rotting: RottingWidget,
+  signature: SignatureWidget,
+  daterange: DaterangeWidget,
+  properties: PropertiesWidget,
+  lead_properties: PropertiesWidget,
+  task_properties: PropertiesWidget,
   // HR
   background_image: BackgroundImageWidget,
   presence_icon: PresenceIcon,
@@ -202,6 +213,31 @@ const WIDGET_ALIASES: Record<string, keyof typeof WIDGET_OVERRIDES> = {
   versions_timeline: 'version_timeline',
   employee_badge: 'badge_print',
   hr_employee_badge: 'badge_print',
+  // Odoo 19 high-frequency aliases
+  many2one_avatar_user: 'many2one_avatar',
+  many2one_avatar_employee: 'many2one_avatar',
+  many2one_avatar_resource: 'many2one_avatar',
+  res_partner_many2one: 'many2one',
+  many2one_barcode: 'many2one',
+  many2many_tags_avatar_popover: 'many2many_tags_avatar',
+  CopyClipboardChar: 'copy_clipboard',
+  CopyClipboardURL: 'copy_clipboard',
+  CopyClipboardButton: 'copy_clipboard',
+  list_activity: 'kanban_activity',
+  badge: 'selection_badge',
+  badge_selection: 'selection_badge',
+  formatte_date: 'date',
+  boolean_radio: 'radio',
+  float_toggle: 'boolean_toggle',
+  image_radio: 'radio',
+  boolean_toggle_confirm: 'boolean_toggle',
+  checkbox: 'boolean',
+  color: 'color_picker',
+  kanban_color_picker: 'color_picker',
+  ace: 'html',
+  code: 'html',
+  section_and_note_text: 'text',
+  rotting_statusbar_duration: 'statusbar',
 }
 
 function resolveWidgetOverride(widget?: string) {

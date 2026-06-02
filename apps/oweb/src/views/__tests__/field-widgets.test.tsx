@@ -635,19 +635,23 @@ describe('field-widgets', () => {
   test('StatusbarWidget renders clickable status buttons', () => {
     const Widget = getFieldWidget({ ...baseField, widget: 'statusbar' }, 'selection')
     render(
-      createElement(Widget, {
-        field: baseField,
-        value: 'confirmed',
-        onChange: () => {},
-        readOnly: false,
-        meta: {
-          selection: [
-            ['draft', 'Draft'],
-            ['confirmed', 'Confirmed'],
-            ['done', 'Done'],
-          ],
-        },
-      }),
+      createElement(
+        QueryClientProvider,
+        { client: new QueryClient() },
+        createElement(Widget, {
+          field: baseField,
+          value: 'confirmed',
+          onChange: () => {},
+          readOnly: false,
+          meta: {
+            selection: [
+              ['draft', 'Draft'],
+              ['confirmed', 'Confirmed'],
+              ['done', 'Done'],
+            ],
+          },
+        }),
+      ),
     )
     expect(screen.getByText('Draft')).toBeInTheDocument()
     expect(screen.getByText('Confirmed')).toBeInTheDocument()
@@ -657,19 +661,23 @@ describe('field-widgets', () => {
   test('StatusbarWidget highlights current value', () => {
     const Widget = getFieldWidget({ ...baseField, widget: 'statusbar' }, 'selection')
     render(
-      createElement(Widget, {
-        field: baseField,
-        value: 'confirmed',
-        onChange: () => {},
-        readOnly: false,
-        meta: {
-          selection: [
-            ['draft', 'Draft'],
-            ['confirmed', 'Confirmed'],
-            ['done', 'Done'],
-          ],
-        },
-      }),
+      createElement(
+        QueryClientProvider,
+        { client: new QueryClient() },
+        createElement(Widget, {
+          field: baseField,
+          value: 'confirmed',
+          onChange: () => {},
+          readOnly: false,
+          meta: {
+            selection: [
+              ['draft', 'Draft'],
+              ['confirmed', 'Confirmed'],
+              ['done', 'Done'],
+            ],
+          },
+        }),
+      ),
     )
     const currentBtn = screen.getByText('Confirmed')
     expect(currentBtn.className).toContain('bg-accent')
