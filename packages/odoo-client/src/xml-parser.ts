@@ -8,6 +8,7 @@ import type {
   GraphField,
   GraphMeasure,
   KanbanTemplateNode,
+  KanbanProgressbar,
   ListButtonElement,
   ListButtonGroup,
   ListColumn,
@@ -405,6 +406,7 @@ export function parseKanbanXml(xml: string): ParsedKanbanView {
 
   const defaultGroupBy = root.getAttribute('default_group_by') ?? undefined
   const highlightColor = root.getAttribute('highlight_color') ?? undefined
+  const quickCreateView = root.getAttribute('quick_create_view') ?? undefined
 
   // Use XMLSerializer to preserve inner XML (textContent strips tags!)
   const serializer = new XMLSerializer()
@@ -424,7 +426,7 @@ export function parseKanbanXml(xml: string): ParsedKanbanView {
 
   // Parse <progressbar> element
   const progressbarEl = root.querySelector('progressbar')
-  let progressbar: { field: string; colors: Record<string, string> } | undefined
+  let progressbar: KanbanProgressbar | undefined
   if (progressbarEl) {
     const field = progressbarEl.getAttribute('field') || ''
     const colorsRaw = progressbarEl.getAttribute('colors') || '{}'
@@ -435,7 +437,10 @@ export function parseKanbanXml(xml: string): ParsedKanbanView {
     } catch {
       /* skip */
     }
-    if (field) progressbar = { field, colors }
+    if (field) {
+      const sumField = progressbarEl.getAttribute('sum_field') || undefined
+      progressbar = { field, colors, sumField }
+    }
   }
 
   return {
@@ -447,6 +452,7 @@ export function parseKanbanXml(xml: string): ParsedKanbanView {
     defaultGroupBy,
     highlightColor,
     progressbar,
+    quickCreateView,
   }
 }
 

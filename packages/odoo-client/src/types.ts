@@ -258,7 +258,8 @@ export interface LabelElement {
 
 export interface KanbanProgressbar {
   field: string
-  colors: Record<string, string> // e.g. {"planned": "success", "today": "warning", "overdue": "danger"}
+  colors: Record<string, string>
+  sumField?: string
 }
 
 export interface ParsedKanbanView {
@@ -270,6 +271,7 @@ export interface ParsedKanbanView {
   defaultGroupBy?: string
   highlightColor?: string // e.g. "color"
   progressbar?: KanbanProgressbar
+  quickCreateView?: string
 }
 
 /** Odoo `<activity>` view — matrix of records × mail.activity.type */

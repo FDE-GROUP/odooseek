@@ -20,6 +20,13 @@ import { ODOO_INDEXED_COLORS } from '../lib/odoo-colors'
 import { getFieldWidget, NOOP } from './widgets'
 import { PresenceIconOverlay } from './widgets/PresenceIcon'
 
+interface StageInfo {
+  id: number
+  name: string
+  sequence: number
+  fold?: boolean
+}
+
 interface KanbanRendererProps {
   model: string
   arch: string
@@ -75,10 +82,10 @@ export function OdooKanbanRenderer({
     queryKey: ['odoo', 'groupby-headers', stageModel, groupBy],
     queryFn: async () => {
       if (!stageModel) return []
-      return callKw<Array<Record<string, unknown>>>(
+      return callKw<StageInfo[]>(
         stageModel,
         'search_read',
-        [[], ['name', 'sequence', 'color']],
+        [[], ['name', 'sequence', 'color', 'fold']],
         { order: 'sequence', limit: 100 },
       )
     },
@@ -108,6 +115,17 @@ export function OdooKanbanRenderer({
     if (stages?.length) return stages.map((s) => s.id as number)
     return [...groups.keys()].sort()
   }, [stages, groups, groupBy])
+
+  // Stage fold support
+  const [showFolded, setShowFolded] = useState(false)
+  const foldedIds = useMemo(
+    () => new Set((stages ?? []).filter((s) => s.fold).map((s) => s.id as number)),
+    [stages],
+  )
+  const visibleOrder = useMemo(() => {
+    if (showFolded) return columnOrder
+    return columnOrder.filter((id) => !foldedIds.has(id))
+  }, [columnOrder, foldedIds, showFolded])
 
   // 4. Fetch progressbar aggregate data (counts by progressbar field per group)
   const { data: progressbarData } = useQuery({
@@ -150,20 +168,14 @@ export function OdooKanbanRenderer({
   })
 
   const quickCreateMutation = useMutation({
-    mutationFn: ({ name, stageId }: { name: string; stageId: number }) => {
-      const vals: Record<string, unknown> = { name }
-      if (groupBy) vals[groupBy] = stageId
-      return callKw<number>(model, 'create', [vals])
-    },
+    mutationFn: (vals: Record<string, unknown>) => callKw<number>(model, 'create', [vals]),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['odoo', 'kanban', model, domain, groupBy] })
     },
   })
 
   const handleQuickCreate = useCallback(
-    (name: string, stageId: number) => {
-      quickCreateMutation.mutate({ name, stageId })
-    },
+    (vals: Record<string, unknown>) => quickCreateMutation.mutate(vals),
     [quickCreateMutation],
   )
 
@@ -257,7 +269,7 @@ export function OdooKanbanRenderer({
 
   return (
     <div className="kanban-scroll flex min-h-0 w-full flex-1 gap-4 overflow-x-auto p-4">
-      {columnOrder.map((colId) => {
+      {visibleOrder.map((colId) => {
         const colRecords = groups.get(colId) ?? []
         const stageName =
           stages?.find((s) => s.id === colId)?.name ??
@@ -278,14 +290,25 @@ export function OdooKanbanRenderer({
             highlightColor={highlightColor}
             progressbar={progressbar}
             progressbarCounts={progressbarData?.[colId]}
+            sumField={progressbar?.sumField}
             onRecordClick={onRecordClick}
             onDrop={handleDragEnd}
             onQuickCreate={handleQuickCreate}
             onDelete={handleCardDelete}
             onArchive={handleCardArchive}
+            groupBy={groupBy}
           />
         )
       })}
+      {foldedIds.size > 0 && (
+        <button
+          type="button"
+          onClick={() => setShowFolded((v) => !v)}
+          className="flex shrink-0 items-center self-center rounded-lg border border-border-default px-3 py-2 text-xs text-text-muted hover:bg-hover hover:text-text-primary"
+        >
+          {showFolded ? 'Hide empty stages' : `Show ${foldedIds.size} folded`}
+        </button>
+      )}
     </div>
   )
 }
@@ -301,12 +324,14 @@ function KanbanColumn({
   highlightColor,
   progressbar,
   progressbarCounts,
+  sumField,
   onRecordClick,
   onDrop,
   onQuickCreate,
   onDelete,
   onArchive,
   model,
+  groupBy,
 }: {
   title: string
   stageId: number
@@ -318,12 +343,14 @@ function KanbanColumn({
   highlightColor?: string
   progressbar?: KanbanProgressbar
   progressbarCounts?: Record<string, number>
+  sumField?: string
   onRecordClick?: (id: number) => void
   onDrop: (recordId: number, newStageId: number) => void
-  onQuickCreate?: (name: string, stageId: number) => void
+  onQuickCreate?: (vals: Record<string, unknown>) => void
   onDelete?: (id: number) => void
   onArchive?: (id: number) => void
   model: string
+  groupBy?: string
 }) {
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
@@ -331,10 +358,12 @@ function KanbanColumn({
   const handleSubmit = useCallback(() => {
     const trimmed = name.trim()
     if (!trimmed) return
-    onQuickCreate?.(trimmed, stageId)
+    const vals: Record<string, unknown> = { name: trimmed }
+    if (groupBy) vals[groupBy] = stageId
+    onQuickCreate?.(vals)
     setName('')
     setCreating(false)
-  }, [name, stageId, onQuickCreate])
+  }, [name, stageId, groupBy, onQuickCreate])
 
   return (
     <div className="flex h-full min-h-0 min-w-64 flex-1 flex-col rounded-lg border border-border-subtle bg-surface/30">
@@ -347,6 +376,7 @@ function KanbanColumn({
       {progressbar && progressbarCounts && (
         <KanbanProgressbarBar colors={progressbar.colors} counts={progressbarCounts} />
       )}
+      {sumField && records.length > 0 && <ColumnSum records={records} field={sumField} />}
       <div
         className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2"
         onDragOver={(e) => e.preventDefault()}
@@ -410,6 +440,16 @@ function KanbanColumn({
             </button>
           ))}
       </div>
+    </div>
+  )
+}
+
+function ColumnSum({ records, field }: { records: Record<string, unknown>[]; field: string }) {
+  const total = records.reduce((sum, r) => sum + (Number(r[field]) || 0), 0)
+  if (total === 0) return null
+  return (
+    <div className="px-3 py-0.5 text-[10px] font-medium text-text-secondary">
+      ${total.toLocaleString()}
     </div>
   )
 }
