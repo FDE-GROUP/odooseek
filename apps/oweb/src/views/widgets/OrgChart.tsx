@@ -1,6 +1,8 @@
 import { read, searchRead } from '@odooseek/odoo-client'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
+import { memo } from 'react'
+import { OrgChartViewport } from '../../components/OrgChartViewport'
 import { HR_DEPARTMENT_MODEL, HR_EMPLOYEE_MODEL, hrEmployeeRecordPath } from '../../lib/hr'
 import { resolveOdooImageSrc } from '../../lib/odoo-image'
 import type { FieldWidgetProps } from './index'
@@ -74,6 +76,12 @@ export function buildTree(
   return { ...root, children, depth }
 }
 
+/** Count nodes in built tree (for viewport toolbar / perf baseline). */
+export function countTreeNodes(node: TreeOrgNode | null): number {
+  if (!node) return 0
+  return 1 + node.children.reduce((sum, c) => sum + countTreeNodes(c), 0)
+}
+
 async function fetchEmployeeOrgNodes(
   employeeId: number,
   departmentId?: number,
@@ -136,13 +144,11 @@ async function fetchDepartmentOrgNodes(departmentId: number): Promise<{
   return { nodes, managerId }
 }
 
-function TreeNode({
+const TreeNode = memo(function TreeNode({
   node,
-  model,
   onNodeClick,
 }: {
   node: TreeOrgNode
-  model: string
   onNodeClick: (id: number) => void
 }) {
   const src = resolveOdooImageSrc({
@@ -154,6 +160,7 @@ function TreeNode({
     <li>
       <button
         type="button"
+        data-org-node
         className="flex flex-col items-center cursor-pointer group border-0 bg-transparent p-0"
         onClick={() => onNodeClick(node.id)}
       >
@@ -176,13 +183,13 @@ function TreeNode({
       {node.children.length > 0 && (
         <ul className="mt-2 flex items-start justify-center gap-3 border-t-2 border-border-subtle pt-3">
           {node.children.map((child) => (
-            <TreeNode key={child.id} node={child} model={model} onNodeClick={onNodeClick} />
+            <TreeNode key={child.id} node={child} onNodeClick={onNodeClick} />
           ))}
         </ul>
       )}
     </li>
   )
-}
+})
 
 export function OrgChartWidget(props: FieldWidgetProps) {
   const { record, model: parentModel, recordId } = props
@@ -239,11 +246,13 @@ export function OrgChartWidget(props: FieldWidgetProps) {
     return <div className="text-sm text-text-muted py-3 text-center">Could not build org chart</div>
   }
 
+  const nodeCount = countTreeNodes(tree)
+
   return (
-    <div className="overflow-x-auto py-4">
+    <OrgChartViewport nodeCount={nodeCount}>
       <ul className="flex items-start justify-center">
-        <TreeNode node={tree} model={HR_EMPLOYEE_MODEL} onNodeClick={handleNodeClick} />
+        <TreeNode node={tree} onNodeClick={handleNodeClick} />
       </ul>
-    </div>
+    </OrgChartViewport>
   )
 }

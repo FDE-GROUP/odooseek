@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 import {
+  countTreeNodes,
   buildTree,
   findOrgRootId,
   type OrgNode,
@@ -30,6 +31,7 @@ describe('OrgChart helpers', () => {
     const tree = buildTree(nodes, 1)
     expect(tree?.children[0]?.id).toBe(2)
     expect(tree?.children[0]?.children[0]?.id).toBe(3)
+    expect(countTreeNodes(tree)).toBe(3)
   })
 
   test('resolveDepartmentOrgRootId uses manager when present', () => {
