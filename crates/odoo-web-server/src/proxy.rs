@@ -7,6 +7,7 @@ use axum::Json;
 use axum::http::HeaderMap;
 use axum::http::Method;
 use axum::response::{IntoResponse, Response};
+use futures::StreamExt;
 use odoo_core::error::OdooError;
 
 /// POST /api/odoo/{*path}
@@ -134,7 +135,7 @@ pub async fn proxy_odoo_http(
     }
     request = with_cookie(request, &headers);
 
-    proxy_send(&state, request).await
+    proxy_send_streaming(&state, request).await
 }
 
 /// GET /api/web/image/{*path}
@@ -149,7 +150,7 @@ pub async fn proxy_image(
 
     let mut request = state.http_client.get(&odoo_url);
     request = with_cookie(request, &headers);
-    proxy_send(&state, request).await
+    proxy_send_streaming(&state, request).await
 }
 
 // ── Helpers ─────────────────────────────────────────────────
@@ -204,13 +205,55 @@ async fn proxy_send(
         .await
         .map_err(|e| OdooError::Http(e.without_url()))?;
 
+    build_proxy_response(status, &odoo_headers, axum::body::Body::from(body_bytes))
+}
+
+/// Stream response body to avoid buffering large files (reports, images, attachments).
+/// Uses `bytes_stream()` to read chunks incrementally and `Body::from_stream()` to
+/// serve them to the browser without holding the entire response in memory.
+async fn proxy_send_streaming(
+    _state: &AppState,
+    request: reqwest::RequestBuilder,
+) -> Result<Response, AppError> {
+    let request = request.build().map_err(|e| {
+        AppError(OdooError::InvalidResponse(format!(
+            "Failed to build request: {e}"
+        )))
+    })?;
+    let url = request.url().to_string();
+
+    let response = _state.http_client.execute(request).await.map_err(|e| {
+        tracing::warn!("Odoo unreachable at {url}: {e}");
+        OdooError::Unreachable(format!("Odoo not reachable: {e}"))
+    })?;
+
+    let status = response.status();
+    let odoo_headers = response.headers().clone();
+
+    let stream = response
+        .bytes_stream()
+        .map(|r| r.map_err(|e| std::io::Error::other(e.to_string())));
+
+    let body = axum::body::Body::from_stream(stream);
+    build_proxy_response(status, &odoo_headers, body)
+}
+
+fn matches_proxy_header(name: &str) -> bool {
+    matches_proxy_header_bytes(name.as_bytes())
+}
+
+/// Build axum Response from Odoo response status + headers + body.
+fn build_proxy_response(
+    status: reqwest::StatusCode,
+    odoo_headers: &HeaderMap,
+    body: axum::body::Body,
+) -> Result<Response, AppError> {
     let mut builder = Response::builder().status(status);
 
-    // Forward standard response headers (exclude Content-Encoding to prevent double-compression)
     for (key, value) in odoo_headers.iter() {
         let name = key.as_str();
         if name.eq_ignore_ascii_case("content-encoding") {
-            continue; // BFF applies its own compression
+            continue;
         }
         if matches_proxy_header(name)
             && let Ok(v) = value.to_str()
@@ -219,17 +262,11 @@ async fn proxy_send(
         }
     }
 
-    builder
-        .body(axum::body::Body::from(body_bytes))
-        .map_err(|e| {
-            AppError(OdooError::InvalidResponse(format!(
-                "Failed to build response: {e}"
-            )))
-        })
-}
-
-fn matches_proxy_header(name: &str) -> bool {
-    matches_proxy_header_bytes(name.as_bytes())
+    builder.body(body).map_err(|e| {
+        AppError(OdooError::InvalidResponse(format!(
+            "Failed to build response: {e}"
+        )))
+    })
 }
 
 fn matches_proxy_header_bytes(name: &[u8]) -> bool {

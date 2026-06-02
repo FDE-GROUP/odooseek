@@ -5,7 +5,7 @@
 //! Browser (oweb) → REST/WS → odoo-web-server :3000 → JSON-RPC → Odoo :8069
 //! ```
 
-use axum::extract::{Path, State, WebSocketUpgrade};
+use axum::extract::{ConnectInfo, Path, State, WebSocketUpgrade};
 use axum::http::HeaderMap;
 use axum::http::Method;
 use axum::response::IntoResponse;
@@ -13,10 +13,12 @@ use axum::{Json, Router, routing::get, routing::post};
 use clap::Parser;
 use odoo_core::config::ServerConfig;
 use odoo_core::types::LoginRequest;
+use std::net::SocketAddr;
 use tokio::sync::broadcast;
 use tower_http::compression::CompressionLayer;
 use tower_http::cors::CorsLayer;
 use tower_http::services::ServeDir;
+use tower_http::trace::TraceLayer;
 use tracing::info;
 
 use odoo_web_server::AppState;
@@ -87,6 +89,15 @@ async fn main() -> anyhow::Result<()> {
     // Spawn Odoo Bus polling task
     tokio::spawn(ws::poll_odoo_bus(http_client, odoo_url_clean, event_tx));
 
+    // Spawn rate limiter cleanup task
+    let rate_limiter = state.rate_limiter.clone();
+    tokio::spawn(async move {
+        loop {
+            tokio::time::sleep(std::time::Duration::from_secs(120)).await;
+            rate_limiter.cleanup();
+        }
+    });
+
     // Build router
     let frontend_dir = config.frontend_dir.clone();
     let app = Router::new()
@@ -114,6 +125,7 @@ async fn main() -> anyhow::Result<()> {
         .layer(axum::extract::DefaultBodyLimit::max(10 * 1024 * 1024)) // 10 MB
         .fallback_service(ServeDir::new(&frontend_dir).append_index_html_on_directories(true))
         .layer(CompressionLayer::new())
+        .layer(TraceLayer::new_for_http())
         .layer(
             CorsLayer::new()
                 .allow_origin([
@@ -140,9 +152,12 @@ async fn main() -> anyhow::Result<()> {
     info!("Listening on http://{addr}");
 
     let listener = tokio::net::TcpListener::bind(&addr).await?;
-    axum::serve(listener, app)
-        .with_graceful_shutdown(shutdown_signal())
-        .await?;
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .with_graceful_shutdown(shutdown_signal())
+    .await?;
 
     Ok(())
 }
@@ -165,8 +180,17 @@ async fn get_session_info(
 
 async fn session_login(
     State(state): State<AppState>,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
     Json(body): Json<LoginRequest>,
 ) -> Result<impl IntoResponse, AppError> {
+    let client_ip = addr.ip().to_string();
+    if !state.rate_limiter.check(&client_ip) {
+        return Err(AppError(odoo_core::error::OdooError::Api {
+            code: 429,
+            message: "Too many login attempts. Try again later.".into(),
+            data: None,
+        }));
+    }
     session::login(state, body).await
 }
 
