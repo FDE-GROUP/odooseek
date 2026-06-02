@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { act } from 'react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { DialogProvider } from '../../hooks/useDialog'
+import { ToastProvider } from '../../hooks/useToast'
 import { OdooFormRenderer } from '../OdooFormRenderer'
 
 const mockCallKw = vi.fn()
@@ -24,7 +25,9 @@ let queryClient: QueryClient
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>
-    <DialogProvider>{children}</DialogProvider>
+    <ToastProvider>
+      <DialogProvider>{children}</DialogProvider>
+    </ToastProvider>
   </QueryClientProvider>
 )
 

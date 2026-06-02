@@ -32,11 +32,14 @@ import { Chatter } from '../components/Chatter'
 import { useConfirmDialog } from '../components/ConfirmDialog'
 import { FormEditActions, type FormEditActionsProps } from '../components/FormEditActions'
 import { FormSheetSkeleton } from '../components/Skeleton'
+import type { WizardStep } from '../components/WizardDialog'
+import { WizardDialog } from '../components/WizardDialog'
 import { mergeVersionPreviewIntoRecord, useHrVersion } from '../hooks/HrVersionProvider'
 import { useAuth } from '../lib/auth'
 import { passesXmlGroups } from '../lib/field-access'
 import { readRecordWithFieldFallback, resolveFormReadFields } from '../lib/form-read-fields'
 import { getFieldWidget } from './widgets'
+import { Rainbowman } from './widgets/Rainbowman'
 
 export interface OdooFormRendererRef {
   save: () => Promise<void>
@@ -57,6 +60,22 @@ interface FormRendererProps {
 }
 
 export type { FormEditActionsProps }
+
+function isWizardModel(m?: string): boolean {
+  return (
+    !!m &&
+    (m.includes('.wizard') ||
+      m === 'crm.lead2opportunity.partner' ||
+      m === 'crm.lead.lost' ||
+      m === 'crm.merge.opportunity')
+  )
+}
+
+function wizardBtn(model: string) {
+  if (model === 'crm.lead.lost') return { label: 'Mark Lost', name: 'action_lost_reason_apply' }
+  if (model === 'crm.lead2opportunity.partner') return { label: 'Convert', name: 'action_apply' }
+  return { label: 'Confirm', name: 'action_apply' }
+}
 
 export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
   {
@@ -81,6 +100,9 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
   const [formValues, setFormValues] = useState<Record<string, unknown>>({})
   const [saveError, setSaveError] = useState<string | null>(null)
   const [justSaved, setJustSaved] = useState(false)
+  const [showRainbowman, setShowRainbowman] = useState(false)
+  const [wizardModel, setWizardModel] = useState<string | null>(null)
+  const [wizardSteps, setWizardSteps] = useState<WizardStep[]>([])
   const [warning, setWarning] = useState<{ title: string; message: string } | null>(null)
   const onchangeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const baselineRef = useRef<Record<string, unknown>>({})
@@ -325,14 +347,27 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
       }
 
       if (btn.buttonType === 'action') {
-        const context: Record<string, unknown> = {
+        const c: Record<string, unknown> = {
           active_model: model,
           active_id: newRecordId,
           active_ids: [newRecordId],
         }
         try {
           const { loadAction } = await import('@odooseek/odoo-client')
-          const action = await loadAction(btn.name, context)
+          const action = await loadAction(btn.name, c)
+          if (!action) return
+          if (isWizardModel(action.res_model)) {
+            const b = wizardBtn(action.res_model!)
+            setWizardModel(action.res_model!)
+            setWizardSteps([
+              {
+                title: action.display_name || action.name || 'Wizard',
+                fields: [],
+                buttons: [{ label: b.label, type: 'object', name: b.name }],
+              },
+            ])
+            return
+          }
           if (action) onAction?.(action)
         } catch (err: unknown) {
           setSaveError(err instanceof Error ? err.message : 'Action failed')
@@ -360,6 +395,9 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
               context,
             })
             queryClient.invalidateQueries({ queryKey: ['odoo', 'read', model, id] })
+            if (btn.name === 'action_set_won_rainbowman' || btn.name === 'action_set_won') {
+              setShowRainbowman(true)
+            }
             if (result && typeof result === 'object' && result.type) {
               onAction?.(result)
             }
@@ -537,7 +575,35 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
     </div>
   )
 
-  return formBody
+  return (
+    <>
+      {formBody}
+      {showRainbowman && newRecordId && (
+        <Rainbowman
+          model={model}
+          recordId={newRecordId}
+          onDismiss={() => setShowRainbowman(false)}
+        />
+      )}
+      {wizardModel && (
+        <WizardDialog
+          open={wizardModel !== null}
+          model={wizardModel}
+          context={{ active_model: model, active_id: newRecordId, active_ids: [newRecordId] }}
+          steps={wizardSteps}
+          onDone={() => {
+            setWizardModel(null)
+            setWizardSteps([])
+            queryClient.invalidateQueries({ queryKey: ['odoo', 'read', model, newRecordId] })
+          }}
+          onCancel={() => {
+            setWizardModel(null)
+            setWizardSteps([])
+          }}
+        />
+      )}
+    </>
+  )
 })
 
 const MAX_HEADER_BUTTONS = 3

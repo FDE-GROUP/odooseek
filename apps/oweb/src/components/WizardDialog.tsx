@@ -15,6 +15,7 @@ interface WizardField {
   required?: boolean
   selection?: [string, string][]
   relation?: string
+  widget?: string
 }
 
 export interface WizardStep {
@@ -134,6 +135,25 @@ function WizardFieldInput({
   }
 
   if (fieldDef.type === 'selection' && fieldDef.selection) {
+    if (fieldDef.widget === 'radio') {
+      return (
+        <div className="flex flex-col gap-1">
+          {fieldDef.selection.map(([k, label]) => (
+            <label key={k} className="flex items-center gap-2 text-sm">
+              <input
+                type="radio"
+                name={fieldName}
+                value={k}
+                checked={String(value) === k}
+                onChange={() => onChange(fieldName, k)}
+                className="accent-accent"
+              />
+              <span className="text-text-primary">{label}</span>
+            </label>
+          ))}
+        </div>
+      )
+    }
     return (
       <select
         value={String(value ?? '')}
@@ -148,6 +168,19 @@ function WizardFieldInput({
           </option>
         ))}
       </select>
+    )
+  }
+
+  if (fieldDef.type === 'html') {
+    return (
+      <textarea
+        value={String(value ?? '')}
+        onChange={(e) => onChange(fieldName, e.target.value)}
+        rows={5}
+        className="rounded-md border border-border-default bg-root px-2 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none"
+        required={fieldDef.required}
+        placeholder="Enter feedback..."
+      />
     )
   }
 
