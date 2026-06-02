@@ -1,9 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
+import { buildOrgChartFromNodes, type OrgNode } from '../../../lib/hr-org-chart'
 import {
   buildTree,
   countTreeNodes,
   findOrgRootId,
-  type OrgNode,
   parentIdOf,
   resolveDepartmentOrgRootId,
 } from '../OrgChart'
@@ -32,6 +32,13 @@ describe('OrgChart helpers', () => {
     expect(tree?.children[0]?.id).toBe(2)
     expect(tree?.children[0]?.children[0]?.id).toBe(3)
     expect(countTreeNodes(tree)).toBe(3)
+  })
+
+  test('buildOrgChartFromNodes matches Odoo flat layout sections', () => {
+    const data = buildOrgChartFromNodes(nodes, 2)
+    expect(data.managers.map((m) => m.id)).toEqual([1])
+    expect(data.self?.id).toBe(2)
+    expect(data.children.map((c) => c.id)).toEqual([3])
   })
 
   test('resolveDepartmentOrgRootId uses manager when present', () => {

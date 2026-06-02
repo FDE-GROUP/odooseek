@@ -1,21 +1,21 @@
 import { read, searchRead } from '@odooseek/odoo-client'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { memo } from 'react'
+import { useCallback, useState } from 'react'
 import { OrgChartViewport } from '../../components/OrgChartViewport'
 import { HR_DEPARTMENT_MODEL, HR_EMPLOYEE_MODEL, hrEmployeeRecordPath } from '../../lib/hr'
-import { resolveOdooImageSrc } from '../../lib/odoo-image'
+import {
+  buildOrgChartFromNodes,
+  countOrgChartEntries,
+  fetchHrOrgChart,
+  type OrgNode,
+  parentIdOf,
+} from '../../lib/hr-org-chart'
 import type { FieldWidgetProps } from './index'
+import { OrgChartLayout } from './OrgChartLayout'
 
-export interface OrgNode {
-  id: number
-  name: string
-  parent_id: [number, string] | false | number
-  child_ids: number[]
-  job_title?: string
-  department_id?: [number, string] | false
-  image_128?: string | false
-}
+export type { OrgNode } from '../../lib/hr-org-chart'
+export { parentIdOf } from '../../lib/hr-org-chart'
 
 export type TreeOrgNode = OrgNode & { children: TreeOrgNode[]; depth: number }
 
@@ -28,13 +28,6 @@ const ORG_FIELDS = [
   'department_id',
   'image_128',
 ] as const
-
-export function parentIdOf(node: OrgNode): number | false {
-  const p = node.parent_id
-  if (Array.isArray(p)) return p[0] ?? false
-  if (typeof p === 'number') return p
-  return false
-}
 
 /** Walk up parent_id until root (no parent). */
 export function findOrgRootId(nodes: OrgNode[], startId: number): number {
@@ -76,7 +69,7 @@ export function buildTree(
   return { ...root, children, depth }
 }
 
-/** Count nodes in built tree (for viewport toolbar / perf baseline). */
+/** Count nodes in built tree (legacy helper for tests). */
 export function countTreeNodes(node: TreeOrgNode | null): number {
   if (!node) return 0
   return 1 + node.children.reduce((sum, c) => sum + countTreeNodes(c), 0)
@@ -144,86 +137,78 @@ async function fetchDepartmentOrgNodes(departmentId: number): Promise<{
   return { nodes, managerId }
 }
 
-const TreeNode = memo(function TreeNode({
-  node,
-  onNodeClick,
-}: {
-  node: TreeOrgNode
-  onNodeClick: (id: number) => void
+async function loadOrgChartData(opts: {
+  employeeId: number
+  newParentId?: number | null
+  maxLevel?: number | null
+  fallbackNodes?: () => Promise<OrgNode[]>
 }) {
-  const src = resolveOdooImageSrc({
-    raw: node.image_128,
-    model: HR_EMPLOYEE_MODEL,
-    recordId: node.id,
-  })
-  return (
-    <li>
-      <button
-        type="button"
-        data-org-node
-        className="flex flex-col items-center cursor-pointer group border-0 bg-transparent p-0"
-        onClick={() => onNodeClick(node.id)}
-      >
-        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-accent/10 text-sm font-semibold text-accent ring-2 ring-accent/20 group-hover:ring-accent/50 transition-all">
-          {src ? (
-            <img src={src} alt="" className="h-full w-full object-cover" loading="lazy" />
-          ) : (
-            node.name.charAt(0).toUpperCase()
-          )}
-        </div>
-        <span className="mt-1 text-[11px] font-medium text-text-primary leading-tight text-center max-w-[80px] truncate">
-          {node.name}
-        </span>
-        {node.job_title && (
-          <span className="text-[10px] text-text-muted truncate max-w-[80px]">
-            {node.job_title}
-          </span>
-        )}
-      </button>
-      {node.children.length > 0 && (
-        <ul className="mt-2 flex items-start justify-center gap-3 border-t-2 border-border-subtle pt-3">
-          {node.children.map((child) => (
-            <TreeNode key={child.id} node={child} onNodeClick={onNodeClick} />
-          ))}
-        </ul>
-      )}
-    </li>
-  )
-})
+  try {
+    return await fetchHrOrgChart(opts.employeeId, {
+      newParentId: opts.newParentId,
+      maxLevel: opts.maxLevel,
+    })
+  } catch {
+    if (!opts.fallbackNodes) throw new Error('Org chart unavailable')
+    const nodes = await opts.fallbackNodes()
+    const maxManagers = opts.maxLevel ?? undefined
+    return buildOrgChartFromNodes(nodes, opts.employeeId, maxManagers)
+  }
+}
 
 export function OrgChartWidget(props: FieldWidgetProps) {
   const { record, model: parentModel, recordId } = props
   const navigate = useNavigate()
+  const [maxLevel, setMaxLevel] = useState<number | null>(null)
+
   const employeeId = recordId ?? (record?.id as number | undefined)
   const departmentId = Array.isArray(record?.department_id)
     ? (record.department_id as [number, string])[0]
     : undefined
   const isDepartmentForm = parentModel === HR_DEPARTMENT_MODEL
+  const newParentId = Array.isArray(record?.parent_id)
+    ? (record.parent_id as [number, string])[0]
+    : null
 
   const { data, isLoading } = useQuery({
-    queryKey: ['odoo', 'orgchart', parentModel, employeeId, departmentId],
+    queryKey: ['odoo', 'orgchart', parentModel, employeeId, departmentId, newParentId, maxLevel],
     queryFn: async () => {
       if (isDepartmentForm && recordId) {
         const { nodes: members, managerId } = await fetchDepartmentOrgNodes(recordId)
-        const rootId = resolveDepartmentOrgRootId(members, recordId, managerId)
-        return { members, rootId }
+        const focusId = resolveDepartmentOrgRootId(members, recordId, managerId)
+        const chart = await loadOrgChartData({
+          employeeId: focusId,
+          maxLevel,
+          fallbackNodes: async () => members,
+        })
+        return { chart, viewEmployeeId: focusId }
       }
       if (!employeeId) return null
-      const members = await fetchEmployeeOrgNodes(employeeId, departmentId)
-      const rootId = findOrgRootId(members, employeeId)
-      return { members, rootId }
+      const chart = await loadOrgChartData({
+        employeeId,
+        newParentId,
+        maxLevel,
+        fallbackNodes: async () => fetchEmployeeOrgNodes(employeeId, departmentId),
+      })
+      return { chart, viewEmployeeId: employeeId }
     },
     enabled: !!recordId || !!employeeId,
     staleTime: 5 * 60_000,
   })
 
-  const handleNodeClick = (id: number) => {
-    navigate({ to: hrEmployeeRecordPath(id) })
-  }
+  const handleEmployeeClick = useCallback(
+    (id: number) => navigate({ to: hrEmployeeRecordPath(id) }),
+    [navigate],
+  )
+
+  const handleMoreManagers = useCallback(() => setMaxLevel(100), [])
+  const handleSeeAll = useCallback(() => {
+    if (data?.viewEmployeeId) handleEmployeeClick(data.viewEmployeeId)
+  }, [data?.viewEmployeeId, handleEmployeeClick])
 
   if (!employeeId && !isDepartmentForm) {
     return (
-      <div className="text-sm text-text-muted py-3 text-center">
+      <div className="py-3 text-center text-sm text-text-muted">
         Organization chart not available
       </div>
     )
@@ -237,22 +222,21 @@ export function OrgChartWidget(props: FieldWidgetProps) {
     )
   }
 
-  if (!data?.members.length) {
-    return <div className="text-sm text-text-muted py-3 text-center">No organization data</div>
+  if (!data?.chart) {
+    return <div className="py-3 text-center text-sm text-text-muted">No organization data</div>
   }
 
-  const tree = buildTree(data.members, data.rootId)
-  if (!tree) {
-    return <div className="text-sm text-text-muted py-3 text-center">Could not build org chart</div>
-  }
-
-  const nodeCount = countTreeNodes(tree)
+  const nodeCount = countOrgChartEntries(data.chart)
 
   return (
     <OrgChartViewport nodeCount={nodeCount}>
-      <ul className="flex items-start justify-center">
-        <TreeNode node={tree} onNodeClick={handleNodeClick} />
-      </ul>
+      <OrgChartLayout
+        data={data.chart}
+        viewEmployeeId={data.viewEmployeeId}
+        onEmployeeClick={handleEmployeeClick}
+        onMoreManagers={data.chart.managers_more ? handleMoreManagers : undefined}
+        onSeeAll={handleSeeAll}
+      />
     </OrgChartViewport>
   )
 }
