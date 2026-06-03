@@ -2,9 +2,9 @@ import type { OdooFieldMeta } from '@odooseek/odoo-client'
 import { callKw, evalModifier } from '@odooseek/odoo-client'
 import { format } from 'date-fns'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { RecurrencePolicy } from '../components/RecurrenceUpdateDialog'
-import { RecurrenceUpdateDialog } from '../components/RecurrenceUpdateDialog'
-import { getOdooIndexedColor } from '../lib/odoo-colors'
+import type { RecurrencePolicy } from '../../components/RecurrenceUpdateDialog'
+import { RecurrenceUpdateDialog } from '../../components/RecurrenceUpdateDialog'
+import { getOdooIndexedColor } from '../../lib/odoo-colors'
 import type { CalendarEvent } from './OdooCalendarRenderer'
 
 const POPOVER_RESERVED_FIELDS = new Set([
@@ -245,7 +245,9 @@ export function CalendarPopover({
       if (recurrenceDialog === 'delete') {
         callKw(model, 'unlink', [[event.id]], { context: { recurrence_update: policy } })
           .then(() => onDelete(event.id))
-          .catch(() => {})
+          .catch((err: unknown) => {
+            console.error('Failed to unlink event', err)
+          })
       } else if (recurrenceDialog === 'edit') {
         onClose()
         onEdit(event.id)

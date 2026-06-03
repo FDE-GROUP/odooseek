@@ -213,6 +213,13 @@ const WIDGET_ALIASES: Record<string, keyof typeof WIDGET_OVERRIDES> = {
   versions_timeline: 'version_timeline',
   employee_badge: 'badge_print',
   hr_employee_badge: 'badge_print',
+  // HR field widgets from employee form
+  many2many_tags_salary_bank: 'many2many_tags',
+  work_permit_upload: 'binary',
+  many2many_avatar_employee_field: 'many2many',
+  image_1920: 'contact_image',
+  employee_properties: 'properties',
+  kanban_employee_avatar: 'many2one_avatar',
   // Odoo 19 high-frequency aliases
   many2one_avatar_user: 'many2one_avatar',
   many2one_avatar_employee: 'many2one_avatar',
@@ -238,6 +245,9 @@ const WIDGET_ALIASES: Record<string, keyof typeof WIDGET_OVERRIDES> = {
   code: 'html',
   section_and_note_text: 'text',
   rotting_statusbar_duration: 'statusbar',
+  // CRM
+  many2one_avatar_leader_user: 'many2one_avatar',
+  badge_rotting: 'selection_badge',
 }
 
 function resolveWidgetOverride(widget?: string) {

@@ -9,10 +9,10 @@ const { mockCallKw, mockReadGroup } = vi.hoisted(() => ({
   mockReadGroup: vi.fn(),
 }))
 
-vi.mock('@odooseek/odoo-client', async (original) => {
-  const actual = await original()
+vi.mock('@odooseek/odoo-client', async () => {
+  const actual = await vi.importActual<Record<string, unknown>>('@odooseek/odoo-client')
   return {
-    ...(actual as Record<string, unknown>),
+    ...actual,
     ...{
       callKw: mockCallKw,
       readGroup: mockReadGroup,
@@ -175,5 +175,36 @@ describe('OdooKanbanRenderer', () => {
 
     expect(document.querySelector('aside')).toBeTruthy()
     expect(document.querySelector('.flex.flex-row')).toBeTruthy()
+  })
+
+  test('collects template fields for search_read', async () => {
+    mockCallKw.mockResolvedValue(sampleRecords)
+
+    render(<OdooKanbanRenderer model="crm.lead" arch={simpleKanbanArch} fields={kanbanFields} />, {
+      wrapper,
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Opportunity A')).toBeInTheDocument()
+    })
+
+    const searchReadCall = mockCallKw.mock.calls.find((c) => c[1] === 'search_read')
+    const requestedFields = searchReadCall?.[2]?.[1] as string[]
+    expect(requestedFields).toContain('name')
+    expect(requestedFields).toContain('expected_revenue')
+    expect(requestedFields).toContain('partner_id')
+  })
+
+  test('empty data renders no cards', async () => {
+    mockCallKw.mockResolvedValue([])
+
+    const { container } = render(
+      <OdooKanbanRenderer model="crm.lead" arch={simpleKanbanArch} fields={kanbanFields} />,
+      { wrapper },
+    )
+
+    await waitFor(() => {
+      expect(container.querySelector('.kanban-card')).toBeNull()
+    })
   })
 })

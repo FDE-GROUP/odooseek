@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@odooseek/odoo-client": "file:../../packages/odoo-client",
-    "@odooseek/odoo-types": "file:../../packages/odoo-types",
     "@tailwindcss/vite": "^4.3.0",
     "@tanstack/react-query": "^5.100.10",
     "@tanstack/react-router": "^1.169.2",

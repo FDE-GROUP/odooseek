@@ -12,10 +12,10 @@ vi.mock('../../lib/auth', () => ({
   useAuth: () => ({ session: { uid: 1 } }),
 }))
 
-vi.mock('@odooseek/odoo-client', async (original) => {
-  const actual = await original()
+vi.mock('@odooseek/odoo-client', async () => {
+  const actual = await vi.importActual<Record<string, unknown>>('@odooseek/odoo-client')
   return {
-    ...(actual as Record<string, unknown>),
+    ...actual,
     callKw: vi.fn().mockResolvedValue([]),
     fetchMenus: vi.fn().mockResolvedValue({
       root: {

@@ -3,7 +3,7 @@ import { callKw } from '@odooseek/odoo-client'
 import { useQuery } from '@tanstack/react-query'
 import { Suspense, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import type { OdooFormRendererRef } from './OdooFormRenderer'
+import type { OdooFormRendererRef } from '../OdooFormRenderer'
 
 interface CalendarQuickCreateProps {
   model: string
@@ -103,7 +103,7 @@ interface QuickCreateFormInnerProps {
 }
 
 const QuickCreateFormInner = React.lazy(() =>
-  import('./OdooFormRenderer').then((mod) => {
+  import('../OdooFormRenderer').then((mod) => {
     const Inner = React.forwardRef(function Inner(
       props: QuickCreateFormInnerProps,
       ref: React.Ref<OdooFormRendererRef>,

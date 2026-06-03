@@ -3,10 +3,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, test, vi } from 'vitest'
 import { SearchBar } from '../SearchBar'
 
-vi.mock('@odooseek/odoo-client', async (original) => {
-  const actual = await original()
+vi.mock('@odooseek/odoo-client', async () => {
+  const actual = await vi.importActual<Record<string, unknown>>('@odooseek/odoo-client')
   return {
-    ...(actual as Record<string, unknown>),
+    ...actual,
     ...{
       nameSearch: vi.fn(),
     },

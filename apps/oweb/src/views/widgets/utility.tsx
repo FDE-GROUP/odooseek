@@ -1,5 +1,13 @@
-import { callKw, evalCondition, formatRemainingDays } from '@odooseek/odoo-client'
+import {
+  callKw,
+  evalCondition,
+  formatRemainingDays,
+  parseDomainString,
+} from '@odooseek/odoo-client'
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useRef, useState } from 'react'
+import { useToast } from '../../hooks/useToast'
+import { ODOO_INDEXED_COLORS } from '../../lib/odoo-colors'
 import { CharWidget } from './basic'
 import type { FieldWidgetProps } from './index'
 
@@ -59,15 +67,19 @@ export function Many2ManyTagsWidget({ value, onChange, readOnly, meta }: FieldWi
         setSearchResults([])
         return
       }
+      const domainRestriction =
+        parseDomainString(typeof meta?.domain === 'string' ? meta.domain : null) ?? []
+      const domain: unknown[] = [['display_name', 'ilike', q]]
+      if (domainRestriction.length > 0) domain.push(...domainRestriction)
       const results = await callKw<Array<{ id: number; display_name: string }>>(
         meta.relation,
         'search_read',
-        [[['display_name', 'ilike', q]], ['id', 'display_name']],
+        [[domain], ['id', 'display_name']],
         { limit: 10 },
       )
       setSearchResults(results.map((r) => [r.id, r.display_name]))
     },
-    [meta?.relation],
+    [meta?.relation, meta?.domain],
   )
 
   if (readOnly) {
@@ -158,36 +170,127 @@ export function HandleWidget({ readOnly }: FieldWidgetProps) {
 
 // ── Color Picker Widget ─────────────────────────────────────────────
 
-export function ColorPickerWidget({ value, onChange, readOnly }: FieldWidgetProps) {
-  const color = (value as string) ?? ''
+export function ColorPickerWidget({ value, onChange, readOnly, record, model }: FieldWidgetProps) {
+  const colorIdx = typeof value === 'number' ? value : Number(value) || 0
+  const color =
+    colorIdx > 0 && colorIdx < ODOO_INDEXED_COLORS.length ? ODOO_INDEXED_COLORS[colorIdx] : null
+  const [open, setOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const toast = useToast()
+
+  const pickColor = useCallback(
+    async (idx: number) => {
+      onChange(idx)
+      if (model && record?.id) {
+        // Optimistic update: immediately show the new color
+        const rid = record.id as number
+        queryClient.setQueriesData<Record<string, unknown>[]>(
+          { queryKey: ['odoo', 'kanban', model], exact: false },
+          (old) => {
+            if (!old) return old
+            return old.map((r) => (r.id === rid ? { ...r, color: idx } : r))
+          },
+        )
+        try {
+          await callKw(model, 'write', [[rid], { color: idx }])
+        } catch (err) {
+          // Rollback on failure
+          queryClient.invalidateQueries({ queryKey: ['odoo', 'kanban', model] })
+          toast.error(err instanceof Error ? err.message : 'Failed to update color')
+        }
+      }
+      setOpen(false)
+    },
+    [onChange, model, record, queryClient, toast],
+  )
+
+  // In-place palette for kanban cards (readOnly + model context means inline editing)
+  if (readOnly && model && record) {
+    return (
+      <div className="relative inline-block">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            setOpen((v) => !v)
+          }}
+          className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-hover/50"
+          title={color ? `Color #${colorIdx}` : 'No color'}
+        >
+          <span
+            className="h-3.5 w-3.5 rounded border border-border-default"
+            style={{ backgroundColor: color ?? 'transparent' }}
+          />
+        </button>
+        {open && (
+          <div
+            className="absolute left-0 top-full z-30 mt-1 flex flex-wrap gap-0.5 rounded-lg border border-border-default bg-surface p-1.5 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => pickColor(0)}
+              className={`flex h-5 w-5 items-center justify-center rounded border text-[9px] ${colorIdx === 0 ? 'border-accent' : 'border-border-default'}`}
+            >
+              ×
+            </button>
+            {ODOO_INDEXED_COLORS.slice(1).map((c, i) => {
+              const idx = i + 1
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => pickColor(idx)}
+                  className={`h-5 w-5 rounded border ${colorIdx === idx ? 'border-accent ring-1 ring-accent' : 'border-border-default'}`}
+                  style={{ backgroundColor: c }}
+                />
+              )
+            })}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Read-only mode without model context (plain display)
   if (readOnly) {
     return (
       <div className="flex items-center gap-2">
         <span
           className="h-4 w-4 rounded border border-border-default"
-          style={{ backgroundColor: color || '#000' }}
+          style={{ backgroundColor: color ?? 'transparent' }}
         />
-        <span className="text-xs text-text-secondary">{color || 'No color'}</span>
+        <span className="text-xs text-text-secondary">
+          {color ? `Color #${colorIdx}` : 'No color'}
+        </span>
       </div>
     )
   }
+
+  // Edit mode (form view)
   return (
-    <div className="flex items-center gap-2">
-      <input
-        type="color"
-        value={color || '#000000'}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-8 w-12 cursor-pointer rounded border border-border-default"
-      />
-      {color && (
-        <button
-          type="button"
-          onClick={() => onChange(false)}
-          className="text-xs text-text-muted hover:text-text-primary"
-        >
-          Clear
-        </button>
-      )}
+    <div className="flex flex-wrap items-center gap-1 py-1" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => pickColor(0)}
+        className={`flex h-6 w-6 items-center justify-center rounded border text-[10px] transition-colors ${colorIdx === 0 ? 'border-accent ring-1 ring-accent' : 'border-border-default hover:border-border-strong'}`}
+        title="No color"
+      >
+        <span className="text-text-muted">×</span>
+      </button>
+      {ODOO_INDEXED_COLORS.slice(1).map((c, i) => {
+        const idx = i + 1
+        return (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => pickColor(idx)}
+            className={`h-6 w-6 rounded border transition-colors ${colorIdx === idx ? 'border-accent ring-1 ring-accent' : 'border-border-default hover:border-border-strong'}`}
+            style={{ backgroundColor: c }}
+            title={`Color #${idx}`}
+          />
+        )
+      })}
     </div>
   )
 }

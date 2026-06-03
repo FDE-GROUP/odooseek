@@ -1,7 +1,7 @@
 import type { OdooAction, OdooFieldMeta } from '@odooseek/odoo-client'
 import { callKw } from '@odooseek/odoo-client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useToast } from '../hooks/useToast'
 import { ACTIVITY_DIALOG_WIZARD_MODELS, parseActionContext } from '../lib/activity-actions'

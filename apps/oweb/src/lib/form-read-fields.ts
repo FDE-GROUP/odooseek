@@ -19,7 +19,6 @@ function walkFormElements(
       case 'field': {
         if (!el.name) break
         if (!passesXmlGroups(el.groups, session)) break
-        if (isStaticInvisible(el.invisible)) break
         names.add(el.name)
         if (el.subViews?.form?.elements) {
           walkFormElements(el.subViews.form.elements, session, names)

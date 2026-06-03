@@ -17,6 +17,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useConfirmDialog } from '../components/ConfirmDialog'
 import { HR_EMPLOYEE_MODEL } from '../lib/hr'
 import { ODOO_INDEXED_COLORS } from '../lib/odoo-colors'
+import { collectKanbanFieldNames, formatKanbanField, KanbanNode } from './kanban/KanbanNode'
 import { getFieldWidget, NOOP } from './widgets'
 import { PresenceIconOverlay } from './widgets/PresenceIcon'
 
@@ -32,7 +33,7 @@ interface KanbanRendererProps {
   arch: string
   fields: Record<string, OdooFieldMeta>
   domain?: unknown[]
-  groupBy?: string[]
+  groupBy?: readonly string[]
   onRecordClick?: (id: number) => void
 }
 
@@ -355,15 +356,26 @@ function KanbanColumn({
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     const trimmed = name.trim()
     if (!trimmed) return
     const vals: Record<string, unknown> = { name: trimmed }
     if (groupBy) vals[groupBy] = stageId
+    // Fetch default values from Odoo (mimics quick_create_view + default_get)
+    try {
+      const defaults = await callKw<Record<string, unknown>>(model, 'default_get', [[]], {})
+      if (defaults) {
+        for (const [k, v] of Object.entries(defaults)) {
+          if (vals[k] == null && v != null && v !== false) vals[k] = v
+        }
+      }
+    } catch {
+      // default_get may fail for some models — Odoo handles defaults server-side
+    }
     onQuickCreate?.(vals)
     setName('')
     setCreating(false)
-  }, [name, stageId, groupBy, onQuickCreate])
+  }, [name, stageId, groupBy, model, onQuickCreate])
 
   return (
     <div className="flex h-full min-h-0 min-w-64 flex-1 flex-col rounded-lg border border-border-subtle bg-surface/30">
@@ -495,6 +507,41 @@ function KanbanProgressbarBar({
   )
 }
 
+/** Collect preview_image field names from background_image widgets in a node tree. */
+function collectPreviewFields(node: KanbanTemplateNode): Set<string> {
+  const names = new Set<string>()
+  if (node.type === 'field' && node.widget === 'background_image' && node.options) {
+    const preview = (node.options as Record<string, unknown>).preview_image as string | undefined
+    if (preview) names.add(preview)
+  }
+  // Also detect: any image_* field in the same container means avatar_* is a fallback
+  if (node.type === 'field' && /^image_/.test(node.name)) {
+    names.add('avatar_128')
+    names.add('avatar_1024')
+  }
+  if ('children' in node && Array.isArray(node.children)) {
+    for (const child of node.children) {
+      for (const name of collectPreviewFields(child)) names.add(name)
+    }
+  }
+  return names
+}
+
+/** Remove nodes whose name is a preview target of a background_image widget elsewhere in the tree. */
+function filterPreviewNodes(
+  node: KanbanTemplateNode,
+  previewFields: Set<string>,
+): KanbanTemplateNode | null {
+  if (node.type === 'field' && previewFields.has(node.name)) return null
+  if ('children' in node && Array.isArray(node.children)) {
+    const filtered = node.children
+      .map((c) => filterPreviewNodes(c, previewFields))
+      .filter((c): c is KanbanTemplateNode => c != null)
+    return { ...node, children: filtered }
+  }
+  return node
+}
+
 function KanbanCard({
   record,
   cardFields,
@@ -529,9 +576,19 @@ function KanbanCard({
   let mainNodes = templateNodes
   let asideNode: KanbanTemplateNode | undefined
   if (templateNodes && templateNodes.length > 0) {
+    // Collect preview_image targets from background_image widgets
+    const previewFields = new Set<string>()
+    for (const node of templateNodes) {
+      for (const name of collectPreviewFields(node)) previewFields.add(name)
+    }
+
     const asideIdx = templateNodes.findIndex((n) => n.type === 'html' && n.tag === 'aside')
     if (asideIdx >= 0) {
-      asideNode = templateNodes[asideIdx]
+      const rawAside = templateNodes[asideIdx]
+      asideNode =
+        previewFields.size > 0
+          ? (filterPreviewNodes(rawAside, previewFields) ?? rawAside)
+          : rawAside
       mainNodes = [...templateNodes.slice(0, asideIdx), ...templateNodes.slice(asideIdx + 1)]
     }
   }
@@ -687,294 +744,4 @@ function CardActions({
       )}
     </div>
   )
-}
-
-function formatKanbanField(value: unknown, meta: OdooFieldMeta): string {
-  if (value == null || value === false) return ''
-  if (typeof value === 'boolean') return value ? '\u2713' : ''
-  if (typeof value === 'string') {
-    if (meta.type === 'html') return value.replace(/<[^>]+>/g, '')
-    if (meta.selection) {
-      const sel = meta.selection.find(([k]) => k === value)
-      return sel ? sel[1] : value
-    }
-    return value
-  }
-  if (typeof value === 'number') {
-    if (meta.type === 'monetary')
-      return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-    if (meta.type === 'float') {
-      const s = value.toLocaleString()
-      if (s.endsWith('.00')) return s.slice(0, -3)
-      return s
-    }
-    if (meta.type === 'integer') return value.toLocaleString()
-    return String(value)
-  }
-  if (Array.isArray(value)) {
-    if (value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'string') {
-      return value[1] || `#${value[0]}`
-    }
-    return `${value.length} records`
-  }
-  return String(value ?? '')
-}
-
-function KanbanNode({
-  node,
-  record,
-  fields,
-  model,
-  recordId,
-}: {
-  node: KanbanTemplateNode
-  record: Record<string, unknown>
-  fields: Record<string, OdooFieldMeta>
-  model: string
-  recordId: number
-}) {
-  switch (node.type) {
-    case 'field': {
-      const meta = fields[node.name]
-      if (!meta) return null
-
-      if (node.widget === 'background_image') {
-        const Widget = getFieldWidget(
-          { type: 'field', name: node.name, widget: node.widget, options: node.options },
-          meta.type,
-        )
-        return (
-          <Widget
-            field={{ type: 'field', name: node.name, widget: node.widget, options: node.options }}
-            value={record[node.name]}
-            onChange={NOOP}
-            readOnly
-            meta={meta}
-            record={record}
-            model={model}
-            recordId={recordId}
-          />
-        )
-      }
-
-      if (
-        node.widget === 'image' &&
-        (meta.type === 'binary' || meta.name.toLowerCase().startsWith('image'))
-      ) {
-        const size = node.options?.size as [number, number] | undefined
-        if (size && Array.isArray(size)) {
-          return (
-            <img
-              src={`/api/web/image/${model}/${recordId}/${node.name}`}
-              className={node.class}
-              width={size[0]}
-              height={size[1]}
-              loading="lazy"
-              onError={(e) => {
-                ;(e.target as HTMLElement).style.display = 'none'
-              }}
-            />
-          )
-        }
-        const imgClass = (node.options?.img_class as string) ?? 'h-8 w-8 rounded object-cover'
-        return (
-          <img
-            src={`/api/web/image/${model}/${recordId}/${node.name}`}
-            className={[node.class, imgClass].filter(Boolean).join(' ')}
-            loading="lazy"
-            onError={(e) => {
-              ;(e.target as HTMLElement).style.display = 'none'
-            }}
-          />
-        )
-      }
-
-      if (!node.widget) {
-        return <div className={node.class}>{formatKanbanField(record[node.name], meta)}</div>
-      }
-
-      const Widget = getFieldWidget(
-        { type: 'field', name: node.name, widget: node.widget },
-        meta.type,
-      )
-      return (
-        <div className={node.class}>
-          <Widget
-            field={{ type: 'field', name: node.name, widget: node.widget, options: node.options }}
-            value={record[node.name]}
-            onChange={NOOP}
-            readOnly
-            meta={meta}
-            record={record}
-            model={model}
-            recordId={recordId}
-          />
-        </div>
-      )
-    }
-    case 'condition': {
-      if (node.if) {
-        if (!evalCondition(node.if, record)) {
-          // Try elif/else children
-          const alt = node.children.find((c) => c.type === 'condition')
-          if (alt)
-            return (
-              <KanbanNode
-                node={alt}
-                record={record}
-                fields={fields}
-                model={model}
-                recordId={recordId}
-              />
-            )
-          return null
-        }
-        return (
-          <>
-            {node.children
-              .filter((c) => c.type !== 'condition')
-              .map((c, i) => (
-                <KanbanNode
-                  key={i}
-                  node={c}
-                  record={record}
-                  fields={fields}
-                  model={model}
-                  recordId={recordId}
-                />
-              ))}
-          </>
-        )
-      }
-      if (node.elif) {
-        if (evalCondition(node.elif, record)) {
-          return (
-            <>
-              {node.children
-                .filter((c) => c.type !== 'condition')
-                .map((c, i) => (
-                  <KanbanNode
-                    key={i}
-                    node={c}
-                    record={record}
-                    fields={fields}
-                    model={model}
-                    recordId={recordId}
-                  />
-                ))}
-            </>
-          )
-        }
-        // Try next elif/else
-        const next = node.children.find((c) => c.type === 'condition')
-        if (next)
-          return (
-            <KanbanNode
-              node={next}
-              record={record}
-              fields={fields}
-              model={model}
-              recordId={recordId}
-            />
-          )
-        return null
-      }
-      // t-else — always true
-      return (
-        <>
-          {node.children
-            .filter((c) => c.type !== 'condition')
-            .map((c, i) => (
-              <KanbanNode
-                key={i}
-                node={c}
-                record={record}
-                fields={fields}
-                model={model}
-                recordId={recordId}
-              />
-            ))}
-        </>
-      )
-    }
-    case 'loop': {
-      const list = getValue(node.foreach, record)
-      if (!Array.isArray(list)) return null
-      return (
-        <>
-          {list.map((item, i) => {
-            const loopRecord: Record<string, unknown> = { ...record }
-            if (Array.isArray(item)) {
-              loopRecord[node.as] = item[1] ?? item[0]
-            } else {
-              loopRecord[node.as] = item
-            }
-            return node.children.map((c, j) => (
-              <KanbanNode
-                key={`${i}-${j}`}
-                node={c}
-                record={loopRecord}
-                fields={fields}
-                model={model}
-                recordId={recordId}
-              />
-            ))
-          })}
-        </>
-      )
-    }
-    case 'output': {
-      const val = getValue(node.expr, record)
-      return <span>{val != null ? String(val) : ''}</span>
-    }
-    case 'html':
-      return React.createElement(
-        node.tag,
-        { className: node.class, key: undefined },
-        ...node.children.map((c, i) => (
-          <KanbanNode
-            key={i}
-            node={c}
-            record={record}
-            fields={fields}
-            model={model}
-            recordId={recordId}
-          />
-        )),
-      )
-    case 'text':
-      return <>{node.content}</>
-    case 'footer':
-      return (
-        <div className="mt-2 border-t border-border-subtle pt-2 text-xs text-text-muted">
-          {node.children.map((c, i) => (
-            <KanbanNode
-              key={i}
-              node={c}
-              record={record}
-              fields={fields}
-              model={model}
-              recordId={recordId}
-            />
-          ))}
-        </div>
-      )
-  }
-}
-
-function collectKanbanFieldNames(nodes: KanbanTemplateNode[] | undefined): string[] {
-  if (!nodes?.length) return []
-  const names: string[] = []
-  for (const node of nodes) {
-    if (node.type === 'field' && node.name) names.push(node.name)
-    if (
-      node.type === 'html' ||
-      node.type === 'condition' ||
-      node.type === 'loop' ||
-      node.type === 'footer'
-    ) {
-      names.push(...collectKanbanFieldNames(node.children))
-    }
-  }
-  return names
 }

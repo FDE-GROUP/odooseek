@@ -1,7 +1,23 @@
 import { callKw, searchRead } from '@odooseek/odoo-client'
-import type { MailActivityRecord, MailActivityTypeRecord } from '@odooseek/odoo-types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+
+interface ActivityRecord {
+  id: number
+  activity_type_id: [number, string] | false
+  summary: string | false
+  note: string | false
+  date_deadline: string
+  state: string
+  user_id: [number, string] | false
+}
+
+interface ActivityTypeRecord {
+  id: number
+  name: string
+  category: string
+  default_user_id: [number, string] | false
+}
 
 interface ActivityPanelProps {
   model: string
@@ -18,10 +34,10 @@ const ACTIVITY_FIELDS = [
   'user_id',
 ]
 
-function groupByState(activities: MailActivityRecord[]) {
-  const overdue: MailActivityRecord[] = []
-  const today: MailActivityRecord[] = []
-  const planned: MailActivityRecord[] = []
+function groupByState(activities: ActivityRecord[]) {
+  const overdue: ActivityRecord[] = []
+  const today: ActivityRecord[] = []
+  const planned: ActivityRecord[] = []
   const todayStr = new Date().toISOString().slice(0, 10)
   for (const a of activities) {
     const dl = a.date_deadline
@@ -46,7 +62,7 @@ export function ActivityPanel({ model, recordId }: ActivityPanelProps) {
   const { data: activities, isLoading } = useQuery({
     queryKey: ['odoo', 'activities', model, recordId],
     queryFn: () =>
-      searchRead<MailActivityRecord[]>(
+      searchRead<ActivityRecord[]>(
         'mail.activity',
         [
           ['res_id', '=', recordId],
@@ -64,7 +80,7 @@ export function ActivityPanel({ model, recordId }: ActivityPanelProps) {
   const { data: activityTypes } = useQuery({
     queryKey: ['odoo', 'activity-types'],
     queryFn: () =>
-      searchRead<MailActivityTypeRecord[]>(
+      searchRead<ActivityTypeRecord[]>(
         'mail.activity.type',
         [['active', '=', true]],
         ['id', 'name', 'category', 'default_user_id'],

@@ -39,7 +39,9 @@ export function SelectionWidget({
 export function PriorityWidget({ value, readOnly, onChange, meta }: FieldWidgetProps) {
   const selection = meta?.selection ?? []
   const max = selection.length || 3
-  const stars = Number(value) || 0
+  const currentKey = String(value ?? '0')
+  const currentIdx = selection.findIndex(([k]) => k === currentKey)
+  const stars = currentIdx >= 0 ? currentIdx + 1 : Number(value) || 0
   if (readOnly) {
     return (
       <span className="inline-flex gap-0.5 text-sm">
@@ -57,7 +59,7 @@ export function PriorityWidget({ value, readOnly, onChange, meta }: FieldWidgetP
         <button
           key={i}
           type="button"
-          onClick={() => onChange(i + 1)}
+          onClick={() => onChange(selection[i]?.[0] ?? String(i))}
           title={selection[i]?.[1] ?? `Level ${i + 1}`}
           className={`text-sm ${i < stars ? 'text-warning' : 'text-border-default hover:text-warning/80'}`}
         >

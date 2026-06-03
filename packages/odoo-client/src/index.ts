@@ -45,6 +45,9 @@ export {
 export { readModel, searchReadModel, readSingleModel, writeModel, createModel, unlinkModel, defaultGetModel } from './typed-api'
 export type { RpcContext } from './typed-api'
 
+export { isFieldValueEmpty, validateFieldValue, validateModelData, ALWAYS_NON_EMPTY_TYPES } from './validation'
+export type { ValidationError } from './validation'
+
 export { generateReport, generateReportByXmlId } from './report'
 
 export type {

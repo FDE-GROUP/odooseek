@@ -180,9 +180,9 @@ export function OdooGraphRenderer({ model, arch, fields, domain = [] }: GraphRen
                 cy="50%"
                 outerRadius={120}
                 label={(props: PieLabelRenderProps) => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  const { name, percent } = props as any
-                  return `${name ?? ''}: ${(((percent as number) ?? 0) * 100).toFixed(0)}%`
+                  const name = props.name ?? ''
+                  const pct = ((props.percent ?? 0) * 100).toFixed(0)
+                  return `${name}: ${pct}%`
                 }}
               >
                 {chartData.map((_, i) => (

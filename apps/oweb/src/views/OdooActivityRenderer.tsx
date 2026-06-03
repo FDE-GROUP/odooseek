@@ -89,7 +89,7 @@ function resIdsWithActivityForType(
 ): number[] {
   return candidateResIds.filter((resId) => {
     const group = activityGroupFor(grouped, resId, activityTypeId)
-    return group && group.state
+    return group?.state
   })
 }
 

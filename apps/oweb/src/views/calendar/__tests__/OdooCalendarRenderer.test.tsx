@@ -6,10 +6,10 @@ import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { OdooCalendarRenderer } from '../OdooCalendarRenderer'
 
 const mockSearchRead = vi.fn()
-vi.mock('@odooseek/odoo-client', async (original) => {
-  const actual = await original()
+vi.mock('@odooseek/odoo-client', async () => {
+  const actual = await vi.importActual<Record<string, unknown>>('@odooseek/odoo-client')
   return {
-    ...(actual as Record<string, unknown>),
+    ...actual,
     ...{
       searchRead: (...args: unknown[]) => mockSearchRead(...args),
       callKw: vi.fn(),
@@ -17,7 +17,7 @@ vi.mock('@odooseek/odoo-client', async (original) => {
   }
 })
 
-vi.mock('../../hooks/useToast', () => ({
+vi.mock('../../../hooks/useToast', () => ({
   useToast: () => ({ success: vi.fn(), error: vi.fn(), info: vi.fn(), warning: vi.fn() }),
 }))
 

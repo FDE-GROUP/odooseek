@@ -9,8 +9,8 @@ const { mockLoadAction, mockResolveAction } = vi.hoisted(() => ({
   mockResolveAction: vi.fn(),
 }))
 
-vi.mock('@odooseek/odoo-client', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@odooseek/odoo-client')>()
+vi.mock('@odooseek/odoo-client', async () => {
+  const actual = await vi.importActual<Record<string, unknown>>('@odooseek/odoo-client')
   return {
     ...actual,
     loadAction: mockLoadAction,

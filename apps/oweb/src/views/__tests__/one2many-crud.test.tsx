@@ -5,10 +5,10 @@ import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 const mockCallKw = vi.fn()
-vi.mock('@odooseek/odoo-client', async (original) => {
-  const actual = await original()
+vi.mock('@odooseek/odoo-client', async () => {
+  const actual = await vi.importActual<Record<string, unknown>>('@odooseek/odoo-client')
   return {
-    ...(actual as Record<string, unknown>),
+    ...actual,
     callKw: (...args: unknown[]) => mockCallKw(...args),
     fieldsGet: vi.fn().mockResolvedValue({}),
   }
@@ -71,7 +71,7 @@ describe('One2ManyWidget CRUD', () => {
     })
   })
 
-  test('Add a row creates new record command with negative virtual ID', async () => {
+  test('Add a row creates new record command on explicit save', async () => {
     mockCallKw
       .mockResolvedValueOnce([{ id: 10, product_id: [1, 'Pen'], quantity: 1 }]) // initial read
       .mockResolvedValueOnce({ product_id: false, quantity: 1 }) // default_get
@@ -94,12 +94,23 @@ describe('One2ManyWidget CRUD', () => {
       expect(screen.getByText('Pen')).toBeInTheDocument()
     })
 
+    // Add a row — should NOT immediately call onChange (stored as draft)
     fireEvent.click(screen.getByText('Add a row'))
+
+    await waitFor(() => {
+      // The row appears in the table with edit controls
+      expect(screen.getByTitle('Save')).toBeInTheDocument()
+    })
+
+    // onChange should NOT have been called yet
+    expect(onChange).not.toHaveBeenCalled()
+
+    // Explicitly save the draft row
+    fireEvent.click(screen.getByTitle('Save'))
 
     await waitFor(() => {
       expect(onChange).toHaveBeenCalled()
       const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0]
-      // Should be array of O2M commands with at least one [0, negativeId, values]
       expect(Array.isArray(lastCall)).toBe(true)
       const createCmd = lastCall.find((cmd: number[]) => cmd[0] === 0)
       expect(createCmd).toBeDefined()
@@ -142,7 +153,7 @@ describe('One2ManyWidget CRUD', () => {
     })
   })
 
-  test('delete newly added record removes create command', async () => {
+  test('delete draft row removes it without server command', async () => {
     mockCallKw
       .mockResolvedValueOnce([]) // initial read (no records)
       .mockResolvedValueOnce({ product_id: false, quantity: 1 }) // default_get
@@ -161,26 +172,26 @@ describe('One2ManyWidget CRUD', () => {
       { wrapper: queryWrapper },
     )
 
-    // Add a row (enters inline edit mode with ✓/✕ buttons)
+    // Add a row (enters inline edit mode as draft)
     fireEvent.click(screen.getByText('Add a row'))
 
     await waitFor(() => {
-      expect(onChange).toHaveBeenCalled()
+      expect(screen.getByTitle('Save')).toBeInTheDocument()
     })
 
     // Cancel the inline edit first (click ✕), then the × delete button appears
     fireEvent.click(screen.getByTitle('Cancel'))
 
     await waitFor(() => {
-      // Now the row shows the × delete button
       expect(screen.getByText('×')).toBeInTheDocument()
     })
 
+    // Delete the draft row — no onChange needed since it was never committed
     fireEvent.click(screen.getByText('×'))
 
+    // The row is removed from the table — "Add a row" button visible again
     await waitFor(() => {
-      const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0]
-      expect(lastCall).toEqual(false)
+      expect(screen.getByText('Add a row')).toBeInTheDocument()
     })
   })
 
@@ -206,7 +217,8 @@ describe('One2ManyWidget CRUD', () => {
     fireEvent.click(screen.getByText('Add a row'))
 
     await waitFor(() => {
-      expect(onChange).toHaveBeenCalled()
+      // Draft row is visible with edit controls
+      expect(screen.getByTitle('Save')).toBeInTheDocument()
     })
 
     // Re-render the same component
@@ -244,6 +256,89 @@ describe('One2ManyWidget CRUD', () => {
 
     await waitFor(() => {
       expect(screen.getByText('No records')).toBeInTheDocument()
+    })
+  })
+})
+
+describe('One2ManyWidget sub-form editing', () => {
+  const subFormField: FieldElement = {
+    type: 'field',
+    name: 'order_line',
+    subViews: {
+      list: {
+        columns: [
+          { name: 'product_id', string: 'Product', type: 'field' },
+          { name: 'quantity', string: 'Qty', type: 'field' },
+        ],
+        editable: 'bottom',
+        decorations: {},
+      },
+      form: {
+        elements: [
+          { type: 'field', name: 'product_id', string: 'Product' },
+          { type: 'field', name: 'quantity', string: 'Qty' },
+        ],
+      },
+    },
+  }
+
+  beforeEach(() => {
+    queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    mockCallKw.mockReset()
+  })
+
+  test('uses sub-form layout when adding a row', async () => {
+    mockCallKw
+      .mockResolvedValueOnce([{ id: 10, product_id: [1, 'Pen'], quantity: 1 }])
+      .mockResolvedValueOnce({ product_id: false, quantity: 1 })
+
+    const { One2ManyWidget } = await import('../widgets/relational')
+    render(
+      <One2ManyWidget
+        field={subFormField}
+        value={[10]}
+        onChange={() => {}}
+        readOnly={false}
+        meta={meta}
+      />,
+      { wrapper: queryWrapper },
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Pen')).toBeInTheDocument()
+    })
+    fireEvent.click(screen.getByText('Add a row'))
+
+    await waitFor(() => {
+      // Sub-form should render labels from the form elements
+      expect(screen.getByText('Product')).toBeInTheDocument()
+      expect(screen.getByText('Qty')).toBeInTheDocument()
+    })
+  })
+
+  test('sub-form shows Save and Cancel buttons', async () => {
+    mockCallKw.mockResolvedValueOnce([]).mockResolvedValueOnce({ product_id: false, quantity: 1 })
+
+    const { One2ManyWidget } = await import('../widgets/relational')
+    render(
+      <One2ManyWidget
+        field={subFormField}
+        value={[]}
+        onChange={() => {}}
+        readOnly={false}
+        meta={meta}
+      />,
+      { wrapper: queryWrapper },
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Add a row')).toBeInTheDocument()
+    })
+    fireEvent.click(screen.getByText('Add a row'))
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Save')).toBeInTheDocument()
+      expect(screen.getByTitle('Cancel')).toBeInTheDocument()
     })
   })
 })

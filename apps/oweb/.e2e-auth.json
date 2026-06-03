@@ -1,0 +1,25 @@
+{
+  "cookies": [
+    {
+      "name": "session_id",
+      "value": "kcHxvDxwHEhPcALJapjm2LpHPqRvjrbKo28f3QZD-FIIqUpoCzYeGBQtdw_FUZspvR6naqK69AuXjQAqPoLW",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1781000037.503503,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:5173",
+      "localStorage": [
+        {
+          "name": "oweb-theme",
+          "value": "{\"presetId\":\"dark-gold\",\"accentId\":\"gold\"}"
+        }
+      ]
+    }
+  ]
+}

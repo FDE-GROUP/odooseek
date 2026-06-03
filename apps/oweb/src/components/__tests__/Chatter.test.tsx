@@ -6,10 +6,10 @@ import { Chatter } from '../Chatter'
 
 const mockSearchRead = vi.fn()
 const mockCallKw = vi.fn()
-vi.mock('@odooseek/odoo-client', async (original) => {
-  const actual = await original()
+vi.mock('@odooseek/odoo-client', async () => {
+  const actual = await vi.importActual<Record<string, unknown>>('@odooseek/odoo-client')
   return {
-    ...(actual as Record<string, unknown>),
+    ...actual,
     ...{
       searchRead: (...args: unknown[]) => mockSearchRead(...args),
       callKw: (...args: unknown[]) => mockCallKw(...args),

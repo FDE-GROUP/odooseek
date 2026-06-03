@@ -6,10 +6,10 @@ import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { getFieldWidget, PriorityWidget, TYPE_WIDGETS } from '../widgets'
 
 const mockCallKw = vi.fn()
-vi.mock('@odooseek/odoo-client', async (original) => {
-  const actual = await original()
+vi.mock('@odooseek/odoo-client', async () => {
+  const actual = await vi.importActual<Record<string, unknown>>('@odooseek/odoo-client')
   return {
-    ...(actual as Record<string, unknown>),
+    ...actual,
     ...{
       callKw: (...args: unknown[]) => mockCallKw(...args),
     },

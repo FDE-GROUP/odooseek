@@ -23,11 +23,10 @@ export default defineConfig({
         '../../packages/odoo-client/src/xml-parser.ts',
       ),
       '@odooseek/odoo-client': path.resolve(__dirname, '../../packages/odoo-client/src'),
-      '@odooseek/odoo-types': path.resolve(__dirname, '../../packages/odoo-types/src'),
     },
   },
   optimizeDeps: {
-    exclude: ['@odooseek/odoo-client', '@odooseek/odoo-types'],
+    exclude: ['@odooseek/odoo-client'],
   },
   build: {
     target: 'esnext',

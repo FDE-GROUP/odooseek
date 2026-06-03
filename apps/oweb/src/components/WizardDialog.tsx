@@ -55,8 +55,10 @@ function WizardMany2oneInput({
   const relation = fieldDef.relation
   const { data: options = [] } = useQuery({
     queryKey: ['odoo', 'wizard', 'many2one', relation, fieldName],
-    queryFn: () =>
-      nameSearch(relation!, '', 50).then((rows) => rows.map(([id, label]) => ({ id, label }))),
+    queryFn: () => {
+      if (!relation) return []
+      return nameSearch(relation, '', 50).then((rows) => rows.map(([id, label]) => ({ id, label })))
+    },
     enabled: !!relation,
     staleTime: 60_000,
   })

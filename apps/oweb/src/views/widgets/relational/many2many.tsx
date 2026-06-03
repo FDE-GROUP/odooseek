@@ -1,4 +1,4 @@
-import { callKw } from '@odooseek/odoo-client'
+import { callKw, parseDomainString } from '@odooseek/odoo-client'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import type { FieldWidgetProps } from '../index'
@@ -30,16 +30,24 @@ export function Many2ManyWidget({
       timer.current = setTimeout(async () => {
         const relation = meta?.relation
         if (!relation) return
+        const domainRestriction =
+          parseDomainString(typeof meta?.domain === 'string' ? meta.domain : null) ?? []
         const res = await callKw<Array<{ id: number; display_name: string }>>(
           relation,
           'web_name_search',
           [],
-          { name: q, operator: 'ilike', limit: 8, specification: { display_name: {} } },
+          {
+            name: q,
+            operator: 'ilike',
+            limit: 8,
+            specification: { display_name: {} },
+            domain: domainRestriction.length > 0 ? domainRestriction : undefined,
+          },
         )
         setResults((res ?? []).map((r) => [r.id, r.display_name] as [number, string]))
       }, 200)
     },
-    [meta?.relation],
+    [meta?.relation, meta?.domain],
   )
 
   if (readOnly) {
@@ -159,11 +167,18 @@ export function Many2ManyCheckboxesWidget({ value, onChange, readOnly, meta }: F
   const { data: options } = useQuery({
     queryKey: ['odoo', 'name_search', relation],
     queryFn: async () => {
+      const domainRestriction =
+        parseDomainString(typeof meta?.domain === 'string' ? meta.domain : null) ?? []
       const res = await callKw<Array<{ id: number; display_name: string }>>(
         relation as string,
         'web_name_search',
         [],
-        { name: '', limit: 100, specification: { display_name: {} } },
+        {
+          name: '',
+          limit: 100,
+          specification: { display_name: {} },
+          domain: domainRestriction.length > 0 ? domainRestriction : undefined,
+        },
       )
       return Array.isArray(res) ? res : []
     },
@@ -209,11 +224,19 @@ export function Many2ManyTagsAvatarWidget({ value, onChange, readOnly, meta }: F
         setSearchResults([])
         return
       }
+      const domainRestriction =
+        parseDomainString(typeof meta?.domain === 'string' ? meta.domain : null) ?? []
       const res = await callKw<Array<{ id: number; display_name: string }>>(
         relation,
         'web_name_search',
         [],
-        { name: q, operator: 'ilike', limit: 10, specification: { display_name: {} } },
+        {
+          name: q,
+          operator: 'ilike',
+          limit: 10,
+          specification: { display_name: {} },
+          domain: domainRestriction.length > 0 ? domainRestriction : undefined,
+        },
       )
       const records = Array.isArray(res) ? res : []
       setSearchResults(

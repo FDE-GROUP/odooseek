@@ -9,8 +9,7 @@ interface ChatterProps {
   recordId: number | undefined
 }
 
-// Hand-coded: mail.message has virtual fields (is_note, author_id, subtype_id)
-// that Odoo fields_get doesn't expose. Generated MailMessageRecord lacks these.
+// mail.message has virtual fields (is_note, author_id, subtype_id) not in fields_get.
 interface OdooMessage {
   id: number
   body: string

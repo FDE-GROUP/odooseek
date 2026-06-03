@@ -10,18 +10,18 @@ import type {
 import {
   callKw,
   DEFAULT_COL_WIDTH,
-  evalCondition,
   FIELD_TYPE_WIDTHS,
-  getColumnPrefs,
   getDecorationClass,
+  isFieldValueEmpty,
   isListCellImage,
   parseListXml,
   readGroup,
   renderCell,
-  setColumnPrefs,
+  validateFieldValue,
 } from '@odooseek/odoo-client'
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
-import React, { createElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type React from 'react'
+import { createElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'use-intl'
 import { ArrowUpDown, ChevronDown, ChevronRight, ChevronUp, Settings } from '@/lib/lucide-icons'
 import { useConfirmDialog } from '../components/ConfirmDialog'
@@ -29,6 +29,9 @@ import { ExportDialog } from '../components/ExportDialog'
 import { Pagination } from '../components/Pagination'
 import { useDialog } from '../hooks/useDialog'
 import { useRecordActions } from '../hooks/useRecordActions'
+import { GroupNode } from './list/GroupNode'
+import { computeAggregates } from './list/listAggregates'
+import { useColumnPrefs } from './list/useColumnPrefs'
 import { getFieldWidget } from './widgets'
 
 function renderListCellContent(content: ReturnType<typeof renderCell>): React.ReactNode {
@@ -108,11 +111,9 @@ export function OdooListRenderer({
   const [limit, setLimit] = useState(80)
   const [order, setOrder] = useState('')
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
-  const [hiddenCols, setHiddenCols] = useState<Set<string>>(new Set())
   const [groupExtraLimits, setGroupExtraLimits] = useState<Record<string, number>>({})
   const [newGroupName, setNewGroupName] = useState('')
   const [colMenuOpen, setColMenuOpen] = useState(false)
-  const [colWidths, setColWidths] = useState<Record<string, number>>({})
   const colMenuRef = useRef<HTMLDivElement>(null)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const savedScrollTop = useRef(0)
@@ -130,39 +131,20 @@ export function OdooListRenderer({
   }, [listView.defaultOrder, listView.limit])
 
   const groupLimit = listView.groupsLimit ?? 80
-  const allVisibleColumns = listView.columns.filter((c) => {
-    if (isListButton(c)) return !c.invisible
-    if (isButtonGroup(c)) return c.buttons.some((b) => !b.invisible)
-    return !c.invisible || c.invisible < 1
-  })
 
-  // Initialize hidden columns from localStorage or optional="hide" attributes
-  useEffect(() => {
-    const saved = getColumnPrefs(model)
-    if (saved) {
-      setHiddenCols(new Set(saved))
-    } else {
-      const hidden = new Set(
-        listView.columns
-          .filter((c): c is ViewField => isViewField(c) && c.optional === 'hide')
-          .map((c) => c.name),
-      )
-      setHiddenCols(hidden)
-    }
-  }, [listView, model])
-  const visibleColumns = allVisibleColumns
-    .filter((c) => isNonField(c) || !hiddenCols.has(c.name))
-    .filter((c) => {
-      if (isNonField(c)) return true
-      if (!c.columnInvisible) return true
-      return !evalCondition(c.columnInvisible, {})
-    })
+  const {
+    visibleColumns,
+    allVisibleCols,
+    hiddenCols,
+    colWidths,
+    toggleColumn,
+    hasHandle,
+    startResize,
+  } = useColumnPrefs(model, listView, fields)
+
   const fieldColumnNames = visibleColumns.filter(isViewField).map((c) => c.name)
   const groupByActive = groupBy.length > 0
   const isEditable = !!listView.editable && !groupByActive
-  const hasHandle = allVisibleColumns.some(
-    (c): c is ViewField => isViewField(c) && c.widget === 'handle',
-  )
   const [dragRow, setDragRow] = useState<number | null>(null)
   const [dragOverRow, setDragOverRow] = useState<number | null>(null)
 
@@ -251,71 +233,16 @@ export function OdooListRenderer({
     }
   }, [isLoading])
 
-  const aggregates = useMemo(() => {
-    const result: Record<string, { label: string; value: number | string }> = {}
-    const rows = data as Array<Record<string, unknown>>
-    if (!rows.length || groupData) return result
-
-    const numericTypes = ['integer', 'float', 'monetary']
-    const compute = (vals: number[], op: string): number => {
-      if (op === 'sum') return vals.reduce((a, b) => a + b, 0)
-      if (op === 'avg') return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0
-      if (op === 'min') return Math.min(...vals)
-      if (op === 'max') return Math.max(...vals)
-      return 0
-    }
-    const fmt = (v: number, isInt: boolean) =>
-      isInt ? String(Math.round(v)) : v.toFixed(2).replace(/\.00$/, '')
-
-    for (const col of visibleColumns) {
-      if (isNonField(col)) continue
-      const meta = fields[col.name]
-      if (!meta || !numericTypes.includes(meta.type)) continue
-      const isInt = meta.type === 'integer'
-
-      // Collect values for each aggregate operator
-      const ops: Array<{ key: 'sum' | 'avg' | 'min' | 'max'; label: string }> = []
-      if (col.sum) ops.push({ key: 'sum', label: col.sum })
-      if (col.avg) ops.push({ key: 'avg', label: col.avg })
-      if (col.min) ops.push({ key: 'min', label: col.min })
-      if (col.max) ops.push({ key: 'max', label: col.max })
-      if (!ops.length) continue
-
-      if (meta.type === 'monetary') {
-        const byCurrency = new Map<string, number[]>()
-        for (const r of rows) {
-          const curId = (r.currency_id as [number, string] | undefined)?.[1]
-          const curKey = curId ?? 'default'
-          const arr = byCurrency.get(curKey) ?? []
-          arr.push(Number(r[col.name]) || 0)
-          byCurrency.set(curKey, arr)
-        }
-        for (const op of ops) {
-          if (byCurrency.size <= 1) {
-            const vals = [...byCurrency.values()][0] ?? []
-            result[`${col.name}_${op.key}`] = {
-              label: op.label,
-              value: fmt(compute(vals, op.key), false),
-            }
-          } else {
-            const parts = [...byCurrency.entries()].map(
-              ([cur, vals]) => `${fmt(compute(vals, op.key), false)} ${cur}`,
-            )
-            result[`${col.name}_${op.key}`] = { label: op.label, value: parts.join(' / ') }
-          }
-        }
-      } else {
-        const vals = rows.map((r) => Number(r[col.name]) || 0)
-        for (const op of ops) {
-          result[`${col.name}_${op.key}`] = {
-            label: op.label,
-            value: fmt(compute(vals, op.key), isInt),
-          }
-        }
-      }
-    }
-    return result
-  }, [data, visibleColumns, fields, groupData])
+  const aggregates = useMemo(
+    () =>
+      computeAggregates(
+        data as Array<Record<string, unknown>>,
+        visibleColumns,
+        fields,
+        !!groupData,
+      ),
+    [data, visibleColumns, fields, groupData],
+  )
 
   const { data: totalCount } = useQuery({
     queryKey: ['odoo', 'count', model, domain],
@@ -471,6 +398,12 @@ export function OdooListRenderer({
       ...prev,
       values: { ...prev.values, [fieldName]: value },
     }))
+    setValidationErrors((prev) => {
+      if (!prev[fieldName]) return prev
+      const next = { ...prev }
+      delete next[fieldName]
+      return next
+    })
   }, [])
 
   const handleInlineSave = useCallback(() => {
@@ -481,10 +414,11 @@ export function OdooListRenderer({
       const meta = fields[col.name]
       if (!meta || meta.readonly || col.readonly) continue
       const val = inlineEdit.values[col.name]
-      if (col.required || meta.required) {
-        if (val === null || val === undefined || val === false || val === '') {
-          errors[col.name] = 'Required'
-        }
+      if ((col.required || meta.required) && isFieldValueEmpty(val, meta.type)) {
+        errors[col.name] = 'Required'
+      } else {
+        const typeErr = validateFieldValue(val, meta)
+        if (typeErr) errors[col.name] = typeErr
       }
     }
     if (Object.keys(errors).length > 0) {
@@ -623,20 +557,6 @@ export function OdooListRenderer({
     }
     setInlineEdit({ mode: 'creating', values: defaults })
   }, [visibleColumns, fields])
-
-  // Column management (14.1)
-  const toggleColumn = useCallback(
-    (name: string) => {
-      setHiddenCols((prev) => {
-        const next = new Set(prev)
-        if (next.has(name)) next.delete(name)
-        else next.add(name)
-        setColumnPrefs(model, [...next])
-        return next
-      })
-    },
-    [model],
-  )
 
   // Warn before leaving page with unsaved inline edits
   useEffect(() => {
@@ -797,26 +717,6 @@ export function OdooListRenderer({
     })
   }, [])
 
-  // Column resize handler
-  const startResize = useCallback(
-    (colName: string, e: React.MouseEvent) => {
-      e.preventDefault()
-      const startX = e.clientX
-      const startWidth = colWidths[colName] ?? 120
-      const onMove = (ev: MouseEvent) => {
-        const delta = ev.clientX - startX
-        setColWidths((prev) => ({ ...prev, [colName]: Math.max(60, startWidth + delta) }))
-      }
-      const onUp = () => {
-        document.removeEventListener('mousemove', onMove)
-        document.removeEventListener('mouseup', onUp)
-      }
-      document.addEventListener('mousemove', onMove)
-      document.addEventListener('mouseup', onUp)
-    },
-    [colWidths],
-  )
-
   const handleExportClick = useCallback(() => {
     const records = data as Array<Record<string, unknown>>
     if (!records.length) return
@@ -893,230 +793,55 @@ export function OdooListRenderer({
     [data, lastSelectedIdx, groupByActive],
   )
 
-  // Recursive group node renderer
+  // Recursive group node renderer — thin wrapper around GroupNode component
   const renderGroupNode = useCallback(
-    (path: string, group: ReadGroupResult | Record<string, unknown>, depth: number) => {
-      const isExpanded = expandedGroups.has(path)
-      const queryResult = groupQueryMap.get(path)
-      const groupRecords = queryResult?.data as Array<Record<string, unknown>> | undefined
-      const subGroups = queryResult?.data as ReadGroupResult[] | undefined
-      const isLeaf = depth >= groupBy.length - 1
-      const countKey = `${fieldColumnNames[0] ?? 'id'}_count`
-      const count = (group as Record<string, unknown>)[countKey] ?? 0
-      const indent = depth * 24
-
-      return (
-        <React.Fragment key={`g-${path}`}>
-          <tr
-            onClick={() => toggleGroupExpand(path)}
-            className="border-b border-border-subtle bg-surface/30 transition-colors hover:bg-hover/30 cursor-pointer"
-          >
-            <td className="w-10 px-2 py-2">
-              <div className="flex items-center" style={{ paddingLeft: indent }}>
-                <ChevronRight
-                  className={`h-3.5 w-3.5 text-text-muted transition-transform ${isExpanded ? 'rotate-90' : ''}`}
-                />
-              </div>
-            </td>
-            {visibleColumns.map((col, ci) => {
-              if (isNonField(col)) {
-                return <td key={`gd-${ci}`} className="px-2 py-2" />
-              }
-              const isGroupField = groupBy[depth] === col.name
-              const val = (group as Record<string, unknown>)[col.name]
-              const meta = fields[col.name]
-              return (
-                <td
-                  key={`gd-${col.name}-${ci}`}
-                  className="whitespace-nowrap px-4 py-2 text-sm text-text-primary"
-                >
-                  {isGroupField ? (
-                    <>
-                      <span className="font-medium">
-                        {renderListCellContent(renderCell(val, meta, model))}
-                      </span>
-                      <span className="ml-1.5 rounded bg-hover px-1 py-0.5 text-[10px] text-text-muted">
-                        {String(count)}
-                      </span>
-                      {listView.groupDelete &&
-                        meta?.type === 'many2one' &&
-                        Array.isArray(val) &&
-                        val[0] && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              confirmDialog({
-                                title: 'Delete Group',
-                                message: `Remove the group "${val[1]}"? This will not delete the underlying records.`,
-                                confirmLabel: 'Delete',
-                                variant: 'danger',
-                                onConfirm: () =>
-                                  callKw(model, 'unlink', [[val[0]]]).then(invalidateList),
-                              })
-                            }}
-                            className="ml-2 rounded px-1 py-0 text-[10px] text-text-muted hover:text-danger"
-                          >
-                            ×
-                          </button>
-                        )}
-                    </>
-                  ) : (
-                    <span className="text-text-muted">
-                      {val !== undefined && val !== null
-                        ? renderListCellContent(renderCell(val, meta, model))
-                        : ''}
-                    </span>
-                  )}
-                </td>
-              )
-            })}
-          </tr>
-          {isExpanded &&
-            !isLeaf &&
-            subGroups &&
-            subGroups.length > 0 &&
-            subGroups.map((subGroup, si) => renderGroupNode(`${path}-${si}`, subGroup, depth + 1))}
-          {isExpanded &&
-            isLeaf &&
-            groupRecords &&
-            groupRecords.length > 0 &&
-            groupRecords.map((record) => {
-              const recordId = record.id as number
-              const rowDeco = getDecorationClass(
-                listView.decorations as unknown as Record<string, unknown>,
-                record,
-              )
-              return (
-                <tr
-                  key={`gr-${path}-${recordId}`}
-                  onClick={() => handleRowClick(record)}
-                  className={[
-                    'border-b border-border-subtle bg-root/50 transition-colors hover:bg-hover/50',
-                    selectedIds.has(recordId) ? 'bg-accent/5' : '',
-                    !isEditable && onRowClick && !listView.noOpen ? 'cursor-pointer' : '',
-                    rowDeco,
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                >
-                  <td className="w-10 px-2 py-2" onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(recordId)}
-                      onChange={() => toggleRow(recordId, false, 0)}
-                      className="h-4 w-4 cursor-pointer rounded accent-accent"
-                    />
-                  </td>
-                  {visibleColumns.map((col, ci) => {
-                    if (isNonField(col)) {
-                      return (
-                        <td
-                          key={`grd-${ci}`}
-                          className="px-2 py-2"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {isButtonGroup(col)
-                            ? col.buttons.map((btn) => (
-                                <ListButtonCell
-                                  key={btn.name}
-                                  btn={btn}
-                                  record={record}
-                                  model={model}
-                                  onDone={invalidateList}
-                                />
-                              ))
-                            : isListButton(col) && (
-                                <ListButtonCell
-                                  btn={col}
-                                  record={record}
-                                  model={model}
-                                  onDone={invalidateList}
-                                />
-                              )}
-                        </td>
-                      )
-                    }
-                    const cellDeco = getDecorationClass(
-                      col as unknown as Record<string, unknown>,
-                      record,
-                    )
-                    return (
-                      <td
-                        key={`grd-${col.name}-${ci}`}
-                        className={[
-                          'whitespace-nowrap px-4 py-2 text-sm text-text-primary',
-                          cellDeco,
-                        ]
-                          .filter(Boolean)
-                          .join(' ')}
-                      >
-                        {renderListCellContent(
-                          renderCell(
-                            record[col.name],
-                            fields[col.name],
-                            model,
-                            record.id as number,
-                          ),
-                        )}
-                      </td>
-                    )
-                  })}
-                </tr>
-              )
-            })}
-          {isExpanded && isLeaf && groupRecords && groupRecords.length >= groupLimit && (
-            <tr>
-              <td colSpan={visibleColumns.length + 1} className="px-4 py-1 text-center">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setGroupExtraLimits((prev) => ({
-                      ...prev,
-                      [path]: (prev[path] ?? 0) + groupLimit,
-                    }))
-                  }}
-                  className="text-[10px] text-accent hover:underline"
-                >
-                  Load more...
-                </button>
-              </td>
-            </tr>
-          )}
-          {isExpanded && !queryResult?.data && (
-            <tr>
-              <td
-                colSpan={visibleColumns.length + 1}
-                className="px-4 py-2 text-center text-xs text-text-muted"
-              >
-                <div className="mx-auto h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />
-              </td>
-            </tr>
-          )}
-        </React.Fragment>
-      )
-    },
+    (path: string, group: ReadGroupResult | Record<string, unknown>, depth: number) => (
+      <GroupNode
+        path={path}
+        group={group}
+        depth={depth}
+        visibleColumns={visibleColumns}
+        fields={fields}
+        groupBy={groupBy}
+        fieldColumnNames={fieldColumnNames}
+        model={model}
+        selectedIds={selectedIds}
+        expandedGroups={expandedGroups}
+        groupQueryMap={groupQueryMap}
+        groupLimit={groupLimit}
+        decorations={listView.decorations}
+        groupDelete={!!listView.groupDelete}
+        isEditable={isEditable}
+        noOpen={!!listView.noOpen}
+        onRowClick={onRowClick}
+        toggleGroupExpand={toggleGroupExpand}
+        toggleRow={toggleRow}
+        handleRowClick={handleRowClick}
+        setGroupExtraLimits={setGroupExtraLimits}
+        confirmDialog={confirmDialog}
+        invalidateList={invalidateList}
+      />
+    ),
     [
-      expandedGroups,
-      groupQueryMap,
-      groupBy,
-      fieldColumnNames,
       visibleColumns,
       fields,
-      toggleGroupExpand,
+      groupBy,
+      fieldColumnNames,
+      model,
+      selectedIds,
+      expandedGroups,
+      groupQueryMap,
+      groupLimit,
       listView.decorations,
       listView.groupDelete,
-      confirmDialog,
-      handleRowClick,
-      selectedIds,
       isEditable,
-      onRowClick,
-      toggleRow,
-      model,
-      invalidateList,
       listView.noOpen,
-      groupLimit,
+      onRowClick,
+      toggleGroupExpand,
+      toggleRow,
+      handleRowClick,
+      confirmDialog,
+      invalidateList,
     ],
   )
 
@@ -1142,7 +867,7 @@ export function OdooListRenderer({
                   <div className="mb-1 text-[10px] font-medium uppercase text-text-muted">
                     Columns
                   </div>
-                  {allVisibleColumns.filter(isViewField).map((col) => {
+                  {allVisibleCols.filter(isViewField).map((col) => {
                     const meta = fields[col.name]
                     const label = col.string || meta?.string || col.name
                     return (
@@ -1597,12 +1322,19 @@ export function OdooListRenderer({
                           if (isEditing && !isReadonly) {
                             const fe = editableFieldElements[ci] as FieldElement
                             const Widget = getFieldWidget(fe, meta?.type ?? 'char')
-                            const hasError = !!validationErrors[col.name]
+                            const errMsg = validationErrors[col.name]
+                            const hasRequiredErr = errMsg === 'Required'
+                            const hasTypeErr = !!errMsg && !hasRequiredErr
+                            const errRing = hasRequiredErr
+                              ? ' ring-1 ring-danger ring-inset'
+                              : hasTypeErr
+                                ? ' ring-1 ring-warning ring-inset'
+                                : ''
                             return (
                               <td
                                 key={`d-${col.name}-${ci}`}
-                                className={`whitespace-nowrap px-1 py-0.5${hasError ? ' ring-1 ring-danger ring-inset' : ''}`}
-                                title={hasError ? validationErrors[col.name] : undefined}
+                                className={`whitespace-nowrap px-1 py-0.5${errRing}`}
+                                title={errMsg ?? undefined}
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 {createElement(Widget, {
@@ -1797,12 +1529,19 @@ function InlineEditRow({
         const isReadonly = meta?.readonly || col.readonly
         const fe = fieldElements[ci] as FieldElement
         const Widget = getFieldWidget(fe, meta?.type ?? 'char')
-        const hasError = !!validationErrors[col.name]
+        const errMsg = validationErrors[col.name]
+        const hasRequiredErr = errMsg === 'Required'
+        const hasTypeErr = !!errMsg && !hasRequiredErr
+        const errRing = hasRequiredErr
+          ? ' ring-1 ring-danger ring-inset'
+          : hasTypeErr
+            ? ' ring-1 ring-warning ring-inset'
+            : ''
         return (
           <td
             key={`new-${col.name}-${ci}`}
-            className={`whitespace-nowrap px-1 py-0.5${hasError ? ' ring-1 ring-danger ring-inset' : ''}`}
-            title={hasError ? validationErrors[col.name] : undefined}
+            className={`whitespace-nowrap px-1 py-0.5${errRing}`}
+            title={errMsg ?? undefined}
           >
             {createElement(Widget, {
               field: fe,
