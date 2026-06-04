@@ -82,6 +82,29 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
     to: '/product/products',
     recordPrefix: '/product/product',
   },
+  {
+    fragment: 'product_normal_action',
+    to: '/product/products',
+    recordPrefix: '/product/product',
+  },
+  {
+    fragment: 'product_combo_action',
+    to: '/product/products',
+    recordPrefix: '/product/product',
+  },
+  {
+    fragment: 'product_category_action_form',
+    to: '/product/categories',
+    recordPrefix: '/product/category',
+  },
+  {
+    fragment: 'attribute_action',
+    to: '/product/attributes',
+  },
+  {
+    fragment: 'calendar_settings_action',
+    to: '/settings',
+  },
   // Sale sub-routes
   {
     fragment: 'menu_purchase_root',
@@ -97,6 +120,35 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
     fragment: 'res_partner_action_supplier',
     to: '/purchase/vendors',
     recordPrefix: '/contacts/partner',
+  },
+  {
+    fragment: 'purchase_form_action',
+    to: '/purchase/orders',
+    recordPrefix: '/purchase/order',
+  },
+  {
+    fragment: 'purchase_rfq',
+    to: '/purchase/rfqs',
+    recordPrefix: '/purchase/order',
+  },
+  {
+    fragment: 'purchase_vendors',
+    to: '/purchase/vendors',
+    recordPrefix: '/contacts/partner',
+  },
+  {
+    fragment: 'purchase_products',
+    to: '/purchase/products',
+    recordPrefix: '/product/product',
+  },
+  {
+    fragment: 'act_res_partner_2_purchase_order',
+    to: '/purchase/orders',
+    recordPrefix: '/purchase/order',
+  },
+  {
+    fragment: 'action_purchase_configuration',
+    to: '/purchase/orders',
   },
   {
     fragment: 'action_quotations_with_onboarding',
@@ -127,6 +179,20 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
     fragment: 'action_order_report_all',
     to: '/sale/reporting',
   },
+  {
+    fragment: 'act_res_partner_2_sale_order',
+    to: '/sale/orders',
+    recordPrefix: '/sale/order',
+  },
+  {
+    fragment: 'action_invoice_salesteams',
+    to: '/sale/reporting',
+  },
+  {
+    fragment: 'action_orders_salesteams',
+    to: '/sale/orders',
+    recordPrefix: '/sale/order',
+  },
   // CRM
   {
     fragment: 'crm_team_action_pipeline',
@@ -150,6 +216,30 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
   {
     fragment: 'crm_lost_reason_action',
     to: '/crm/lost-reasons',
+  },
+  {
+    fragment: 'action_opportunity_form',
+    to: '/crm/leads',
+    recordPrefix: '/crm/lead',
+  },
+  {
+    fragment: 'action_lead_mail_compose',
+    to: '/crm/leads',
+    recordPrefix: '/crm/lead',
+  },
+  {
+    fragment: 'action_lead_mass_mail',
+    to: '/crm/leads',
+    recordPrefix: '/crm/lead',
+  },
+  {
+    fragment: 'act_crm_opportunity_calendar_event_new',
+    to: '/calendar/events',
+    recordPrefix: '/calendar/event',
+  },
+  {
+    fragment: 'action_report_crm_lead_salesteam',
+    to: '/crm/teams',
   },
   {
     fragment: 'sales_team_crm_team_action_config',
@@ -241,9 +331,81 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
     recordPrefix: '/accounting/account',
   },
   {
+    fragment: 'action_tax_form',
+    to: '/accounting/taxes',
+    recordPrefix: '/accounting/tax',
+  },
+  {
+    fragment: 'action_bank_statement_tree',
+    to: '/accounting/bank-statements',
+    recordPrefix: '/accounting/bank-statement',
+  },
+  {
+    fragment: 'action_account_reconcile_model',
+    to: '/accounting/reconciliation-models',
+  },
+  {
+    fragment: 'action_payment_term_form',
+    to: '/accounting/payment-terms',
+  },
+  {
+    fragment: 'action_account_fiscal_position_form',
+    to: '/accounting/fiscal-positions',
+  },
+  {
+    fragment: 'action_account_all_payments',
+    to: '/accounting/payments',
+    recordPrefix: '/accounting/payment',
+  },
+  {
+    fragment: 'action_account_config',
+    to: '/accounting/dashboard',
+  },
+  {
+    fragment: 'action_account_cash_rounding',
+    to: '/accounting/cash-rounding',
+  },
+  {
+    fragment: 'action_account_incoterms',
+    to: '/accounting/incoterms',
+  },
+  {
+    fragment: 'action_account_analytic_account_form',
+    to: '/accounting/analytic-accounts',
+    recordPrefix: '/accounting/analytic-account',
+  },
+  {
     fragment: 'menu_main_pm',
     to: '/project/tasks',
     recordPrefix: '/project/task',
+  },
+  {
+    fragment: 'action_view_my_task',
+    to: '/project/tasks',
+    recordPrefix: '/project/task',
+  },
+  {
+    fragment: 'act_project_project_2_project_task_all',
+    to: '/project/tasks',
+    recordPrefix: '/project/task',
+  },
+  {
+    fragment: 'project_project_stage_action',
+    to: '/project/stages',
+  },
+  {
+    fragment: 'open_task_type_form',
+    to: '/project/task-stages',
+  },
+  {
+    fragment: 'action_view_project_milestone',
+    to: '/project/milestones',
+    recordPrefix: '/project/milestone',
+  },
+  {
+    fragment: 'open_view_project_all',
+    to: '/project/projects',
+    recordPrefix: '/project/project',
   },
   // MRP
   {
@@ -276,6 +438,45 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
     to: '/mrp/unbuilds',
     recordPrefix: '/mrp/unbuild',
   },
+  {
+    fragment: 'mrp_production_action',
+    to: '/mrp/productions',
+    recordPrefix: '/mrp/production',
+  },
+  {
+    fragment: 'action_mrp_production_form',
+    to: '/mrp/productions',
+    recordPrefix: '/mrp/production',
+  },
+  {
+    fragment: 'action_mrp_workorder',
+    to: '/mrp/work-orders',
+    recordPrefix: '/mrp/work-order',
+  },
+  {
+    fragment: 'action_mrp_workcenter',
+    to: '/mrp/work-centers',
+    recordPrefix: '/mrp/work-center',
+  },
+  {
+    fragment: 'action_mrp_routing_form',
+    to: '/mrp/routings',
+    recordPrefix: '/mrp/routing',
+  },
+  {
+    fragment: 'action_mrp_unbuild',
+    to: '/mrp/unbuilds',
+    recordPrefix: '/mrp/unbuild',
+  },
+  {
+    fragment: 'mrp_bom_action',
+    to: '/mrp/boms',
+    recordPrefix: '/mrp/bom',
+  },
+  {
+    fragment: 'action_mrp_configuration',
+    to: '/mrp/boms',
+  },
   // Expenses
   {
     fragment: 'menu_hr_expense_root',
@@ -292,6 +493,29 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
     to: '/expenses/sheets',
     recordPrefix: '/expenses/sheet',
   },
+  {
+    fragment: 'hr_expense_actions_all',
+    to: '/expenses/my',
+    recordPrefix: '/expenses/expense',
+  },
+  {
+    fragment: 'action_hr_expense_department_filtered',
+    to: '/expenses/my',
+    recordPrefix: '/expenses/expense',
+  },
+  {
+    fragment: 'action_hr_expense_department_to_approve',
+    to: '/expenses/my',
+    recordPrefix: '/expenses/expense',
+  },
+  {
+    fragment: 'action_hr_expense_account',
+    to: '/accounting/dashboard',
+  },
+  {
+    fragment: 'action_hr_expense_configuration',
+    to: '/expenses/configuration',
+  },
   // Recruitment
   {
     fragment: 'menu_hr_recruitment_root',
@@ -307,9 +531,31 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
     fragment: 'action_hr_recruitment_stage',
     to: '/recruitment/stages',
   },
+  {
+    fragment: 'action_hr_department',
+    to: '/hr/departments',
+    recordPrefix: '/hr/department',
+  },
+  {
+    fragment: 'action_hr_recruitment_configuration',
+    to: '/recruitment/applicants',
+  },
+  {
+    fragment: 'action_hr_talent_pool',
+    to: '/recruitment/applicants',
+    recordPrefix: '/recruitment/applicant',
+  },
   // Attendance
   {
     fragment: 'hr_attendance.menu_hr_attendance_root',
+    to: '/attendance/kiosk',
+  },
+  {
+    fragment: 'hr_attendance_management_action',
+    to: '/attendance/kiosk',
+  },
+  {
+    fragment: 'hr_attendance_action',
     to: '/attendance/kiosk',
   },
   {
