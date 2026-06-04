@@ -146,3 +146,98 @@ jobs:
 
       - name: Test
         run: bun run test
+
+  # ── E2E Smoke (MVAM) ────────────────────────────
+  e2e-smoke:
+    name: E2E Smoke (MVAM)
+    runs-on: ubuntu-latest
+    needs: [backend-stable, frontend]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Start Odoo
+        run: |
+          docker run -d --name odoo \
+            --network host \
+            -e HOST=127.0.0.1 -e PORT=5432 \
+            -e USER=odoo -e PASSWORD=odoo \
+            -v ${{ github.workspace }}/docker/config:/etc/odoo \
+            odoo:19.0 \
+            sh -c "pip3 install --break-system-packages --quiet PyJWT==2.8.0 && odoo -i base,sale,crm --without-demo=all -D /tmp/odoo"
+
+      - name: Wait for Odoo
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8069/web/webclient/version_info > /dev/null 2>&1; then
+              echo "Odoo ready after ${i}x5s"
+              break
+            fi
+            echo "Waiting for Odoo... ($i/60)"
+            sleep 5
+          done
+          curl -sf http://localhost:8069/web/webclient/version_info > /dev/null || (echo "Odoo failed to start" && exit 1)
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install & Build frontend
+        run: |
+          bun install --frozen-lockfile
+          cd apps/oweb && bun run build
+
+      - name: Build & Start BFF
+        run: |
+          cargo build -p odoo-web-server
+          ODOO_URL=http://localhost:8069 \
+          FRONTEND_DIR=apps/oweb/dist \
+          RUST_LOG=info \
+          cargo run -p odoo-web-server &
+          sleep 3
+          curl -sf http://localhost:3000/health > /dev/null || (echo "BFF failed to start" && exit 1)
+
+      - name: Install Playwright
+        run: cd apps/oweb && bunx playwright install --with-deps chromium
+
+      - name: Run MVAM Smoke
+        working-directory: apps/oweb
+        env:
+          E2E_BASE_URL: http://localhost:3000
+          E2E_SKIP_WEBSERVER: "1"
+          E2E_DB: postgres
+          E2E_LOGIN: admin
+          E2E_PASSWORD: admin
+        run: bunx playwright test e2e/mvam.spec.ts --timeout 60000 --retries 1
+
+      - name: Upload traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-smoke-traces
+          path: apps/oweb/test-results/
+          retention-days: 3
