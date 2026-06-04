@@ -1,5 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/tanstack-react'
-import { CharWidget, TextWidget, IntegerWidget, FloatWidget, BooleanWidget, BooleanToggleWidget } from '../basic'
+import {
+  CharWidget,
+  TextWidget,
+  IntegerWidget,
+  FloatWidget,
+  BooleanWidget,
+  BooleanToggleWidget,
+} from '../basic'
 import type { FieldWidgetProps } from '../index'
 
 const meta: Meta = {
@@ -49,7 +56,13 @@ export const CharEmpty: StoryObj = {
 }
 
 export const TextEdit: StoryObj = {
-  render: () => <FieldWrapper component={TextWidget} label="Notes" value="This is a long text field.\nMultiple lines supported." />,
+  render: () => (
+    <FieldWrapper
+      component={TextWidget}
+      label="Notes"
+      value="This is a long text field.\nMultiple lines supported."
+    />
+  ),
 }
 
 export const IntegerEdit: StoryObj = {

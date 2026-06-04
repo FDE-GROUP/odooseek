@@ -7,7 +7,7 @@ export function Many2ManyAvatarUserWidget({ value, onChange, readOnly, meta }: F
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
   const [results, setResults] = useState<Array<[number, string, string?]>>([])
-  const timer = useRef<ReturnType<typeof setTimeout>>()
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const tags: Array<[number, string]> = Array.isArray(value)
     ? value

@@ -4,7 +4,11 @@ import type { FieldWidgetProps } from '../index'
 import { PriorityWidget, RadioWidget, StateBadgeWidget } from '../selection'
 
 const f = (overrides: Partial<FieldWidgetProps> = {}): FieldWidgetProps => ({
-  field: { name: 'test', type: 'selection', string: 'Test' } as FieldWidgetProps['field'],
+  field: {
+    name: 'test',
+    type: 'selection',
+    string: 'Test',
+  } as unknown as FieldWidgetProps['field'],
   value: '',
   onChange: vi.fn(),
   meta: {

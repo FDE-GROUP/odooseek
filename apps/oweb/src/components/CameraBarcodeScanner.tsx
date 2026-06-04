@@ -1,3 +1,10 @@
+declare class BarcodeDetector {
+  constructor(options?: { formats: string[] })
+  static getSupportedFormats(): Promise<string[]>
+  getSupportedFormats(): Promise<string[]>
+  detect(image: ImageBitmapSource): Promise<Array<{ rawValue: string }>>
+}
+
 import { useEffect, useRef, useState } from 'react'
 
 interface BarcodeScannerProps {

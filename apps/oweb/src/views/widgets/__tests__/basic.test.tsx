@@ -4,7 +4,7 @@ import { BooleanToggleWidget, CharWidget, DatetimeWidget, DateWidget, HtmlWidget
 import type { FieldWidgetProps } from '../index'
 
 const f = (overrides: Partial<FieldWidgetProps> = {}): FieldWidgetProps => ({
-  field: { name: 'test', type: 'char', string: 'Test' } as FieldWidgetProps['field'],
+  field: { name: 'test', type: 'char', string: 'Test' } as unknown as FieldWidgetProps['field'],
   value: '',
   onChange: vi.fn(),
   ...overrides,

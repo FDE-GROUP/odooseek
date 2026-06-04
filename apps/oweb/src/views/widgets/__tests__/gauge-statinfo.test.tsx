@@ -5,7 +5,7 @@ import type { FieldWidgetProps } from '../index'
 
 function fieldProps(overrides: Partial<FieldWidgetProps> = {}): FieldWidgetProps {
   return {
-    field: { name: 'test', type: 'float', string: 'Test' } as FieldWidgetProps['field'],
+    field: { name: 'test', type: 'float', string: 'Test' } as unknown as FieldWidgetProps['field'],
     value: 0,
     onChange: () => {},
     ...overrides,
@@ -30,7 +30,10 @@ describe('StatInfoWidget', () => {
       <StatInfoWidget
         {...fieldProps({
           value: 42,
-          field: { ...fieldProps().field, string: 'Revenue' } as FieldWidgetProps['field'],
+          field: {
+            ...fieldProps().field,
+            string: 'Revenue',
+          } as unknown as FieldWidgetProps['field'],
         })}
       />,
     )
@@ -46,7 +49,7 @@ describe('StatInfoWidget', () => {
           field: {
             ...fieldProps().field,
             options: { type: 'monetary' },
-          } as FieldWidgetProps['field'],
+          } as unknown as FieldWidgetProps['field'],
         })}
       />,
     )

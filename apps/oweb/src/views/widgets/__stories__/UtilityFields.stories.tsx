@@ -1,5 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/tanstack-react'
-import { EmailWidget, PhoneWidget, UrlWidget, ProgressbarWidget, ColorPickerWidget, CopyClipboardWidget } from '../utility'
+import {
+  EmailWidget,
+  PhoneWidget,
+  UrlWidget,
+  ProgressbarWidget,
+  ColorPickerWidget,
+  CopyClipboardWidget,
+} from '../utility'
 import type { FieldWidgetProps } from '../index'
 
 const meta: Meta = {
@@ -44,7 +51,9 @@ export const EmailEdit: StoryObj = {
 }
 
 export const EmailReadOnly: StoryObj = {
-  render: () => <FieldWrapper component={EmailWidget} label="Email" value="user@example.com" readOnly />,
+  render: () => (
+    <FieldWrapper component={EmailWidget} label="Email" value="user@example.com" readOnly />
+  ),
 }
 
 export const PhoneEdit: StoryObj = {
@@ -60,7 +69,9 @@ export const UrlEdit: StoryObj = {
 }
 
 export const UrlReadOnly: StoryObj = {
-  render: () => <FieldWrapper component={UrlWidget} label="Website" value="https://example.com" readOnly />,
+  render: () => (
+    <FieldWrapper component={UrlWidget} label="Website" value="https://example.com" readOnly />
+  ),
 }
 
 export const ProgressComplete: StoryObj = {
@@ -76,7 +87,14 @@ export const ProgressEmpty: StoryObj = {
 }
 
 export const CopyClipboard: StoryObj = {
-  render: () => <FieldWrapper component={CopyClipboardWidget} label="API Key" value="sk-abc123def456" readOnly />,
+  render: () => (
+    <FieldWrapper
+      component={CopyClipboardWidget}
+      label="API Key"
+      value="sk-abc123def456"
+      readOnly
+    />
+  ),
 }
 
 export const ColorPicker: StoryObj = {

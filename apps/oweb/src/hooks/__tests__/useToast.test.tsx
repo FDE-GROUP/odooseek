@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react'
 import type { ReactNode } from 'react'
-import { describe, expect, test, vi } from 'vitest'
+import { beforeEach, afterEach, describe, expect, test, vi } from 'vitest'
 import { ToastProvider, useToast } from '../useToast'
 
 function wrapper({ children }: { children: ReactNode }) {

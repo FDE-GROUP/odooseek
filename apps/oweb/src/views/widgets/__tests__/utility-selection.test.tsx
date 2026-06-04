@@ -13,7 +13,7 @@ import {
 } from '../utility'
 
 const f = (overrides: Partial<FieldWidgetProps> = {}): FieldWidgetProps => ({
-  field: { name: 'test', type: 'char', string: 'Test' } as FieldWidgetProps['field'],
+  field: { name: 'test', type: 'char', string: 'Test' } as unknown as FieldWidgetProps['field'],
   value: '',
   onChange: vi.fn(),
   meta: { selection: [['draft', 'Draft']] },

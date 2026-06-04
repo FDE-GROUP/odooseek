@@ -74,10 +74,46 @@ describe('wizardBtn', () => {
 
 describe('validateAllFields', () => {
   const fields: Record<string, OdooFieldMeta> = {
-    name: { name: 'name', type: 'char', string: 'Name', required: true, readonly: false },
-    email: { name: 'email', type: 'char', string: 'Email', required: false, readonly: false },
-    age: { name: 'age', type: 'integer', string: 'Age', required: true, readonly: false },
-    active: { name: 'active', type: 'boolean', string: 'Active', required: false, readonly: false },
+    name: {
+      name: 'name',
+      type: 'char',
+      string: 'Name',
+      required: true,
+      readonly: false,
+      store: true,
+      searchable: true,
+      sortable: true,
+    },
+    email: {
+      name: 'email',
+      type: 'char',
+      string: 'Email',
+      required: false,
+      readonly: false,
+      store: true,
+      searchable: true,
+      sortable: true,
+    },
+    age: {
+      name: 'age',
+      type: 'integer',
+      string: 'Age',
+      required: true,
+      readonly: false,
+      store: true,
+      searchable: true,
+      sortable: true,
+    },
+    active: {
+      name: 'active',
+      type: 'boolean',
+      string: 'Active',
+      required: false,
+      readonly: false,
+      store: true,
+      searchable: true,
+      sortable: true,
+    },
   }
 
   test('detects missing required fields', () => {
@@ -111,6 +147,9 @@ describe('validateAllFields', () => {
         string: 'Active',
         required: true,
         readonly: false,
+        store: true,
+        searchable: true,
+        sortable: true,
       },
     }
     const { missing } = validateAllFields(f, { active: false })

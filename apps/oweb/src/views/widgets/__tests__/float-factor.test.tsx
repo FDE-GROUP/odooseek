@@ -5,7 +5,7 @@ import type { FieldWidgetProps } from '../index'
 
 function props(overrides: Partial<FieldWidgetProps> = {}): FieldWidgetProps {
   return {
-    field: { name: 'test', type: 'float', string: 'Test' } as FieldWidgetProps['field'],
+    field: { name: 'test', type: 'float', string: 'Test' } as unknown as FieldWidgetProps['field'],
     value: 0,
     onChange: vi.fn(),
     ...overrides,
@@ -42,7 +42,7 @@ describe('FloatFactorWidget', () => {
           field: {
             ...props().field,
             options: { min: 0 },
-          } as FieldWidgetProps['field'],
+          } as unknown as FieldWidgetProps['field'],
         })}
       />,
     )

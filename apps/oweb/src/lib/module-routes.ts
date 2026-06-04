@@ -7,7 +7,7 @@
 
 export interface ModuleRouteSpec {
   listPath: string
-  recordPrefix: string
+  recordPrefix?: string
 }
 
 export const MODEL_MODULE_ROUTES: Readonly<Record<string, ModuleRouteSpec>> = {
@@ -234,9 +234,8 @@ export function listPathForModel(model: string | undefined | false): string | un
   return MODEL_MODULE_ROUTES[model]?.listPath
 }
 
-export const RECORD_PREFIX_BY_LIST_PATH: Readonly<Record<string, string>> = Object.fromEntries(
-  Object.values(MODEL_MODULE_ROUTES).map((s) => [s.listPath, s.recordPrefix]),
-)
+export const RECORD_PREFIX_BY_LIST_PATH: Readonly<Record<string, string | undefined>> =
+  Object.fromEntries(Object.values(MODEL_MODULE_ROUTES).map((s) => [s.listPath, s.recordPrefix]))
 
 export function recordPrefixForListPath(listPath: string): string | undefined {
   return RECORD_PREFIX_BY_LIST_PATH[listPath]

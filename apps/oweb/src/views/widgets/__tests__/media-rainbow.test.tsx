@@ -18,7 +18,7 @@ describe('ImageFieldWidget', () => {
       name: 'image_128',
       type: 'binary',
       string: 'Image',
-    } as FieldWidgetProps['field']
+    } as unknown as FieldWidgetProps['field']
     const { container } = render(
       withQuery(<ImageFieldWidget value="iVBORw0KGgo..." onChange={vi.fn()} field={field} />),
     )

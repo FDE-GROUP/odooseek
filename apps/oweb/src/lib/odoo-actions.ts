@@ -161,4 +161,7 @@ export const ODOO_ACTION_XML_ID = {
     configuration: 'purchase.action_purchase_configuration',
     history: 'purchase.action_purchase_history',
   },
+  contacts: {
+    partners: 'contacts.action_contacts',
+  },
 } as const

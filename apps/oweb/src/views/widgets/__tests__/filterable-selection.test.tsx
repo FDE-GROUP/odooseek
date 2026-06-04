@@ -5,7 +5,11 @@ import type { FieldWidgetProps } from '../index'
 
 function props(overrides: Partial<FieldWidgetProps> = {}): FieldWidgetProps {
   return {
-    field: { name: 'test', type: 'selection', string: 'Test' } as FieldWidgetProps['field'],
+    field: {
+      name: 'test',
+      type: 'selection',
+      string: 'Test',
+    } as unknown as FieldWidgetProps['field'],
     value: 'draft',
     onChange: () => {},
     meta: {

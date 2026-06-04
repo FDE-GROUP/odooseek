@@ -97,10 +97,11 @@ function RegistrationDesk() {
 
   useEffect(() => {
     if (initialEventId) {
-      searchRead<EventChoice>(
+      searchRead<EventChoice[]>(
         'event.event',
         [['id', '=', initialEventId]],
         ['display_name', 'name', 'date_begin', 'date_end'],
+        0,
         1,
       ).then((results) => {
         if (results?.[0]?.display_name) {
@@ -144,10 +145,11 @@ function RegistrationDesk() {
       setEvents([])
       return
     }
-    const results = await searchRead<EventChoice>(
+    const results = await searchRead<EventChoice[]>(
       'event.event',
       [['name', 'ilike', query]],
       ['name', 'display_name', 'date_begin', 'date_end'],
+      0,
       10,
       'id desc',
     )
@@ -225,7 +227,7 @@ function RegistrationDesk() {
         setNameResults([])
         return
       }
-      const domain: Array<Array<string | number | boolean | Array<string | number>>> = [
+      const domain: (string | number | boolean | (string | number)[])[] = [
         '|',
         ['name', 'ilike', query],
         ['email', 'ilike', query],
@@ -233,9 +235,9 @@ function RegistrationDesk() {
       if (selectedEventId) {
         domain.unshift(['event_id', '=', selectedEventId])
       }
-      const results = await searchRead<Record<string, unknown>>(
+      const results = await searchRead<Record<string, unknown>[]>(
         'event.registration',
-        domain as string[][],
+        domain as unknown[][],
         [
           'id',
           'name',

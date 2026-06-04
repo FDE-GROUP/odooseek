@@ -3,7 +3,13 @@ import { ToastContainer } from '../Toast'
 import { ToastProvider, useToast } from '@/hooks/useToast'
 import { useEffect } from 'react'
 
-function ToastDemo({ type, message }: { type: 'success' | 'error' | 'warning' | 'info'; message: string }) {
+function ToastDemo({
+  type,
+  message,
+}: {
+  type: 'success' | 'error' | 'warning' | 'info'
+  message: string
+}) {
   const toast = useToast()
   useEffect(() => {
     toast[type](message)

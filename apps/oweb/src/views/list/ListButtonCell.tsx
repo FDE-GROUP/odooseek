@@ -1,5 +1,5 @@
 import { callKw } from '@odooseek/odoo-client'
-import type { ListButtonElement } from '@odooseek/odoo-client/types'
+import type { ListButtonElement } from '@odooseek/odoo-client'
 import { useState } from 'react'
 
 export function ListButtonCell({
@@ -16,7 +16,7 @@ export function ListButtonCell({
   const [loading, setLoading] = useState(false)
 
   if (btn.states) {
-    const allowed = btn.states.split(',').map((s) => s.trim())
+    const allowed = btn.states.split(',').map((s: string) => s.trim())
     const currentState = String(record.state ?? '')
     if (!allowed.includes(currentState)) return null
   }

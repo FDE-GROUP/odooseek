@@ -50,7 +50,7 @@ export function OdooHierarchyRenderer({ model, arch }: { model: string; arch: st
   return (
     <div className="min-h-0 flex-1 overflow-auto p-6">
       <div className="mx-auto max-w-4xl">
-        {roots?.map((root) => (
+        {(roots as HierarchyRecord[] | undefined)?.map((root) => (
           <HierarchyNode
             key={root.id}
             model={model}
@@ -61,7 +61,7 @@ export function OdooHierarchyRenderer({ model, arch }: { model: string; arch: st
             depth={0}
           />
         ))}
-        {(!roots || roots.length === 0) && (
+        {(!roots || (roots as unknown as HierarchyRecord[]).length === 0) && (
           <div className="py-12 text-center text-sm text-muted-foreground">No records found</div>
         )}
       </div>
@@ -99,7 +99,7 @@ function HierarchyNode({
     enabled: expanded,
   })
 
-  const hasChildren = children && children.length > 0
+  const hasChildren = children && (children as unknown as HierarchyRecord[]).length > 0
 
   return (
     <div className="relative">
@@ -119,7 +119,11 @@ function HierarchyNode({
         </button>
         <div className="flex-1 rounded border border-border-subtle bg-surface px-3 py-1.5">
           <div className="text-sm font-medium text-text-primary">
-            {record.display_name || record.name || `#${record.id}`}
+            {
+              (record.display_name ||
+                (record as Record<string, unknown>).name ||
+                `#${record.id}`) as React.ReactNode
+            }
           </div>
           {displayFields.length > 0 && (
             <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-text-secondary">
@@ -139,7 +143,7 @@ function HierarchyNode({
       </div>
       {expanded && hasChildren && (
         <div className="ml-5">
-          {children.map((child) => (
+          {(children as unknown as HierarchyRecord[]).map((child) => (
             <HierarchyNode
               key={child.id}
               model={model}

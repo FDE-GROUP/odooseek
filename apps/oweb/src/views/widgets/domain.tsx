@@ -3,7 +3,14 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import type { FieldWidgetProps } from './index'
 
-type DomainNode = ['&' | '|', ...DomainNode[]] | ['!', ...DomainNode[]] | [string, string, unknown]
+type DomainNode = unknown[]
+
+function isOp(n: unknown[]): boolean {
+  return n.length > 0 && typeof n[0] === 'string' && (n[0] === '&' || n[0] === '|' || n[0] === '!')
+}
+function getOp(n: unknown[]): '&' | '|' | '!' {
+  return n[0] as '&' | '|' | '!'
+}
 
 const OPERATORS = [
   ['=', '='],
@@ -95,31 +102,24 @@ function BranchEditor({
   nodes: DomainNode[]
   onChange: (nodes: DomainNode[]) => void
 }) {
-  const [op, setOp] = useState<'&' | '|' | '!'>(
-    nodes.length > 0 && (nodes[0] === '&' || nodes[0] === '|' || nodes[0] === '!')
-      ? (nodes[0] as '&' | '|' | '!')
-      : '&',
-  )
+  const [op, setOp] = useState<'&' | '|' | '!'>(isOp(nodes) ? getOp(nodes) : '&')
 
-  const children =
-    nodes.length > 0 && (nodes[0] === '&' || nodes[0] === '|' || nodes[0] === '!')
-      ? (nodes.slice(1) as DomainNode[])
-      : nodes
+  const children = isOp(nodes) ? (nodes.slice(1) as DomainNode[]) : nodes
 
   const updateOp = (newOp: '&' | '|' | '!') => {
     setOp(newOp)
-    onChange([newOp, ...children])
+    onChange([newOp, ...children] as unknown as DomainNode[])
   }
 
   const addLeaf = () => {
     const newChildren = [...children, ['name', '=', ''] as DomainNode]
-    onChange([op, ...newChildren])
+    onChange([op, ...newChildren] as unknown as DomainNode[])
   }
 
   const updateChild = (idx: number, child: DomainNode) => {
     const newChildren = [...children]
     newChildren[idx] = child
-    onChange([op, ...newChildren])
+    onChange([op, ...newChildren] as unknown as DomainNode[])
   }
 
   const deleteChild = (idx: number) => {
@@ -127,7 +127,7 @@ function BranchEditor({
     if (newChildren.length === 0) {
       onChange([])
     } else {
-      onChange([op, ...newChildren])
+      onChange([op, ...newChildren] as unknown as DomainNode[])
     }
   }
 
@@ -250,22 +250,19 @@ function DomainEditorInner({
   onChange: (nodes: DomainNode[]) => void
 }) {
   const [op, setOp] = useState<'&' | '|'>(
-    nodes.length > 0 && (nodes[0] === '&' || nodes[0] === '|') ? (nodes[0] as '&' | '|') : '&',
+    isOp(nodes) && getOp(nodes) !== '!' ? (getOp(nodes) as '&' | '|') : '&',
   )
-  const [not, setNot] = useState(nodes.length > 0 && nodes[0] === '!')
+  const [not, setNot] = useState(isOp(nodes) && getOp(nodes) === '!')
 
-  const children =
-    nodes.length > 0 && (nodes[0] === '&' || nodes[0] === '|' || nodes[0] === '!')
-      ? (nodes.slice(nodes[0] === '!' ? 1 : 1) as DomainNode[])
-      : nodes
+  const children = isOp(nodes) ? (nodes.slice(1) as DomainNode[]) : nodes
 
   const update = (newChildren: DomainNode[]) => {
     if (newChildren.length === 0) {
       onChange([])
       return
     }
-    const result: DomainNode[] = [op, ...newChildren]
-    onChange(not ? (['!', ...result] as unknown as DomainNode[]) : result)
+    const result: DomainNode[] = [op, ...newChildren] as DomainNode[]
+    onChange(not ? (['!', ...result] as DomainNode[]) : result)
   }
 
   const addLeaf = () => {
@@ -290,8 +287,8 @@ function DomainEditorInner({
           value={op}
           onChange={(e) => {
             setOp(e.target.value as '&' | '|')
-            const result: DomainNode[] = [e.target.value as '&' | '|', ...children]
-            onChange(not ? (['!', ...result] as unknown as DomainNode[]) : result)
+            const result: DomainNode[] = [e.target.value as '&' | '|', ...children] as DomainNode[]
+            onChange(not ? (['!', ...result] as DomainNode[]) : result)
           }}
           className="rounded border border-border-default bg-transparent px-1 py-0 text-xs font-bold text-accent"
         >
@@ -304,8 +301,8 @@ function DomainEditorInner({
             checked={not}
             onChange={(e) => {
               setNot(e.target.checked)
-              const result: DomainNode[] = [op, ...children]
-              onChange(e.target.checked ? (['!', ...result] as unknown as DomainNode[]) : result)
+              const result: DomainNode[] = [op, ...children] as DomainNode[]
+              onChange(e.target.checked ? (['!', ...result] as DomainNode[]) : result)
             }}
             className="accent-accent"
           />
