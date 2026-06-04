@@ -132,6 +132,13 @@ export function formatKanbanField(value: unknown, meta: OdooFieldMeta): string {
   return String(value ?? '')
 }
 
+let renderedFieldNames: Set<string> | null = null
+
+/** Reset per-card dedup state before rendering a card. */
+export function resetKanbanDedup() {
+  renderedFieldNames = new Set()
+}
+
 export function KanbanNode({
   node,
   record,
@@ -149,6 +156,10 @@ export function KanbanNode({
     case 'field': {
       const meta = fields[node.name]
       if (!meta) return null
+
+      // Dedup: skip if this field was already rendered in the same card
+      if (renderedFieldNames?.has(node.name)) return null
+      renderedFieldNames?.add(node.name)
 
       // optional="hide": skip rendering when value is null/empty
       if (node.optional === 'hide') {

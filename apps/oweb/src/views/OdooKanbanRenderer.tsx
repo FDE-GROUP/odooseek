@@ -10,7 +10,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useConfirmDialog } from '../components/ConfirmDialog'
 import { HR_EMPLOYEE_MODEL } from '../lib/hr'
 import { ODOO_INDEXED_COLORS } from '../lib/odoo-colors'
-import { collectKanbanFieldNames, KanbanNode } from './kanban/KanbanNode'
+import { collectKanbanFieldNames, KanbanNode, resetKanbanDedup } from './kanban/KanbanNode'
 import { getFieldWidget, NOOP } from './widgets'
 import { PresenceIconOverlay } from './widgets/PresenceIcon'
 
@@ -560,6 +560,7 @@ function KanbanCard({
   onArchive?: (id: number) => void
   model: string
 }) {
+  resetKanbanDedup()
   const colorIdx = highlightColor ? Number(record[highlightColor]) : 0
   const borderColor =
     colorIdx > 0
