@@ -178,7 +178,9 @@ export function KanbanNode({
 
       if (
         node.widget === 'image' &&
-        (meta.type === 'binary' || meta.name.toLowerCase().startsWith('image'))
+        (meta.type === 'binary' ||
+          meta.name.toLowerCase().startsWith('image') ||
+          meta.name.toLowerCase().startsWith('avatar'))
       ) {
         const size = node.options?.size as [number, number] | undefined
         if (size && Array.isArray(size)) {
