@@ -5,20 +5,20 @@ import type { BaseRecord, ModelFieldName, ModelRecord } from '../core'
 
 /** account.incoterms */
 export interface AccountIncotermsRecord extends BaseRecord {
-  /** Name — Incoterms are series of sales terms. They are used to divide transaction costs and responsibilities between buyer and seller and reflect state-of-the-art transportation practices. */
-  name: string
-  /** Code — Incoterm Standard Code */
-  code: string
   /** Active — By unchecking the active field, you may hide an INCOTERM you will not use. */
   active: boolean
-  /** Created by */
-  create_uid: [number, string] /* res.users */ | false
+  /** Code — Incoterm Standard Code */
+  code: string
   /** Created on */
   create_date: string | false
-  /** Last Updated by */
-  write_uid: [number, string] /* res.users */ | false
+  /** Created by */
+  create_uid: [number, string] /* res.users */ | false
+  /** Name — Incoterms are series of sales terms. They are used to divide transaction costs and responsibilities between buyer and seller and reflect state-of-the-art transportation practices. */
+  name: string
   /** Last Updated on */
   write_date: string | false
+  /** Last Updated by */
+  write_uid: [number, string] /* res.users */ | false
 }
 
 /** Field names for account.incoterms */

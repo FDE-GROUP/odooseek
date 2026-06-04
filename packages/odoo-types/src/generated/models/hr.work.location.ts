@@ -7,24 +7,24 @@ import type { BaseRecord, ModelFieldName, ModelRecord } from '../core'
 export interface HrWorkLocationRecord extends BaseRecord {
   /** Active */
   active: boolean
-  /** Work Location */
-  name: string
-  /** Company */
-  company_id: [number, string] /* res.company */
-  /** Cover Image */
-  location_type: 'home' | 'office' | 'other'
   /** Work Address */
   address_id: [number, string] /* res.partner */
-  /** Location Number */
-  location_number: string | false
-  /** Created by */
-  create_uid: [number, string] /* res.users */ | false
+  /** Company */
+  company_id: [number, string] /* res.company */
   /** Created on */
   create_date: string | false
-  /** Last Updated by */
-  write_uid: [number, string] /* res.users */ | false
+  /** Created by */
+  create_uid: [number, string] /* res.users */ | false
+  /** Location Number */
+  location_number: string | false
+  /** Cover Image */
+  location_type: 'home' | 'office' | 'other'
+  /** Work Location */
+  name: string
   /** Last Updated on */
   write_date: string | false
+  /** Last Updated by */
+  write_uid: [number, string] /* res.users */ | false
 }
 
 /** Field names for hr.work.location */

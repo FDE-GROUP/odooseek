@@ -5,22 +5,22 @@ import type { BaseRecord, ModelFieldName, ModelRecord } from '../core'
 
 /** hr.contract.type */
 export interface HrContractTypeRecord extends BaseRecord {
-  /** Name */
-  name: string
   /** Code */
   code: string | false
-  /** Sequence */
-  sequence: number | false
   /** Country */
   country_id: [number, string] /* res.country */ | false
-  /** Created by */
-  create_uid: [number, string] /* res.users */ | false
   /** Created on */
   create_date: string | false
-  /** Last Updated by */
-  write_uid: [number, string] /* res.users */ | false
+  /** Created by */
+  create_uid: [number, string] /* res.users */ | false
+  /** Name */
+  name: string
+  /** Sequence */
+  sequence: number | false
   /** Last Updated on */
   write_date: string | false
+  /** Last Updated by */
+  write_uid: [number, string] /* res.users */ | false
 }
 
 /** Field names for hr.contract.type */

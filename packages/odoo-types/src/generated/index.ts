@@ -2,6 +2,8 @@
 
 export type { AccountAccountRecord, AccountAccountFieldName, AccountAccountSearchResult } from './models/account.account'
 export type { AccountAnalyticAccountRecord, AccountAnalyticAccountFieldName, AccountAnalyticAccountSearchResult } from './models/account.analytic.account'
+export type { AccountAnalyticLineRecord, AccountAnalyticLineFieldName, AccountAnalyticLineSearchResult } from './models/account.analytic.line'
+export type { AccountAnalyticPlanRecord, AccountAnalyticPlanFieldName, AccountAnalyticPlanSearchResult } from './models/account.analytic.plan'
 export type { AccountBankStatementRecord, AccountBankStatementFieldName, AccountBankStatementSearchResult } from './models/account.bank.statement'
 export type { AccountCashRoundingRecord, AccountCashRoundingFieldName, AccountCashRoundingSearchResult } from './models/account.cash.rounding'
 export type { AccountFiscalPositionRecord, AccountFiscalPositionFieldName, AccountFiscalPositionSearchResult } from './models/account.fiscal.position'
@@ -13,6 +15,7 @@ export type { AccountPaymentRecord, AccountPaymentFieldName, AccountPaymentSearc
 export type { AccountPaymentTermRecord, AccountPaymentTermFieldName, AccountPaymentTermSearchResult } from './models/account.payment.term'
 export type { AccountReconcileModelRecord, AccountReconcileModelFieldName, AccountReconcileModelSearchResult } from './models/account.reconcile.model'
 export type { AccountTaxRecord, AccountTaxFieldName, AccountTaxSearchResult } from './models/account.tax'
+export type { AccountTaxGroupRecord, AccountTaxGroupFieldName, AccountTaxGroupSearchResult } from './models/account.tax.group'
 export type { CalendarAlarmRecord, CalendarAlarmFieldName, CalendarAlarmSearchResult } from './models/calendar.alarm'
 export type { CalendarAttendeeRecord, CalendarAttendeeFieldName, CalendarAttendeeSearchResult } from './models/calendar.attendee'
 export type { CalendarEventRecord, CalendarEventFieldName, CalendarEventSearchResult } from './models/calendar.event'

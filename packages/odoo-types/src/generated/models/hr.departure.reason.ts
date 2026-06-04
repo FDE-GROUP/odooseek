@@ -5,23 +5,23 @@ import type { BaseRecord, ModelFieldName, ModelRecord } from '../core'
 
 /** hr.departure.reason */
 export interface HrDepartureReasonRecord extends BaseRecord {
-  /** Sequence */
-  sequence: number | false
-  /** Reason */
-  name: string
-  /** Country */
-  country_id: [number, string] /* res.country */ | false
   /** Country Code — The ISO country code in two chars. 
 You can use this field for quick search. */
   country_code: string | false
-  /** Created by */
-  create_uid: [number, string] /* res.users */ | false
+  /** Country */
+  country_id: [number, string] /* res.country */ | false
   /** Created on */
   create_date: string | false
-  /** Last Updated by */
-  write_uid: [number, string] /* res.users */ | false
+  /** Created by */
+  create_uid: [number, string] /* res.users */ | false
+  /** Reason */
+  name: string
+  /** Sequence */
+  sequence: number | false
   /** Last Updated on */
   write_date: string | false
+  /** Last Updated by */
+  write_uid: [number, string] /* res.users */ | false
 }
 
 /** Field names for hr.departure.reason */

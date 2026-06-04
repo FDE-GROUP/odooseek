@@ -5,23 +5,23 @@ import type { BaseRecord, ModelFieldName, ModelRecord } from '../core'
 
 /** hr.payroll.structure.type */
 export interface HrPayrollStructureTypeRecord extends BaseRecord {
-  /** Salary Structure Type */
-  name: string | false
-  /** Working Hours */
-  default_resource_calendar_id: [number, string] /* resource.calendar */ | false
-  /** Country */
-  country_id: [number, string] /* res.country */ | false
   /** Country Code — The ISO country code in two chars. 
 You can use this field for quick search. */
   country_code: string | false
-  /** Created by */
-  create_uid: [number, string] /* res.users */ | false
+  /** Country */
+  country_id: [number, string] /* res.country */ | false
   /** Created on */
   create_date: string | false
-  /** Last Updated by */
-  write_uid: [number, string] /* res.users */ | false
+  /** Created by */
+  create_uid: [number, string] /* res.users */ | false
+  /** Working Hours */
+  default_resource_calendar_id: [number, string] /* resource.calendar */ | false
+  /** Salary Structure Type */
+  name: string | false
   /** Last Updated on */
   write_date: string | false
+  /** Last Updated by */
+  write_uid: [number, string] /* res.users */ | false
 }
 
 /** Field names for hr.payroll.structure.type */
