@@ -28,3 +28,6 @@ dist-ssr
 /blob-report/
 /playwright/.cache/
 apps/oweb/.e2e-auth.json
+
+*storybook.log
+storybook-static

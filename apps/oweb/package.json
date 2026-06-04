@@ -19,7 +19,9 @@
     "e2e:install": "playwright install chromium",
     "lint": "biome check ../../",
     "format": "biome format --write ../../",
-    "preview": "bun --bun node_modules/.bin/vite preview"
+    "preview": "bun --bun node_modules/.bin/vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@odooseek/odoo-client": "file:../../packages/odoo-client",
@@ -55,6 +57,16 @@
     "rollup-plugin-visualizer": "^7.0.1",
     "typescript": "~6.0.2",
     "vite": "^8.0.12",
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.7",
+    "storybook": "^10.4.2",
+    "@storybook/tanstack-react": "^10.4.2",
+    "@chromatic-com/storybook": "^5.2.1",
+    "@storybook/addon-vitest": "^10.4.2",
+    "@storybook/addon-a11y": "^10.4.2",
+    "@storybook/addon-docs": "^10.4.2",
+    "@storybook/addon-mcp": "^0.6.0",
+    "playwright": "^1.60.0",
+    "@vitest/browser-playwright": "^4.1.7",
+    "@vitest/coverage-v8": "^4.1.7"
   }
 }
