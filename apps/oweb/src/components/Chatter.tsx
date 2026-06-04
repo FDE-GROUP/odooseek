@@ -237,6 +237,7 @@ export function Chatter({ model, recordId }: ChatterProps) {
           {msg.body && (
             <div
               className="prose prose-xs mt-1 max-w-none text-xs text-text-primary"
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: DOMPurify sanitized message body
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(msg.body) }}
             />
           )}

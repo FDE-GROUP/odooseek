@@ -98,6 +98,7 @@ export function HtmlWidget({ field, value, onChange, readOnly }: FieldWidgetProp
     return (
       <div
         className="prose prose-sm max-w-none text-sm text-text-primary"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: DOMPurify sanitized HTML from Odoo field
         dangerouslySetInnerHTML={{ __html: sanitized }}
       />
     )

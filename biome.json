@@ -35,14 +35,14 @@
       },
       "suspicious": {
         "noArrayIndexKey": "off",
-        "noExplicitAny": "off"
+        "noExplicitAny": "warn"
       },
       "correctness": {
-        "noUnusedFunctionParameters": "off",
-        "useExhaustiveDependencies": "off"
+        "noUnusedFunctionParameters": "warn",
+        "useExhaustiveDependencies": "warn"
       },
       "security": {
-        "noDangerouslySetInnerHtml": "off"
+        "noDangerouslySetInnerHtml": "warn"
       }
     }
   },
