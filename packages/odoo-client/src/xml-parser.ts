@@ -507,7 +507,7 @@ export function parseKanbanTemplate(templateXml: string): KanbanTemplateNode[] {
   const container = isHtmlTemplate
     ? (root as unknown as { content: DocumentFragment }).content
     : root
-  return mergeConditionChains(parseChildNodes(container))
+  return parseChildNodes(container)
 }
 
 /** Recursively parse child nodes of an element or document fragment */
@@ -524,7 +524,7 @@ function parseChildNodes(el: { childNodes: NodeListOf<ChildNode> }): KanbanTempl
       if (node) result.push(node)
     }
   }
-  return result
+  return mergeConditionChains(result)
 }
 
 function childIsQwebDirective(el: Element): boolean {

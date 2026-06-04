@@ -6,7 +6,7 @@ import {
   getValue,
 } from '../expression-evaluator'
 import type { KanbanTemplateNode } from '../types'
-import { parseKanbanTemplate } from '../xml-parser'
+import { parseKanbanTemplate, parseKanbanXml } from '../xml-parser'
 
 describe('parseKanbanTemplate', () => {
   test('parses simple field elements', () => {
@@ -246,5 +246,111 @@ describe('getDecorationClass', () => {
   test('returns undefined when no decorations match', () => {
     const result = getDecorationClass({ decoration_bf: "state=='draft'" }, { state: 'done' })
     expect(result).toBeUndefined()
+  })
+})
+
+describe('contacts kanban template (res.partner)', () => {
+  // This matches the actual Odoo 17 contacts kanban XML arch
+  const contactsKanbanXml = `<kanban default_group_by="stage_id" highlight_color="color">
+    <field name="avatar_128"/>
+    <field name="is_company"/>
+    <field name="active"/>
+    <templates>
+      <t t-name="card">
+        <aside class="o_kanban_aside_full">
+          <t t-if="!record.is_company.raw_value">
+            <div class="position-relative w-100 h-auto m-0">
+              <field name="avatar_128" widget="image" class="h-100" options="{'img_class': 'object-fit-contain'}"/>
+              <field t-if="record.parent_id.raw_value and record.parent_id.image_128" name="parent_id" widget="image" class="position-absolute bottom-0 end-0 w-25 h-25 rounded" options="{'img_class': 'object-fit-contain'}"/>
+              <field t-elif="record.parent_id.raw_value" name="parent_id" widget="image" class="position-absolute bottom-0 end-0 w-25 h-25 rounded" options="{'img_class': 'object-fit-contain'}"/>
+            </div>
+          </t>
+          <t t-else="">
+            <field name="avatar_128" widget="image" class="w-100 h-auto m-0" options="{'img_class': 'object-fit-contain w-100 h-100'}"/>
+          </t>
+        </aside>
+        <main class="o_kanban_card_full">
+          <div class="oe_kanban_details">
+            <div class="mb-1">
+              <field name="complete_name"/>
+            </div>
+            <div>
+              <field name="email" widget="email" optional="hide"/>
+              <field name="phone" widget="phone" optional="hide"/>
+            </div>
+            <div>
+              <field name="city" optional="hide"/>
+              <field name="country_id" optional="hide"/>
+            </div>
+          </div>
+        </main>
+      </t>
+    </templates>
+  </kanban>`
+
+  test('parseKanbanXml: aside and main are separate top-level nodes', () => {
+    const result = parseKanbanXml(contactsKanbanXml)
+    expect(result.templateNodes).toBeDefined()
+    const nodes = result.templateNodes!
+
+    // Should have exactly 2 top-level nodes: aside + main
+    expect(nodes).toHaveLength(2)
+    expect(nodes[0]).toMatchObject({ type: 'html', tag: 'aside' })
+    expect(nodes[1]).toMatchObject({ type: 'html', tag: 'main' })
+  })
+
+  test('aside contains exactly one condition node (t-if with t-else child)', () => {
+    const result = parseKanbanXml(contactsKanbanXml)
+    const aside = result.templateNodes![0] as KanbanTemplateNode & {
+      children: KanbanTemplateNode[]
+    }
+    expect(aside.children).toHaveLength(1)
+    expect(aside.children[0]).toMatchObject({ type: 'condition' })
+
+    const cond = aside.children[0] as KanbanTemplateNode & {
+      children: KanbanTemplateNode[]
+    }
+    expect(cond.if).toBe('!record.is_company.raw_value')
+    // Children: div + t-else condition
+    expect(cond.children.length).toBeGreaterThanOrEqual(2)
+  })
+
+  test('main content contains exactly one complete_name field', () => {
+    const result = parseKanbanXml(contactsKanbanXml)
+    const main = result.templateNodes![1] as KanbanTemplateNode & {
+      children: KanbanTemplateNode[]
+    }
+
+    // Count complete_name occurrences in the entire main tree
+    function countField(nodes: KanbanTemplateNode[] | undefined, name: string): number {
+      if (!nodes) return 0
+      let count = 0
+      for (const n of nodes) {
+        if (n.type === 'field' && n.name === name) count++
+        if ('children' in n && Array.isArray(n.children)) {
+          count += countField(n.children, name)
+        }
+      }
+      return count
+    }
+
+    expect(countField([main], 'complete_name')).toBe(1)
+  })
+
+  test('evalCondition handles !record.is_company.raw_value', () => {
+    // Person contact: is_company = false → !false = true
+    expect(evalCondition('!record.is_company.raw_value', { is_company: false })).toBe(true)
+    // Company contact: is_company = true → !true = false
+    expect(evalCondition('!record.is_company.raw_value', { is_company: true })).toBe(false)
+    // Missing field
+    expect(evalCondition('!record.is_company.raw_value', {})).toBe(true)
+  })
+
+  test('evalCondition handles dotted path: record.parent_id.image_128', () => {
+    // This is used in: record.parent_id.raw_value and record.parent_id.image_128
+    // Our parser currently can't handle dotted paths beyond raw_value
+    // But at least the raw_value part should work
+    expect(evalCondition('record.parent_id.raw_value', { parent_id: [1, 'Parent'] })).toBe(true)
+    expect(evalCondition('record.parent_id.raw_value', { parent_id: false })).toBe(false)
   })
 })

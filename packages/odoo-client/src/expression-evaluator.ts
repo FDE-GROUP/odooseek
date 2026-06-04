@@ -44,6 +44,13 @@ export function evalCondition(expr: string, record: Record<string, unknown>): bo
     return val != null && val !== false && val !== ''
   }
 
+  // Handle: "!record.field.raw_value" or "!field.raw_value"
+  const notRawMatch = expr.match(/^!\s*(?:record\.)?(\w+)\.raw_value$/)
+  if (notRawMatch) {
+    const val = record[notRawMatch[1]]
+    return val == null || val === false || val === ''
+  }
+
   // Handle: "!(expr)" — negate a parenthesized sub-expression
   const notParenMatch = expr.match(/^!\s*\((.+)\)$/)
   if (notParenMatch) {
