@@ -380,6 +380,96 @@ const WIDGET_ALIASES: Record<string, keyof typeof WIDGET_OVERRIDES> = {
   many2manyattendeeexpandable: 'many2many_tags',
   calendar_week_days: 'many2many_checkboxes',
   calendar_event_notes_html: 'text',
+  // HR Holidays / Time Off
+  hr_holidays_radio_image: 'image_url',
+  float_time_selection: 'float_time',
+  day_selection: 'selection',
+  float_without_trailing_zeros: 'float',
+  // Helpdesk
+  helpdesk_sla_many2many_tags: 'many2many_tags',
+  helpdesk_smiley_badge: 'selection_badge',
+  // Survey
+  radio_selection_with_filter: 'radio',
+  boolean_update_flag: 'boolean',
+  integer_update_flag: 'integer',
+  // POS
+  many2many_tags_placeholder_list_view: 'many2many_tags',
+  section_one2many: 'one2many',
+  // Payroll
+  hr_payroll_status_bubble: 'selection_badge',
+  actionable_warnings: 'selection_badge',
+  formatted_text_preview: 'text',
+  salary_attachment_2many: 'many2many',
+  payrun_binary: 'binary',
+  // Lunch
+  lunch_is_favorite: 'boolean_favorite',
+  // Knowledge
+  knowledge_html: 'text',
+  knowledge_icon: 'selection',
+  char_emojis: 'text',
+  text_emojis: 'text',
+  // Documents
+  document_favorite: 'boolean_favorite',
+  document_size: 'text',
+  documents_folder_many2one: 'many2one',
+  documents_kanban_activity: 'kanban_activity',
+  documents_type_icon: 'selection',
+  // Sign
+  sign_request_documents_dropdown: 'many2one',
+  // Mass Mailing
+  mass_mailing_html: 'text',
+  // Social
+  social_post_formatter: 'text',
+  social_many2many_images: 'many2many',
+  // Website
+  page_url: 'url',
+  // SMS / WhatsApp / VoIP
+  sms_widget: 'text',
+  whatsapp_text_variables: 'text',
+  voip_call_status_badge: 'selection_badge',
+  voip_flag_phone: 'boolean',
+  voip_simple_datetime: 'date',
+  // Stock Barcode
+  barcode_handler: 'char',
+  image_preview: 'binary',
+  stock_barcode_quant_one2many: 'one2many',
+  // HR Work Entry
+  many2one_work_entry_type: 'many2one',
+  // Account misc
+  account_report_lines_list_x2many: 'one2many',
+  account_audit_progressbar: 'progressbar',
+  account_return_name_badge: 'selection_badge',
+  account_return_selection_badge: 'selection_badge',
+  open_decimal_precision_button: 'many2one',
+  autosave_many2many_tax_tags: 'many2many_tags',
+  char_with_placeholder_field: 'char',
+  char_with_placeholder_field_to_check: 'char',
+  // HR misc
+  hr_homeworking_radio_image: 'radio',
+  // Project misc
+  task_done_checkmark: 'boolean',
+  task_stage_with_state_selection: 'selection',
+  timer_start_field: 'float',
+  // Marketing Automation
+  mailing_filter: 'many2one',
+  mailing_many2one: 'many2one',
+  subscription_graph: 'gauge',
+  marketing_activity_graph: 'gauge',
+  // Appraisal
+  appraisal_percentpie: 'percentpie',
+  appraisal_remaining_days: 'remaining_days',
+  // Referral
+  CopyClipboardReferralButton: 'copy_clipboard',
+  referral_many2one_avatar_user: 'many2one_avatar',
+  // Skills
+  many2many_tags_skills: 'many2many_tags',
+  many2one_tags_skills: 'many2one',
+  skills_one2many: 'one2many',
+  resume_one2many: 'one2many',
+  formatted_date: 'date',
+  boolean_toggle_load: 'boolean_toggle',
+  // Purchase misc
+  pol_product_many2one: 'many2one',
 }
 
 function resolveWidgetOverride(
