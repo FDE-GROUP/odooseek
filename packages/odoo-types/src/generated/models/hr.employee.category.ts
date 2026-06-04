@@ -5,20 +5,20 @@ import type { BaseRecord, ModelFieldName, ModelRecord } from '../core'
 
 /** hr.employee.category */
 export interface HrEmployeeCategoryRecord extends BaseRecord {
-  /** Color Index */
-  color: number | false
-  /** Created on */
-  create_date: string | false
-  /** Created by */
-  create_uid: [number, string] /* res.users */ | false
-  /** Employees */
-  employee_ids: number[] /* hr.employee */ | false
   /** Tag Name */
   name: string
-  /** Last Updated on */
-  write_date: string | false
+  /** Color Index */
+  color: number | false
+  /** Employees */
+  employee_ids: number[] /* hr.employee */ | false
+  /** Created by */
+  create_uid: [number, string] /* res.users */ | false
+  /** Created on */
+  create_date: string | false
   /** Last Updated by */
   write_uid: [number, string] /* res.users */ | false
+  /** Last Updated on */
+  write_date: string | false
 }
 
 /** Field names for hr.employee.category */

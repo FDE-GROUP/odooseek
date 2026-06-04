@@ -5,32 +5,32 @@ import type { BaseRecord, ModelFieldName, ModelRecord } from '../core'
 
 /** event.tag.category */
 export interface EventTagCategoryRecord extends BaseRecord {
-  /** Can Publish */
-  can_publish: boolean
-  /** Created on */
-  create_date: string | false
-  /** Created by */
-  create_uid: [number, string] /* res.users */ | false
+  /** Website — Restrict to a specific website. */
+  website_id: [number, string] /* website */ | false
+  /** Visible on current website */
+  website_published: boolean
   /** Is Published */
   is_published: boolean
+  /** Can Publish */
+  can_publish: boolean
+  /** Website URL — The full relative URL to access the document through the website. */
+  website_url: string | false
+  /** Website Absolute URL — The full absolute URL to access the document through the website. */
+  website_absolute_url: string | false
   /** Name */
   name: string
   /** Sequence */
   sequence: number | false
   /** Tags */
   tag_ids: number[] /* event.tag */
-  /** Website Absolute URL — The full absolute URL to access the document through the website. */
-  website_absolute_url: string | false
-  /** Website — Restrict to a specific website. */
-  website_id: [number, string] /* website */ | false
-  /** Visible on current website */
-  website_published: boolean
-  /** Website URL — The full relative URL to access the document through the website. */
-  website_url: string | false
-  /** Last Updated on */
-  write_date: string | false
+  /** Created by */
+  create_uid: [number, string] /* res.users */ | false
+  /** Created on */
+  create_date: string | false
   /** Last Updated by */
   write_uid: [number, string] /* res.users */ | false
+  /** Last Updated on */
+  write_date: string | false
 }
 
 /** Field names for event.tag.category */

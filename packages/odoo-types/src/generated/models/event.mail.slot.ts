@@ -5,26 +5,26 @@ import type { BaseRecord, ModelFieldName, ModelRecord } from '../core'
 
 /** event.mail.slot */
 export interface EventMailSlotRecord extends BaseRecord {
-  /** Created on */
-  create_date: string | false
-  /** Created by */
-  create_uid: [number, string] /* res.users */ | false
   /** Slot */
   event_slot_id: [number, string] /* event.slot */
+  /** Schedule Date */
+  scheduled_date: string | false
+  /** Mail Scheduler */
+  scheduler_id: [number, string] /* event.mail */
   /** Last Attendee */
   last_registration_id: [number, string] /* event.registration */ | false
   /** # Sent */
   mail_count_done: number | false
   /** Sent */
   mail_done: boolean
-  /** Schedule Date */
-  scheduled_date: string | false
-  /** Mail Scheduler */
-  scheduler_id: [number, string] /* event.mail */
-  /** Last Updated on */
-  write_date: string | false
+  /** Created by */
+  create_uid: [number, string] /* res.users */ | false
+  /** Created on */
+  create_date: string | false
   /** Last Updated by */
   write_uid: [number, string] /* res.users */ | false
+  /** Last Updated on */
+  write_date: string | false
 }
 
 /** Field names for event.mail.slot */

@@ -25,12 +25,18 @@ export const MODEL_MODULE_ROUTES: Readonly<Record<string, ModuleRouteSpec>> = {
   'res.partner': { listPath: '/contacts/partners', recordPrefix: '/contacts/partner' },
   'event.event': { listPath: '/event/events', recordPrefix: '/event/event' },
   'event.registration': { listPath: '/event/registrations', recordPrefix: '/event/registration' },
+  'event.event.ticket': { listPath: '/event/tickets' },
+  'event.type': { listPath: '/event/types' },
+  'event.stage': { listPath: '/event/stages' },
+  'event.question': { listPath: '/event/questions' },
   'calendar.event': { listPath: '/calendar/events', recordPrefix: '/calendar/event' },
   'calendar.event.type': { listPath: '/calendar/types' },
   'calendar.alarm': { listPath: '/calendar/alarms' },
   'calendar.attendee': { listPath: '/calendar/events' },
   'product.template': { listPath: '/product/products', recordPrefix: '/product/product' },
   'product.product': { listPath: '/product/products', recordPrefix: '/product/product' },
+  'product.category': { listPath: '/product/categories', recordPrefix: '/product/category' },
+  'delivery.carrier': { listPath: '/inventory/carriers', recordPrefix: '/inventory/carrier' },
   'mrp.production': { listPath: '/mrp/productions', recordPrefix: '/mrp/production' },
   'mrp.bom': { listPath: '/mrp/boms', recordPrefix: '/mrp/bom' },
   'mrp.workorder': { listPath: '/mrp/work-orders', recordPrefix: '/mrp/work-order' },
@@ -72,6 +78,12 @@ export const MODEL_MODULE_ROUTES: Readonly<Record<string, ModuleRouteSpec>> = {
     listPath: '/inventory/packages',
     recordPrefix: '/inventory/package',
   },
+  'stock.route': {
+    listPath: '/inventory/routes',
+  },
+  'stock.rule': {
+    listPath: '/inventory/rules',
+  },
   'account.move.line': {
     listPath: '/accounting/journal-items',
     recordPrefix: '/accounting/journal-item',
@@ -107,6 +119,28 @@ export const MODEL_MODULE_ROUTES: Readonly<Record<string, ModuleRouteSpec>> = {
   'account.fiscal.position': {
     listPath: '/accounting/fiscal-positions',
     recordPrefix: '/accounting/fiscal-position',
+  },
+  'account.cash.rounding': {
+    listPath: '/accounting/cash-rounding',
+  },
+  'account.incoterms': {
+    listPath: '/accounting/incoterms',
+  },
+  'account.analytic.account': {
+    listPath: '/accounting/analytic-accounts',
+    recordPrefix: '/accounting/analytic-account',
+  },
+  'account.analytic.line': {
+    listPath: '/accounting/analytic-lines',
+    recordPrefix: '/accounting/analytic-line',
+  },
+  'account.analytic.plan': {
+    listPath: '/accounting/analytic-plans',
+    recordPrefix: '/accounting/analytic-plan',
+  },
+  'account.tax.group': {
+    listPath: '/accounting/tax-groups',
+    recordPrefix: '/accounting/tax-group',
   },
   'sale.report': {
     listPath: '/sale/reporting',

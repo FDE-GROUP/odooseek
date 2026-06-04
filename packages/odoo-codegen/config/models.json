@@ -59,8 +59,6 @@
     "uom.uom",
     "im_livechat.channel",
     "stock.quant",
-    "stock.move",
-    "stock.move.line",
     "stock.lot",
     "stock.scrap",
     "stock.warehouse",
