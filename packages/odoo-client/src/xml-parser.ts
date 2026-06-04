@@ -592,7 +592,7 @@ function parseNode(node: ChildNode): KanbanTemplateNode | null {
         // ignore malformed options
       }
     }
-    return {
+    const fieldNode: KanbanTemplateNode = {
       type: 'field',
       name: el.getAttribute('name') ?? '',
       widget: el.getAttribute('widget') ?? undefined,
@@ -600,6 +600,12 @@ function parseNode(node: ChildNode): KanbanTemplateNode | null {
       options: parsedOptions,
       optional: el.getAttribute('optional') ?? undefined,
     }
+    // <field t-if="expr"> — wrap in condition
+    const ftIf = el.getAttribute('t-if')
+    if (ftIf) {
+      return { type: 'condition', if: ftIf, children: [fieldNode] }
+    }
+    return fieldNode
   }
 
   // Skip <widget> for now
@@ -623,26 +629,40 @@ function parseNode(node: ChildNode): KanbanTemplateNode | null {
   }
 
   if (tIf) {
+    // Build children AST first
+    const inner = parseChildNodes(el)
+    // If the element is a visible HTML tag or has a class, preserve it as a wrapper
+    const shouldWrap = HTML_TAGS.has(tag) || el.hasAttribute('class')
     return {
       type: 'condition',
       if: tIf,
-      children: parseChildNodes(el),
+      children: shouldWrap
+        ? [{ type: 'html' as const, tag, class: el.getAttribute('class') ?? undefined, children: inner }]
+        : inner,
     }
   }
 
   if (tElif) {
+    const inner = parseChildNodes(el)
+    const shouldWrap = HTML_TAGS.has(tag) || el.hasAttribute('class')
     return {
       type: 'condition',
       elif: tElif,
-      children: parseChildNodes(el),
+      children: shouldWrap
+        ? [{ type: 'html' as const, tag, class: el.getAttribute('class') ?? undefined, children: inner }]
+        : inner,
     }
   }
 
   if (tElse) {
+    const inner = parseChildNodes(el)
+    const shouldWrap = HTML_TAGS.has(tag) || el.hasAttribute('class')
     return {
       type: 'condition',
       else: '',
-      children: parseChildNodes(el),
+      children: shouldWrap
+        ? [{ type: 'html' as const, tag, class: el.getAttribute('class') ?? undefined, children: inner }]
+        : inner,
     }
   }
 
