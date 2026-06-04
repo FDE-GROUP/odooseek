@@ -52,6 +52,7 @@
     "jsdom": "^29.1.1",
     "postcss": "^8.5.15",
     "postcss-prefix-selector": "^2.1.1",
+    "rollup-plugin-visualizer": "^7.0.1",
     "typescript": "~6.0.2",
     "vite": "^8.0.12",
     "vitest": "^4.1.7"

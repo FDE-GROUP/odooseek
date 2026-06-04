@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
+import { visualizer } from 'rollup-plugin-visualizer'
 import { scopeRbcCss } from './vite/scope-rbc-css'
 import { injectThemeBoot } from './vite/inject-theme-boot'
 
@@ -13,7 +14,14 @@ export default defineConfig({
     scopeRbcCss(),
     react(),
     tailwindcss(),
-  ],
+    process.env.CI &&
+      visualizer({
+        filename: 'bundle-stats.html',
+        open: false,
+        gzipSize: true,
+        brotliSize: true,
+      }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
