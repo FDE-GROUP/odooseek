@@ -64,13 +64,20 @@ impl Default for InMemoryCache {
 impl CacheStore for InMemoryCache {
     async fn get(&self, key: &str) -> Option<Value> {
         let cache = self.inner.read().await;
-        cache.get(key).and_then(|entry| {
+        let result = cache.get(key).and_then(|entry| {
             if entry.expires_at > Instant::now() {
                 Some(entry.value.clone())
             } else {
                 None
             }
-        })
+        });
+        if result.is_some() {
+            crate::metrics::record_cache_operation(crate::metrics::labels::CACHE_RESULT_HIT);
+        } else {
+            crate::metrics::record_cache_operation(crate::metrics::labels::CACHE_RESULT_MISS);
+        }
+        crate::metrics::set_cache_entries(cache.len());
+        result
     }
 
     async fn set(&self, key: &str, value: Value, endpoint_hint: &str) {
@@ -90,6 +97,8 @@ impl CacheStore for InMemoryCache {
         {
             cache.remove(&oldest_key);
         }
+        crate::metrics::record_cache_operation(crate::metrics::labels::CACHE_RESULT_SET);
+        crate::metrics::set_cache_entries(cache.len());
     }
 
     async fn invalidate(&self, prefix: &str) {
@@ -97,6 +106,7 @@ impl CacheStore for InMemoryCache {
             .write()
             .await
             .retain(|k, _| !k.starts_with(prefix));
+        crate::metrics::record_cache_operation(crate::metrics::labels::CACHE_RESULT_INVALIDATE);
     }
 
     async fn entry_count(&self) -> usize {

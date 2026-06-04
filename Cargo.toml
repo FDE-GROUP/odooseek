@@ -36,3 +36,6 @@ clap = { version = "4", features = ["derive", "env"] }
 
 async-trait = "0.1"
 redis = { version = "0.27", features = ["tokio-comp", "aio"] }
+
+metrics = "0.24"
+metrics-exporter-prometheus = "0.16"

@@ -10,6 +10,7 @@ pub mod health;
 pub mod helpers;
 pub mod menu;
 pub mod menu_enrich;
+pub mod metrics;
 pub mod proxy;
 pub mod rate_limit;
 pub mod report;

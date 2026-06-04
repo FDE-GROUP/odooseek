@@ -31,6 +31,11 @@ pub async fn proxy_odoo(
             state.cache.get(&cache_key).await
         } {
             tracing::debug!("Cache hit");
+            crate::metrics::record_proxy_request(
+                "POST",
+                crate::metrics::labels::CACHE_RESULT_HIT,
+                0.0,
+            );
             return Ok(Json(cached).into_response());
         }
         tracing::debug!("Cache miss");
@@ -42,6 +47,7 @@ pub async fn proxy_odoo(
             .body(body);
         request = with_cookie(request, &headers);
 
+        let proxy_start = std::time::Instant::now();
         let response = request.send().await.map_err(|e| {
             tracing::warn!("Odoo unreachable at {odoo_url}: {e}");
             OdooError::Unreachable(format!("Odoo not reachable: {e}"))
@@ -61,6 +67,11 @@ pub async fn proxy_odoo(
             state.cache.set(&cache_key, value, &cache_key).await;
         }
 
+        crate::metrics::record_proxy_request(
+            "POST",
+            crate::metrics::labels::CACHE_RESULT_MISS,
+            proxy_start.elapsed().as_secs_f64(),
+        );
         return build_proxy_response(status, &odoo_headers, axum::body::Body::from(body_bytes));
     }
 
@@ -229,11 +240,19 @@ async fn proxy_request(
         })
     })?;
     let url = request.url().to_string();
+    let method_str = request.method().to_string();
 
+    let proxy_start = std::time::Instant::now();
     let response = state.http_client.execute(request).await.map_err(|e| {
         tracing::warn!("Odoo unreachable at {url}: {e}");
         OdooError::Unreachable(format!("Odoo not reachable: {e}"))
     })?;
+
+    crate::metrics::record_proxy_request(
+        &method_str,
+        "direct",
+        proxy_start.elapsed().as_secs_f64(),
+    );
 
     let status = response.status();
     let odoo_headers = response.headers().clone();

@@ -77,6 +77,7 @@ pub async fn poll_odoo_bus(
                 notifications.len()
             );
             last = max_notification_id(notifications).unwrap_or(last);
+            crate::metrics::record_ws_broadcast(notifications.len());
             for n in notifications {
                 let _ = event_tx.send(n.clone());
             }
@@ -148,6 +149,7 @@ async fn connect_odoo_ws(
         match msg {
             Ok(tokio_tungstenite::tungstenite::Message::Text(text)) => {
                 if let Ok(event) = serde_json::from_str::<serde_json::Value>(&text) {
+                    crate::metrics::record_ws_broadcast(1);
                     let _ = event_tx.send(event);
                 }
             }
@@ -197,6 +199,11 @@ pub async fn verify_session(
 
 /// WebSocket handler — subscribes to event broadcast and pushes to browser
 pub async fn handle_ws(mut socket: WebSocket, mut rx: broadcast::Receiver<serde_json::Value>) {
+    use std::sync::atomic::{AtomicI64, Ordering};
+    static ACTIVE: AtomicI64 = AtomicI64::new(0);
+    let prev = ACTIVE.fetch_add(1, Ordering::Relaxed);
+    crate::metrics::set_ws_active_connections((prev + 1) as usize);
+
     loop {
         tokio::select! {
             msg = rx.recv() => {
@@ -205,7 +212,7 @@ pub async fn handle_ws(mut socket: WebSocket, mut rx: broadcast::Receiver<serde_
                         let text = serde_json::to_string(&event).unwrap_or_default();
                         if let Err(e) = socket.send(Message::Text(text.into())).await {
                             warn!("WebSocket send error: {e}");
-                            return;
+                            break;
                         }
                     }
                     Err(broadcast::error::RecvError::Lagged(n)) => {
@@ -213,22 +220,25 @@ pub async fn handle_ws(mut socket: WebSocket, mut rx: broadcast::Receiver<serde_
                         continue;
                     }
                     Err(broadcast::error::RecvError::Closed) => {
-                        return;
+                        break;
                     }
                 }
             }
             msg = socket.next() => {
                 match msg {
-                    Some(Ok(Message::Close(_))) | None => return,
+                    Some(Ok(Message::Close(_))) | None => break,
                     Some(Err(e)) => {
                         warn!("WebSocket recv error: {e}");
-                        return;
+                        break;
                     }
-                    _ => {} // ignore other messages
+                    _ => {}
                 }
             }
         }
     }
+
+    let prev = ACTIVE.fetch_sub(1, Ordering::Relaxed);
+    crate::metrics::set_ws_active_connections((prev - 1) as usize);
 }
 
 #[cfg(test)]

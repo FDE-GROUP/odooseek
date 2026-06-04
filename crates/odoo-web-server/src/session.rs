@@ -151,6 +151,7 @@ pub async fn login(state: AppState, body: LoginRequest) -> Result<Response, AppE
             .and_then(|m| m.as_str())
             .unwrap_or("Authentication failed");
 
+        crate::metrics::record_login(crate::metrics::labels::LOGIN_RESULT_FAILURE);
         return Err(AppError(OdooError::LoginFailed(msg.into())));
     }
 
@@ -160,6 +161,8 @@ pub async fn login(state: AppState, body: LoginRequest) -> Result<Response, AppE
     };
     info.username = Some(body.login);
     info.db = Some(body.db);
+
+    crate::metrics::record_login(crate::metrics::labels::LOGIN_RESULT_SUCCESS);
 
     // Warm menu cache in background after successful login
     if info.authenticated {

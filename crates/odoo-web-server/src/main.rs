@@ -26,6 +26,7 @@ use odoo_web_server::AppState;
 use odoo_web_server::csrf::{self, CsrfConfig};
 use odoo_web_server::error::AppError;
 use odoo_web_server::health;
+use odoo_web_server::metrics;
 use odoo_web_server::{menu, proxy, report, session, ws};
 
 #[derive(Parser, Debug)]
@@ -70,6 +71,8 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     info!("Starting odoo-web-server v{}", env!("CARGO_PKG_VERSION"));
+
+    metrics::init();
 
     // Parse CLI args, fallback to env vars
     let cli = Cli::parse();
@@ -171,6 +174,7 @@ async fn main() -> anyhow::Result<()> {
     let frontend_dir = config.frontend_dir.clone();
     let app = Router::new()
         .route("/health", get(health_check))
+        .route("/metrics", get(metrics::metrics_handler))
         .route("/api/menu", get(menu_handler))
         .route("/api/menus", get(menus_handler))
         .route("/api/session", get(get_session_info))
@@ -188,6 +192,7 @@ async fn main() -> anyhow::Result<()> {
         .merge(csrf_protected)
         .layer(axum::extract::DefaultBodyLimit::max(10 * 1024 * 1024)) // 10 MB
         .fallback_service(ServeDir::new(&frontend_dir).append_index_html_on_directories(true))
+        .layer(middleware::from_fn(metrics::http_metrics))
         .layer(CompressionLayer::new())
         .layer(TraceLayer::new_for_http())
         .layer(

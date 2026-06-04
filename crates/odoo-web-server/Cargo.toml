@@ -27,6 +27,8 @@ async-trait.workspace = true
 redis = { workspace = true, optional = true }
 http = "1.4.1"
 percent-encoding = "2"
+metrics.workspace = true
+metrics-exporter-prometheus.workspace = true
 
 [dev-dependencies]
 wiremock = "0.6"
