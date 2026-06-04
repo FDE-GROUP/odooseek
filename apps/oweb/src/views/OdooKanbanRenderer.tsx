@@ -10,7 +10,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useConfirmDialog } from '../components/ConfirmDialog'
 import { HR_EMPLOYEE_MODEL } from '../lib/hr'
 import { ODOO_INDEXED_COLORS } from '../lib/odoo-colors'
-import { collectKanbanFieldNames, KanbanDedupProvider, KanbanNode } from './kanban/KanbanNode'
+import { collectKanbanFieldNames, KanbanNode } from './kanban/KanbanNode'
 import { getFieldWidget, NOOP } from './widgets'
 import { PresenceIconOverlay } from './widgets/PresenceIcon'
 
@@ -630,43 +630,36 @@ function KanbanCard({
     )
 
   return (
-    <KanbanDedupProvider>
-      <div
-        draggable
-        onDragStart={(e) => e.dataTransfer.setData('recordId', String(record.id))}
-        onClick={() => onClick?.(recordId)}
-        className="group relative cursor-pointer rounded-lg border border-border-subtle bg-surface p-3 transition-colors hover:border-border-default"
-        style={borderColor ? { borderLeftWidth: 3, borderLeftColor: borderColor } : undefined}
-      >
-        {showPresence && (
-          <div className="absolute right-2 top-8 z-[1]">
-            <PresenceIconOverlay record={record} />
+    <div
+      draggable
+      onDragStart={(e) => e.dataTransfer.setData('recordId', String(record.id))}
+      onClick={() => onClick?.(recordId)}
+      className="group relative cursor-pointer rounded-lg border border-border-subtle bg-surface p-3 transition-colors hover:border-border-default"
+      style={borderColor ? { borderLeftWidth: 3, borderLeftColor: borderColor } : undefined}
+    >
+      {showPresence && (
+        <div className="absolute right-2 top-8 z-[1]">
+          <PresenceIconOverlay record={record} />
+        </div>
+      )}
+      <CardActions recordId={recordId} onEdit={onClick} onDelete={onDelete} onArchive={onArchive} />
+      {asideNode ? (
+        <div className="flex flex-row gap-2">
+          <div className="shrink-0">
+            <KanbanNode
+              node={asideNode}
+              record={record}
+              fields={fields}
+              model={model}
+              recordId={recordId}
+            />
           </div>
-        )}
-        <CardActions
-          recordId={recordId}
-          onEdit={onClick}
-          onDelete={onDelete}
-          onArchive={onArchive}
-        />
-        {asideNode ? (
-          <div className="flex flex-row gap-2">
-            <div className="shrink-0">
-              <KanbanNode
-                node={asideNode}
-                record={record}
-                fields={fields}
-                model={model}
-                recordId={recordId}
-              />
-            </div>
-            <div className="min-w-0 flex-1">{content}</div>
-          </div>
-        ) : (
-          content
-        )}
-      </div>
-    </KanbanDedupProvider>
+          <div className="min-w-0 flex-1">{content}</div>
+        </div>
+      ) : (
+        content
+      )}
+    </div>
   )
 }
 

@@ -1,15 +1,7 @@
 import type { KanbanTemplateNode, OdooFieldMeta } from '@odooseek/odoo-client'
 import { evalCondition, getValue } from '@odooseek/odoo-client'
-import React, { createContext, useContext } from 'react'
+import React from 'react'
 import { getFieldWidget, NOOP } from '../widgets'
-
-/** Per-card field dedup context — prevents duplicate field renders within a single card. */
-const DedupContext = createContext<Set<string> | null>(null)
-
-export function KanbanDedupProvider({ children }: { children: React.ReactNode }) {
-  const dedup = new Set<string>()
-  return <DedupContext.Provider value={dedup}>{children}</DedupContext.Provider>
-}
 
 /** Translate Odoo/Bootstrap CSS classes to Tailwind equivalents. */
 function translateOdooClass(className?: string): string | undefined {
@@ -153,14 +145,10 @@ export function KanbanNode({
   model: string
   recordId: number
 }) {
-  const dedup = useContext(DedupContext)
   switch (node.type) {
     case 'field': {
       const meta = fields[node.name]
       if (!meta) return null
-
-      if (dedup?.has(node.name)) return null
-      dedup?.add(node.name)
 
       // optional="hide": skip rendering when value is null/empty
       if (node.optional === 'hide') {
