@@ -195,7 +195,12 @@ export function GroupNode({
                 .filter(Boolean)
                 .join(' ')}
             >
-              <td className="w-10 px-2 py-2" onClick={(e) => e.stopPropagation()}>
+              {/* biome-ignore lint/a11y/noStaticElementInteractions: checkbox cell */}
+              <td
+                role="presentation"
+                className="w-10 px-2 py-2"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <input
                   type="checkbox"
                   checked={selectedIds.has(recordId)}
@@ -206,7 +211,9 @@ export function GroupNode({
               {visibleColumns.map((col, ci) => {
                 if (isNonField(col))
                   return (
+                    // biome-ignore lint/a11y/noStaticElementInteractions: button cell
                     <td
+                      role="presentation"
                       key={`grd-${ci}`}
                       className="px-2 py-2"
                       onClick={(e) => e.stopPropagation()}

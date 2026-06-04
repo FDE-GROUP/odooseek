@@ -18,8 +18,15 @@ export function HelpPopover({ text }: { text: string }) {
       {open &&
         btnRef.current &&
         createPortal(
-          <div className="fixed inset-0 z-[9999]" onMouseDown={() => setOpen(false)}>
+          // biome-ignore lint/a11y/noStaticElementInteractions: backdrop
+          <div
+            role="presentation"
+            className="fixed inset-0 z-[9999]"
+            onMouseDown={() => setOpen(false)}
+          >
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: popover content */}
             <div
+              role="presentation"
               className="absolute z-[10000] mt-1 w-[min(18rem,calc(100vw-2rem))] rounded-lg border border-border-subtle bg-surface p-3 text-xs leading-relaxed text-text-secondary shadow-lg"
               style={{
                 top: btnRef.current?.getBoundingClientRect().bottom + 4,

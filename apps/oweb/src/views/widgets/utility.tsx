@@ -223,7 +223,9 @@ export function ColorPickerWidget({ value, onChange, readOnly, record, model }: 
           />
         </button>
         {open && (
+          // biome-ignore lint/a11y/noStaticElementInteractions: color palette
           <div
+            role="presentation"
             className="absolute left-0 top-full z-30 mt-1 flex flex-wrap gap-0.5 rounded-lg border border-border-default bg-surface p-1.5 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
@@ -269,7 +271,12 @@ export function ColorPickerWidget({ value, onChange, readOnly, record, model }: 
 
   // Edit mode (form view)
   return (
-    <div className="flex flex-wrap items-center gap-1 py-1" onClick={(e) => e.stopPropagation()}>
+    // biome-ignore lint/a11y/noStaticElementInteractions: color picker container
+    <div
+      role="presentation"
+      className="flex flex-wrap items-center gap-1 py-1"
+      onClick={(e) => e.stopPropagation()}
+    >
       <button
         type="button"
         onClick={() => pickColor(0)}
@@ -315,9 +322,19 @@ export function ProgressbarWidget({ value, onChange, readOnly }: FieldWidgetProp
   return (
     <div className="flex items-center gap-2">
       <div
+        role="slider"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        tabIndex={readOnly ? -1 : 0}
         ref={barRef}
         className={`h-3 flex-1 rounded-full bg-border-default/30 ${readOnly ? '' : 'cursor-pointer'}`}
         onClick={handleClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.currentTarget.click()
+          }
+        }}
       >
         <div
           className={`h-3 rounded-full transition-all ${pct >= 100 ? 'bg-success' : 'bg-accent'}`}
@@ -406,6 +423,7 @@ export function ImageUrlWidget({ field, value }: FieldWidgetProps) {
 
   if (!url) return <span className="text-sm text-text-muted">—</span>
   return (
+    // biome-ignore lint/a11y/noNoninteractiveElementInteractions: decorative image with error fallback
     <img
       src={url}
       alt={field.string || ''}
@@ -428,7 +446,8 @@ export function PercentPieWidget({ value }: FieldWidgetProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <svg width="36" height="36" viewBox="0 0 36 36">
+      <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+        <title>Percentage</title>
         <circle
           cx="18"
           cy="18"

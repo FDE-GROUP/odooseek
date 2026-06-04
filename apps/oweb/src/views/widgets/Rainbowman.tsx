@@ -36,7 +36,9 @@ export function Rainbowman({
   if (!visible) return null
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: backdrop
     <div
+      role="presentation"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
       onClick={dismiss}
     >

@@ -330,7 +330,9 @@ export function CalendarPopover({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.5"
+                aria-hidden="true"
               >
+                <title>Close</title>
                 <path d="M4 4l8 8M12 4l-8 8" />
               </svg>
             </button>
@@ -345,7 +347,9 @@ export function CalendarPopover({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.5"
+                aria-hidden="true"
               >
+                <title>Recurring</title>
                 <circle cx="7" cy="7" r="5.5" />
                 <path d="M10 7l-3 1.5V4" />
               </svg>
@@ -361,7 +365,9 @@ export function CalendarPopover({
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
+              aria-hidden="true"
             >
+              <title>Time</title>
               <circle cx="7" cy="7" r="5.5" />
               <path d="M7 4v3l2 2" />
             </svg>
@@ -378,7 +384,9 @@ export function CalendarPopover({
                 stroke="currentColor"
                 strokeWidth="1.5"
                 className="mt-0.5 shrink-0"
+                aria-hidden="true"
               >
+                <title>Location</title>
                 <path d="M7 1.5a4 4 0 00-4 4c0 3 4 7.5 4 7.5s4-4.5 4-7.5a4 4 0 00-4-4z" />
                 <circle cx="7" cy="5.5" r="1.5" />
               </svg>
@@ -396,7 +404,9 @@ export function CalendarPopover({
                 stroke="currentColor"
                 strokeWidth="1.5"
                 className="shrink-0"
+                aria-hidden="true"
               >
+                <title>Organizer</title>
                 <circle cx="7" cy="4" r="2.5" />
                 <path d="M2 13v-1a5 5 0 015-5h0a5 5 0 015 5v1" />
               </svg>
@@ -432,7 +442,9 @@ export function CalendarPopover({
                 stroke="currentColor"
                 strokeWidth="1.5"
                 className="shrink-0"
+                aria-hidden="true"
               >
+                <title>Alarm</title>
                 <path d="M7 1.5v1.5M3.5 11h7M4 4.5a3 3 0 016 0v3.5l1 2H3l1-2V4.5z" />
               </svg>
               <span>
@@ -450,7 +462,9 @@ export function CalendarPopover({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.5"
+                aria-hidden="true"
               >
+                <title>Video call</title>
                 <polygon points="10,5 14,3 14,11 10,9" />
                 <rect x="0.5" y="3.5" width="9" height="7" rx="1" />
               </svg>
@@ -492,7 +506,9 @@ export function CalendarPopover({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.5"
+                aria-hidden="true"
               >
+                <title>Attendees</title>
                 <circle cx="5" cy="3" r="2" />
                 <path d="M1 13v-1a4 4 0 014-4" />
                 <circle cx="9.5" cy="4.5" r="2" />
@@ -548,7 +564,9 @@ export function CalendarPopover({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.5"
+                  aria-hidden="true"
                 >
+                  <title>Field</title>
                   <circle cx="7" cy="7" r="1.5" fill="currentColor" />
                 </svg>
               </span>
@@ -600,7 +618,9 @@ export function CalendarPopover({
                 stroke="currentColor"
                 strokeWidth="1.5"
                 className="inline-block"
+                aria-hidden="true"
               >
+                <title>Delete</title>
                 <path d="M2 4h10M5 4V3a1 1 0 011-1h2a1 1 0 011 1v1M11 4v7a1 1 0 01-1 1H4a1 1 0 01-1-1V4" />
               </svg>
             </button>

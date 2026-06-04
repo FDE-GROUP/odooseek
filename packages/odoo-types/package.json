@@ -1,6 +1,6 @@
 {
   "name": "@odooseek/odoo-types",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Auto-generated TypeScript type definitions for Odoo models — zero runtime dependency",
   "type": "module",
   "main": "./src/generated/index.ts",

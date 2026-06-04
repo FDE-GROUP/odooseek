@@ -369,6 +369,7 @@ function RegistrationDesk() {
                     placeholder="Search events..."
                     value={eventSearch}
                     onChange={(e) => setEventSearch(e.target.value)}
+                    // biome-ignore lint/a11y/noAutofocus: intentional focus for immediate user interaction
                     autoFocus
                   />
                   {!isMultiEvent && (
@@ -432,6 +433,7 @@ function RegistrationDesk() {
                 onChange={(e) => setBarcode(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={loading}
+                // biome-ignore lint/a11y/noAutofocus: intentional focus for immediate user interaction
                 autoFocus
                 autoComplete="off"
               />
@@ -490,6 +492,7 @@ function RegistrationDesk() {
                 placeholder="Search by name or email..."
                 value={nameSearch}
                 onChange={(e) => setNameSearch(e.target.value)}
+                // biome-ignore lint/a11y/noAutofocus: intentional focus for immediate user interaction
                 autoFocus
                 autoComplete="off"
               />

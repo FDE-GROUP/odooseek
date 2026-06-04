@@ -185,7 +185,9 @@ export function KanbanNode({
         const size = node.options?.size as [number, number] | undefined
         if (size && Array.isArray(size)) {
           return (
+            // biome-ignore lint/a11y/noNoninteractiveElementInteractions: decorative image with error fallback
             <img
+              alt={node.name ?? ''}
               src={`/api/web/image/${model}/${recordId}/${node.name}`}
               className={translateOdooClass(node.class)}
               width={size[0]}
@@ -199,7 +201,9 @@ export function KanbanNode({
         }
         const imgClass = (node.options?.img_class as string) ?? 'h-8 w-8 rounded object-cover'
         return (
+          // biome-ignore lint/a11y/noNoninteractiveElementInteractions: decorative image with error fallback
           <img
+            alt={node.name ?? ''}
             src={`/api/web/image/${model}/${recordId}/${node.name}`}
             className={[translateOdooClass(node.class), translateOdooClass(imgClass)]
               .filter(Boolean)

@@ -1,6 +1,6 @@
 {
   "name": "@odooseek/odoo-codegen",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Generate TypeScript type definitions from Odoo model metadata (fields_get)",
   "type": "module",
   "main": "./src/index.ts",

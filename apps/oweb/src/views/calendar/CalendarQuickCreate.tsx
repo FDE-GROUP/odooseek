@@ -46,7 +46,8 @@ export function CalendarQuickCreate({ model, viewId, onClose, onSaved }: Calenda
 
   return createPortal(
     <div className="fixed inset-0 z-60">
-      <div className="absolute inset-0 bg-black/30" onClick={handleClose} />
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop */}
+      <div role="presentation" className="absolute inset-0 bg-black/30" onClick={handleClose} />
       <div className="flex items-start justify-center min-h-full p-4 pt-20 pointer-events-none">
         <div className="relative w-full max-w-[560px] rounded-xl border border-border-subtle bg-surface shadow-2xl max-h-[80vh] flex flex-col pointer-events-auto">
           <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3 shrink-0">

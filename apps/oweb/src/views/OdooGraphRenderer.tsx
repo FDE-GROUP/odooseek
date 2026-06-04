@@ -292,7 +292,8 @@ function Dropdown({ label, children }: { label: string; children: React.ReactNod
       </button>
       {open && (
         <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop */}
+          <div role="presentation" className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div className="absolute right-0 z-20 mt-1 min-w-[140px] rounded-md border border-border-subtle bg-surface py-1 shadow-lg">
             {children}
           </div>

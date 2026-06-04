@@ -354,7 +354,7 @@ export function WizardDialog({
               {step.fields.map((fieldName) => {
                 const fieldDef = fieldDefs?.[fieldName]
                 return (
-                  <label key={fieldName} className="flex flex-col gap-1">
+                  <div key={fieldName} className="flex flex-col gap-1">
                     <span className="text-xs font-medium text-text-secondary">
                       {fieldDef?.string || fieldName}
                     </span>
@@ -364,7 +364,7 @@ export function WizardDialog({
                       value={values[fieldName] ?? ''}
                       onChange={handleFieldChange}
                     />
-                  </label>
+                  </div>
                 )
               })}
             </div>

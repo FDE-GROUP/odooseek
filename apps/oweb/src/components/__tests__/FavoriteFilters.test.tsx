@@ -75,7 +75,7 @@ describe('FavoriteFilters', () => {
       { wrapper },
     )
     fireEvent.click(screen.getByTitle('Favorite filters'))
-    expect(screen.getByText('Favorites')).toBeInTheDocument()
+    expect(screen.getAllByText('Favorites').length).toBeGreaterThan(0)
     expect(screen.getByText('My Draft Leads')).toBeInTheDocument()
     expect(screen.getByText('Open Opportunities')).toBeInTheDocument()
   })

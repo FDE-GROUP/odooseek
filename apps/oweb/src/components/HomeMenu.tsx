@@ -224,6 +224,7 @@ export function HomeMenuOverlay() {
             }}
             placeholder="Search apps..."
             className="w-full rounded-lg border border-border-default bg-surface pl-9 pr-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none"
+            // biome-ignore lint/a11y/noAutofocus: intentional focus for immediate user interaction
             autoFocus
           />
         </div>
@@ -304,7 +305,9 @@ function AppTile({
   const iconClass = getAppIconClass(app)
 
   return (
-    <div
+    <button
+      type="button"
+      tabIndex={0}
       draggable
       onDragStart={(e) => {
         e.dataTransfer.setData('text/plain', String(index))
@@ -321,6 +324,11 @@ function AppTile({
         onDrop()
       }}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.currentTarget.click()
+        }
+      }}
       className={`group relative flex cursor-pointer flex-col items-center gap-3 rounded-xl border p-6 transition-all ${
         focused
           ? 'border-accent bg-accent/5 ring-2 ring-accent/30'
@@ -352,6 +360,6 @@ function AppTile({
       <span className="text-sm font-medium text-text-primary text-center leading-tight">
         {app.name}
       </span>
-    </div>
+    </button>
   )
 }

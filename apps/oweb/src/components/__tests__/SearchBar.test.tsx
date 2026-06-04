@@ -93,7 +93,7 @@ describe('SearchBar', () => {
         groupByFilters={mockGroupBys}
       />,
     )
-    fireEvent.click(screen.getByTitle('Group By'))
+    fireEvent.click(screen.getAllByTitle('Group By')[0])
     fireEvent.click(screen.getByText('Stage'))
     expect(onGroupByChange).toHaveBeenCalledWith(['stage_id'])
   })

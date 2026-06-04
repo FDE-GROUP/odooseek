@@ -105,7 +105,9 @@ export function ThemeToggle() {
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="3"
+                            aria-hidden="true"
                           >
+                            <title>Active</title>
                             <polyline points="20 6 9 17 4 12" />
                           </svg>
                         )}

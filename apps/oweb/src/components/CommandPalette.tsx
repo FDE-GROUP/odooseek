@@ -115,14 +115,18 @@ export function CommandPalette() {
   if (!open) return null
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: backdrop overlay
     <div
+      role="presentation"
       className="fixed inset-0 z-[80] flex items-start justify-center pt-[20vh]"
       onClick={() => {
         setOpen(false)
         setQuery('')
       }}
     >
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: dialog container */}
       <div
+        role="presentation"
         className="w-full max-w-lg overflow-hidden rounded-xl border border-border-subtle bg-surface shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
@@ -131,6 +135,7 @@ export function CommandPalette() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search menus..."
+            // biome-ignore lint/a11y/noAutofocus: intentional focus for immediate user interaction
             autoFocus
             className="w-full border-0 bg-transparent text-sm text-text-primary placeholder:text-text-muted outline-none"
           />

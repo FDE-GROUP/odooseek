@@ -39,6 +39,7 @@ export function BackgroundImageWidget({ field, value, record, model, recordId }:
   }
 
   return (
+    // biome-ignore lint/a11y/noNoninteractiveElementInteractions: decorative image with error fallback
     <img
       src={src}
       alt=""

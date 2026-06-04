@@ -53,11 +53,18 @@ function MenuPage() {
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
             {apps.map((app) => (
-              <div
+              <button
+                type="button"
                 key={String(app.id)}
                 data-testid="app-tile"
                 data-app-name={app.name}
+                tabIndex={0}
                 onClick={() => handleAppClick(app)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.currentTarget.click()
+                  }
+                }}
                 className="group flex cursor-pointer flex-col items-center gap-3 rounded-xl border border-border-subtle bg-surface/50 p-6 transition-all hover:border-border-default hover:bg-surface"
               >
                 {app.webIconData ? (
@@ -74,7 +81,7 @@ function MenuPage() {
                 <span className="text-center text-sm font-medium leading-tight text-text-primary">
                   {app.name}
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         )}

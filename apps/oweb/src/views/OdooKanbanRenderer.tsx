@@ -386,7 +386,9 @@ function KanbanColumn({
         <KanbanProgressbarBar colors={progressbar.colors} counts={progressbarCounts} />
       )}
       {sumField && records.length > 0 && <ColumnSum records={records} field={sumField} />}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: drop zone */}
       <div
+        role="presentation"
         className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2"
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
@@ -630,11 +632,18 @@ function KanbanCard({
     )
 
   return (
-    <div
+    <button
+      type="button"
+      tabIndex={0}
       draggable
       onDragStart={(e) => e.dataTransfer.setData('recordId', String(record.id))}
       onClick={() => onClick?.(recordId)}
-      className="group relative cursor-pointer rounded-lg border border-border-subtle bg-surface p-3 transition-colors hover:border-border-default"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.currentTarget.click()
+        }
+      }}
+      className="group relative cursor-pointer rounded-lg border border-border-subtle bg-surface p-3 transition-colors hover:border-border-default text-left w-full"
       style={borderColor ? { borderLeftWidth: 3, borderLeftColor: borderColor } : undefined}
     >
       {showPresence && (
@@ -659,7 +668,7 @@ function KanbanCard({
       ) : (
         content
       )}
-    </div>
+    </button>
   )
 }
 
@@ -692,7 +701,9 @@ function CardActions({
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
+          aria-hidden="true"
         >
+          <title>Actions</title>
           <circle cx="12" cy="5" r="1" />
           <circle cx="12" cy="12" r="1" />
           <circle cx="12" cy="19" r="1" />

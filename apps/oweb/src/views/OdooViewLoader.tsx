@@ -799,7 +799,9 @@ export function OdooViewLoader({
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
+                      aria-hidden="true"
                     >
+                      <title>Collapse</title>
                       <path d="m15 18-6-6 6-6" />
                     </svg>
                   </button>
@@ -828,7 +830,9 @@ export function OdooViewLoader({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
+                  aria-hidden="true"
                 >
+                  <title>Expand</title>
                   <path d="m9 18 6-6-6-6" />
                 </svg>
                 <span className="text-[9px] font-medium uppercase writing-vertical">Filters</span>

@@ -174,7 +174,9 @@ export function ImageFieldWidget({
             stroke="currentColor"
             strokeWidth="1.5"
             className="text-text-muted"
+            aria-hidden="true"
           >
+            <title>Person</title>
             <circle cx="12" cy="8" r="4" />
             <path d="M20 21a8 8 0 1 0-16 0" />
           </svg>
@@ -183,21 +185,35 @@ export function ImageFieldWidget({
     }
     return (
       <>
+        {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: zoomable image uses role=button */}
         <img
           src={src}
           alt={field.string || field.name}
+          role={enableZoom ? 'button' : undefined}
+          tabIndex={enableZoom ? 0 : undefined}
           onClick={enableZoom ? () => setZoomed(true) : undefined}
+          onKeyDown={
+            enableZoom
+              ? (e) => {
+                  if (e.key === 'Enter' || e.key === ' ') setZoomed(true)
+                }
+              : undefined
+          }
           className={`${baseImgClass} ${enableZoom ? 'cursor-zoom-in hover:opacity-90 transition-opacity' : ''}`}
           style={imgStyle}
         />
         {zoomed && (
+          // biome-ignore lint/a11y/noStaticElementInteractions: zoomed overlay
           <div
+            role="presentation"
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60"
             onClick={() => setZoomed(false)}
           >
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: zoomed image */}
             <img
               src={src}
               alt={field.string || field.name}
+              role="presentation"
               className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             />
@@ -224,7 +240,9 @@ export function ImageFieldWidget({
             stroke="currentColor"
             strokeWidth="1.5"
             className="text-text-muted"
+            aria-hidden="true"
           >
+            <title>Person</title>
             <circle cx="12" cy="8" r="4" />
             <path d="M20 21a8 8 0 1 0-16 0" />
           </svg>

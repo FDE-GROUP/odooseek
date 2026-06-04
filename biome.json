@@ -26,12 +26,12 @@
     "rules": {
       "recommended": true,
       "a11y": {
-        "noSvgWithoutTitle": "off",
-        "noStaticElementInteractions": "off",
-        "noAutofocus": "off",
-        "useKeyWithClickEvents": "off",
-        "noLabelWithoutControl": "off",
-        "useAltText": "off"
+        "noSvgWithoutTitle": "warn",
+        "noStaticElementInteractions": "warn",
+        "noAutofocus": "warn",
+        "useKeyWithClickEvents": "warn",
+        "noLabelWithoutControl": "warn",
+        "useAltText": "warn"
       },
       "suspicious": {
         "noArrayIndexKey": "off",

@@ -154,8 +154,11 @@ export function ActivityPanel({ model, recordId }: ActivityPanelProps) {
         <div className="mt-2 flex items-end gap-2 rounded-lg border border-border-subtle bg-surface/50 p-3">
           {activityTypes && activityTypes.length > 0 && (
             <div>
-              <label className="mb-1 block text-[10px] text-text-secondary">Type</label>
+              <label htmlFor="activity-type" className="mb-1 block text-[10px] text-text-secondary">
+                Type
+              </label>
               <select
+                id="activity-type"
                 value={newActivityTypeId ?? ''}
                 onChange={(e) =>
                   setNewActivityTypeId(e.target.value ? Number(e.target.value) : null)
@@ -172,8 +175,14 @@ export function ActivityPanel({ model, recordId }: ActivityPanelProps) {
             </div>
           )}
           <div className="flex-1">
-            <label className="mb-1 block text-[10px] text-text-secondary">Summary</label>
+            <label
+              htmlFor="activity-summary"
+              className="mb-1 block text-[10px] text-text-secondary"
+            >
+              Summary
+            </label>
             <input
+              id="activity-summary"
               type="text"
               value={newSummary}
               onChange={(e) => setNewSummary(e.target.value)}
@@ -182,8 +191,14 @@ export function ActivityPanel({ model, recordId }: ActivityPanelProps) {
             />
           </div>
           <div>
-            <label className="mb-1 block text-[10px] text-text-secondary">Due Date</label>
+            <label
+              htmlFor="activity-due-date"
+              className="mb-1 block text-[10px] text-text-secondary"
+            >
+              Due Date
+            </label>
             <input
+              id="activity-due-date"
               type="date"
               value={newDeadline}
               onChange={(e) => setNewDeadline(e.target.value)}

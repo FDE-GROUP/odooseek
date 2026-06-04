@@ -49,7 +49,8 @@ export function PlsTooltipWidget({ record, readOnly }: FieldWidgetProps) {
       {open && data && (
         <div className="absolute left-0 top-full z-40 mt-1 w-72 rounded-lg border border-border-subtle bg-surface p-3 shadow-xl">
           <div className="mb-2 flex items-center gap-3">
-            <svg width="48" height="48" viewBox="0 0 48 48">
+            <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true">
+              <title>Win Probability</title>
               <circle
                 cx="24"
                 cy="24"

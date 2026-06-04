@@ -32,7 +32,7 @@ function FieldWrapper({
 }) {
   return (
     <div className="w-full max-w-md space-y-1">
-      <label className="text-xs font-medium text-text-muted">{label}</label>
+      <span className="text-xs font-medium text-text-muted">{label}</span>
       <Comp
         field={makeField(label, 'char')}
         value={value}

@@ -194,8 +194,10 @@ export function Navbar() {
                     menus,
                   )
                   return (
+                    // biome-ignore lint/a11y/noStaticElementInteractions: hover container
                     <div
                       key={section.id}
+                      role="presentation"
                       className="relative"
                       onMouseEnter={() => handleMouseEnter(section.id)}
                       onMouseLeave={handleMouseLeave}
@@ -216,7 +218,9 @@ export function Navbar() {
                       </button>
 
                       {openSubmenu === section.id && section.children.length > 0 && (
+                        // biome-ignore lint/a11y/noStaticElementInteractions: dropdown panel
                         <div
+                          role="presentation"
                           className="absolute left-0 top-full z-50 mt-1 w-52 rounded-lg border border-border-subtle bg-surface shadow-lg"
                           onMouseEnter={() => {
                             if (closeTimer.current) {

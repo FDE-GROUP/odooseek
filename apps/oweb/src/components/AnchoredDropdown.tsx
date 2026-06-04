@@ -135,6 +135,7 @@ export function AnchoredDropdown({
           ...(position.top != null ? { top: position.top } : { bottom: position.bottom }),
         }}
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
         onMouseEnter={onPanelMouseEnter}
         onMouseLeave={onPanelMouseLeave}
       >

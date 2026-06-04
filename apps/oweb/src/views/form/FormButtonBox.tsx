@@ -172,7 +172,13 @@ export function ButtonBoxRenderer({
         <StatButton key={bi} button={btn} record={record} model={model} recordId={recordId} />
       ))}
       {overflow.length > 0 && (
-        <div className="relative" onMouseEnter={openMenu} onMouseLeave={closeMenu}>
+        // biome-ignore lint/a11y/noStaticElementInteractions: hover container
+        <div
+          role="presentation"
+          className="relative"
+          onMouseEnter={openMenu}
+          onMouseLeave={closeMenu}
+        >
           <button
             type="button"
             onClick={toggleMenu}

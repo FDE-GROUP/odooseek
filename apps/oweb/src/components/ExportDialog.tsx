@@ -118,8 +118,11 @@ export function ExportDialog({ model, fields, data, selectedIds, onClose }: Expo
     <div className="space-y-4">
       {/* Format selector */}
       <div>
-        <label className="text-xs font-medium text-text-muted">Format</label>
+        <label htmlFor="export-format" className="text-xs font-medium text-text-muted">
+          Format
+        </label>
         <select
+          id="export-format"
           value={format}
           onChange={(e) => setFormat(e.target.value as 'csv')}
           className="ml-2 rounded border border-border-default bg-surface px-2 py-1 text-sm text-text-primary"

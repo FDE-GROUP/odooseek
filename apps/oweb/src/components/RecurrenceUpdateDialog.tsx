@@ -14,7 +14,8 @@ export function RecurrenceUpdateDialog({ mode, onConfirm, onCancel }: Recurrence
 
   return createPortal(
     <div className="fixed inset-0 z-70 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onCancel} />
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop */}
+      <div role="presentation" className="absolute inset-0 bg-black/40" onClick={onCancel} />
       <div className="relative w-full max-w-sm rounded-xl border border-border-subtle bg-surface p-5 shadow-2xl">
         <h3 className="mb-3 text-sm font-semibold text-text-primary">
           {mode === 'delete' ? 'Delete recurring event' : 'Edit recurring event'}

@@ -1,6 +1,6 @@
 {
   "name": "@odooseek/odoo-client",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Framework-agnostic Odoo 19 CE JSON-RPC client with view XML parser",
   "type": "module",
   "main": "./src/index.ts",

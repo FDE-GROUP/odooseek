@@ -269,6 +269,7 @@ export function Many2ManyTagsAvatarWidget({ value, onChange, readOnly, meta }: F
             key={id}
             className="inline-flex items-center gap-1 rounded-full bg-accent/10 pl-0.5 pr-2 py-0.5 text-xs"
           >
+            {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: decorative avatar */}
             <img
               src={`/api/web/image/${relation}/${id}/avatar_128`}
               alt=""

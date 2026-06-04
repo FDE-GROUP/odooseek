@@ -590,7 +590,9 @@ export function SearchBar({
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
+            aria-hidden="true"
           >
+            <title>Search</title>
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.3-4.3" />
           </svg>
@@ -668,7 +670,9 @@ export function SearchBar({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
+                  aria-hidden="true"
                 >
+                  <title>Filter</title>
                   <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
                 </svg>
               </button>
@@ -683,7 +687,9 @@ export function SearchBar({
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2"
+                        aria-hidden="true"
                       >
+                        <title>Filter</title>
                         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
                       </svg>
                       Filters
@@ -750,7 +756,9 @@ export function SearchBar({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
+                  aria-hidden="true"
                 >
+                  <title>Group By</title>
                   <line x1="6" y1="3" x2="6" y2="15" />
                   <circle cx="18" cy="6" r="3" />
                   <circle cx="6" cy="18" r="3" />
@@ -767,7 +775,9 @@ export function SearchBar({
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
+                      aria-hidden="true"
                     >
+                      <title>Group By</title>
                       <line x1="6" y1="3" x2="6" y2="15" />
                       <circle cx="18" cy="6" r="3" />
                       <circle cx="6" cy="18" r="3" />

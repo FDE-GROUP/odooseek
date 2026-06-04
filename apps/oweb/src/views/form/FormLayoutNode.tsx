@@ -651,11 +651,11 @@ export function FormLayoutNode({
                     model={model}
                     recordId={recordId}
                   />
-                  <label className="o_form_label">
+                  <span className="o_form_label">
                     {el.string || meta.string || el.name}
                     {editMode && fieldRequired && <span className="ml-0.5 text-danger">*</span>}
                     {meta.help && <HelpPopover text={meta.help} />}
-                  </label>
+                  </span>
                 </div>
               )
             }
@@ -667,11 +667,11 @@ export function FormLayoutNode({
                 data-field-name={el.name}
                 title={errorTitle}
               >
-                <label className="o_form_label py-1">
+                <span className="o_form_label py-1">
                   {el.string || meta.string || el.name}
                   {editMode && fieldRequired && <span className="ml-0.5 text-danger">*</span>}
                   {meta.help && <HelpPopover text={meta.help} />}
-                </label>
+                </span>
                 <Widget
                   field={el}
                   value={record?.[el.name]}

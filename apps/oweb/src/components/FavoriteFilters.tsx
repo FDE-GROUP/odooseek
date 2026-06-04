@@ -102,7 +102,9 @@ export function FavoriteFilters({
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
+          aria-hidden="true"
         >
+          <title>Favorites</title>
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
         </svg>
       </button>
@@ -117,7 +119,9 @@ export function FavoriteFilters({
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
+              aria-hidden="true"
             >
+              <title>Favorites</title>
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
             </svg>
             Favorites
@@ -129,10 +133,16 @@ export function FavoriteFilters({
 
           <div className="max-h-60 overflow-y-auto">
             {filters.map((filter) => (
-              <div
+              <button
+                type="button"
                 key={filter.id}
-                className="group flex cursor-pointer items-center justify-between rounded px-2 py-1.5 text-sm text-text-primary transition-colors hover:bg-hover"
+                className="group flex cursor-pointer items-center justify-between rounded px-2 py-1.5 text-sm text-text-primary transition-colors hover:bg-hover text-left w-full"
                 onClick={() => handleApply(filter)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.currentTarget.click()
+                  }
+                }}
               >
                 <span className="truncate">{filter.name}</span>
                 <button
@@ -148,12 +158,14 @@ export function FavoriteFilters({
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
+                    aria-hidden="true"
                   >
+                    <title>Remove</title>
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
                 </button>
-              </div>
+              </button>
             ))}
           </div>
 
@@ -175,6 +187,7 @@ export function FavoriteFilters({
                   onChange={(e) => setSaveName(e.target.value)}
                   placeholder="Filter name"
                   className="w-full rounded border border-border-default bg-surface px-2 py-1.5 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none"
+                  // biome-ignore lint/a11y/noAutofocus: intentional focus for immediate user interaction
                   autoFocus
                 />
                 <div className="flex gap-1">

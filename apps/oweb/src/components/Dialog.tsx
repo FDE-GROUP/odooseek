@@ -29,7 +29,9 @@ export function DialogContainer() {
     dialogs.map((dialog, index) => (
       <div key={dialog.id} className="fixed inset-0" style={{ zIndex: 60 + index * 10 }}>
         {/* Backdrop */}
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop */}
         <div
+          role="presentation"
           className="absolute inset-0 bg-black/30"
           onClick={() => dialog.closeOnBackdrop !== false && closeDialog(dialog.id)}
         />

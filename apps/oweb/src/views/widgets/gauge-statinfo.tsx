@@ -10,7 +10,8 @@ export function GaugeWidget({ value }: FieldWidgetProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <svg width="48" height="48" viewBox="0 0 48 48">
+      <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true">
+        <title>Gauge</title>
         <circle
           cx="24"
           cy="24"

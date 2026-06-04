@@ -39,6 +39,7 @@ import { getFieldWidget } from './widgets'
 function renderListCellContent(content: ReturnType<typeof renderCell>): React.ReactNode {
   if (isListCellImage(content)) {
     return (
+      // biome-ignore lint/a11y/noNoninteractiveElementInteractions: decorative image with error fallback
       <img
         src={content.src}
         alt=""
@@ -1014,10 +1015,14 @@ export function OdooListRenderer({
                   if (!meta || meta.readonly || col.readonly) return null
                   return (
                     <div key={col.name} className="flex items-center gap-1.5">
-                      <label className="text-[11px] text-text-secondary">
+                      <label
+                        htmlFor={`multi-edit-${col.name}`}
+                        className="text-[11px] text-text-secondary"
+                      >
                         {col.string || meta.string || col.name}
                       </label>
                       <input
+                        id={`multi-edit-${col.name}`}
                         type={meta.type === 'boolean' ? 'checkbox' : 'text'}
                         checked={meta.type === 'boolean' ? !!multiEditValues[col.name] : undefined}
                         value={
@@ -1084,6 +1089,7 @@ export function OdooListRenderer({
             data-testid="odoo-list-view"
             className="overflow-x-auto min-h-0 flex-1 overflow-y-auto rounded-lg border border-border-subtle"
           >
+            {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: table with keyboard navigation */}
             <table className="w-full" onKeyDown={handleTableKeyDown}>
               <thead>
                 <tr className="sticky top-0 z-10 border-b border-border-subtle bg-surface/95 backdrop-blur-sm">
@@ -1122,8 +1128,8 @@ export function OdooListRenderer({
                         {label}
                         {!groupByActive && <span className="ml-1">{sortIcon(col.name)}</span>}
                         {!groupByActive && (
-                          <div
-                            className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize hover:bg-accent/30"
+                          <hr
+                            className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize border-0 bg-transparent hover:bg-accent/30"
                             onMouseDown={(e) => startResize(col.name, e)}
                           />
                         )}
@@ -1249,7 +1255,12 @@ export function OdooListRenderer({
                           .filter(Boolean)
                           .join(' ')}
                       >
-                        <td className="w-10 px-2 py-2" onClick={(e) => e.stopPropagation()}>
+                        {/* biome-ignore lint/a11y/noStaticElementInteractions: checkbox cell */}
+                        <td
+                          role="presentation"
+                          className="w-10 px-2 py-2"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <input
                             type="checkbox"
                             checked={selectedIds.has(recordId)}
@@ -1261,8 +1272,10 @@ export function OdooListRenderer({
                         {visibleColumns.map((col, ci) => {
                           if (isNonField(col)) {
                             return (
+                              // biome-ignore lint/a11y/noStaticElementInteractions: button cell
                               <td
                                 key={`d-${ci}`}
+                                role="presentation"
                                 className="px-2 py-2"
                                 onClick={(e) => e.stopPropagation()}
                               >
@@ -1306,8 +1319,10 @@ export function OdooListRenderer({
                                 ? ' ring-1 ring-warning ring-inset'
                                 : ''
                             return (
+                              // biome-ignore lint/a11y/noStaticElementInteractions: edit cell
                               <td
                                 key={`d-${col.name}-${ci}`}
+                                role="presentation"
                                 className={`whitespace-nowrap px-1 py-0.5${errRing}`}
                                 title={errMsg ?? undefined}
                                 onClick={(e) => e.stopPropagation()}
@@ -1323,9 +1338,14 @@ export function OdooListRenderer({
                             )
                           }
 
+                          const isBooleanToggle =
+                            isEditable && !isReadonly && meta?.type === 'boolean'
                           return (
+                            // biome-ignore lint/a11y/noNoninteractiveElementInteractions: td acts as boolean toggle in editable list
                             <td
                               key={`d-${col.name}-${ci}`}
+                              role={isBooleanToggle ? 'button' : undefined}
+                              tabIndex={isBooleanToggle ? 0 : undefined}
                               title={(() => {
                                 const t = renderListCellContent(
                                   renderCell(
@@ -1345,20 +1365,27 @@ export function OdooListRenderer({
                               ]
                                 .filter(Boolean)
                                 .join(' ')}
-                              onClick={() => {
-                                if (isEditable && !isReadonly && meta?.type === 'boolean') {
-                                  toggleBooleanMutation.mutate({
-                                    recordId,
-                                    field: col.name,
-                                    value: !record[col.name],
-                                  })
-                                }
-                              }}
-                              style={
-                                isEditable && !isReadonly && meta?.type === 'boolean'
-                                  ? { cursor: 'pointer' }
+                              onClick={
+                                isBooleanToggle
+                                  ? () => {
+                                      toggleBooleanMutation.mutate({
+                                        recordId,
+                                        field: col.name,
+                                        value: !record[col.name],
+                                      })
+                                    }
                                   : undefined
                               }
+                              onKeyDown={
+                                isBooleanToggle
+                                  ? (e) => {
+                                      if (e.key === 'Enter' || e.key === ' ') {
+                                        e.currentTarget.click()
+                                      }
+                                    }
+                                  : undefined
+                              }
+                              style={isBooleanToggle ? { cursor: 'pointer' } : undefined}
                             >
                               {renderListCellContent(
                                 renderCell(
@@ -1372,7 +1399,9 @@ export function OdooListRenderer({
                           )
                         })}
                         {isEditing && (
+                          // biome-ignore lint/a11y/noStaticElementInteractions: save/cancel cell
                           <td
+                            role="presentation"
                             className="flex items-center gap-1 px-2 py-1"
                             onClick={(e) => e.stopPropagation()}
                           >
@@ -1394,7 +1423,9 @@ export function OdooListRenderer({
                           </td>
                         )}
                         {isEditable && !isEditing && (
+                          // biome-ignore lint/a11y/noStaticElementInteractions: delete cell
                           <td
+                            role="presentation"
                             className="px-2 py-1 text-center"
                             onClick={(e) => e.stopPropagation()}
                           >

@@ -65,6 +65,7 @@ export function Many2ManyAvatarUserWidget({ value, onChange, readOnly, meta }: F
             key={id}
             className="inline-flex items-center gap-1 rounded bg-accent/10 px-1.5 py-0.5 text-xs text-accent"
           >
+            {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: decorative avatar */}
             <img
               src={avatarUrl(id)}
               alt=""
@@ -88,6 +89,7 @@ export function Many2ManyAvatarUserWidget({ value, onChange, readOnly, meta }: F
             key={id}
             className="inline-flex items-center gap-1 rounded bg-accent/10 px-1.5 py-0.5 text-xs text-accent"
           >
+            {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: decorative avatar */}
             <img
               src={avatarUrl(id)}
               alt=""
@@ -132,6 +134,7 @@ export function Many2ManyAvatarUserWidget({ value, onChange, readOnly, meta }: F
                 onMouseDown={() => addTag(id, name)}
                 className="flex w-full items-center gap-2 px-2 py-1 text-left text-xs hover:bg-hover/50"
               >
+                {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: decorative avatar */}
                 <img
                   src={avatarUrl(id)}
                   alt=""
