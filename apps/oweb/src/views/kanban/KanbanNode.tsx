@@ -93,7 +93,7 @@ const ODOO_TO_TW: Record<string, string> = {
   'opacity-50': 'opacity-50',
   'object-fit-contain': 'object-contain',
   // Odoo-specific kanban layout classes
-  o_kanban_aside_full: 'shrink-0',
+  o_kanban_aside_full: 'shrink-0 w-20 aspect-square overflow-hidden rounded',
   o_kanban_card_full: 'w-full',
   o_hr_employee_kanban: '',
   // Odoo color utilities
@@ -199,7 +199,9 @@ export function KanbanNode({
         return (
           <img
             src={`/api/web/image/${model}/${recordId}/${node.name}`}
-            className={[translateOdooClass(node.class), imgClass].filter(Boolean).join(' ')}
+            className={[translateOdooClass(node.class), translateOdooClass(imgClass)]
+              .filter(Boolean)
+              .join(' ')}
             loading="lazy"
             onError={(e) => {
               ;(e.target as HTMLElement).style.display = 'none'
