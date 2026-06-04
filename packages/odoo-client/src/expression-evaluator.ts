@@ -9,15 +9,15 @@ function resolveValue(expr: string, record: Record<string, unknown>): unknown {
     if (m[2] !== undefined && Array.isArray(val)) return val[Number(m[2])]
     return val
   }
-  // Handle string literal comparisons: parent.field == 'value'
-  const cmp = expr.match(/^(?:record|parent)\.(\w+)\s*(==|!=)\s*'([^']*)'$/)
+  // Handle string literal comparisons: field == 'value' (bare or with record. prefix)
+  const cmp = expr.match(/^(?:record\.|parent\.)?(\w+)\s*(==|!=)\s*'([^']*)'$/)
   if (cmp) {
     const val = record[cmp[1]]
     if (cmp[2] === '==') return val === cmp[3]
     return val !== cmp[3]
   }
   // Handle numeric comparisons
-  const numCmp = expr.match(/^(?:record|parent)\.(\w+)\s*(==|!=|>|<|>=|<=)\s*(\d+)$/)
+  const numCmp = expr.match(/^(?:record\.|parent\.)?(\w+)\s*(==|!=|>|<|>=|<=)\s*(\d+)$/)
   if (numCmp) {
     const val = Number(record[numCmp[1]]) || 0
     const num = Number(numCmp[3])
@@ -29,20 +29,29 @@ function resolveValue(expr: string, record: Record<string, unknown>): unknown {
     if (op === '>=') return val >= num
     if (op === '<=') return val <= num
   }
+  // Handle bare field reference
+  const bare = expr.match(/^(\w+)$/)
+  if (bare) return record[bare[1]]
   return undefined
 }
 
 /** Evaluate a QWeb condition expression against a record */
 export function evalCondition(expr: string, record: Record<string, unknown>): boolean {
-  // Odoo kanban: record.image_1024.raw_value
-  const rawMatch = expr.match(/^record\.(\w+)\.raw_value$/)
+  // Odoo kanban: record.image_1024.raw_value (or bare field.raw_value)
+  const rawMatch = expr.match(/^(?:record\.)?(\w+)\.raw_value$/)
   if (rawMatch) {
     const val = record[rawMatch[1]]
     return val != null && val !== false && val !== ''
   }
 
-  // Handle: "!record.field"
-  const notMatch = expr.match(/^!\s*record\.(\w+)$/)
+  // Handle: "!(expr)" — negate a parenthesized sub-expression
+  const notParenMatch = expr.match(/^!\s*\((.+)\)$/)
+  if (notParenMatch) {
+    return !evalCondition(notParenMatch[1].trim(), record)
+  }
+
+  // Handle: "!record.field" or "!field"
+  const notMatch = expr.match(/^!\s*(?:record\.)?(\w+)$/)
   if (notMatch) {
     return !record[notMatch[1]]
   }

@@ -317,7 +317,7 @@ export interface OdooActivityData {
 // ── Phase 4: QWeb template AST ───────────────────────────────
 
 export type KanbanTemplateNode =
-  | { type: 'field'; name: string; widget?: string; class?: string; options?: Record<string, unknown> }
+  | { type: 'field'; name: string; widget?: string; class?: string; options?: Record<string, unknown>; optional?: string }
   | { type: 'condition'; if?: string; elif?: string; else?: string; children: KanbanTemplateNode[] }
   | { type: 'loop'; foreach: string; as: string; children: KanbanTemplateNode[] }
   | { type: 'output'; expr: string; widget?: string }

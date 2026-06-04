@@ -598,6 +598,7 @@ function parseNode(node: ChildNode): KanbanTemplateNode | null {
       widget: el.getAttribute('widget') ?? undefined,
       class: el.getAttribute('class') ?? undefined,
       options: parsedOptions,
+      optional: el.getAttribute('optional') ?? undefined,
     }
   }
 
@@ -660,12 +661,23 @@ function parseNode(node: ChildNode): KanbanTemplateNode | null {
 
   // HTML wrapper elements
   if (HTML_TAGS.has(tag)) {
-    return {
+    const node: KanbanTemplateNode = {
       type: 'html',
       tag,
       class: el.getAttribute('class') ?? undefined,
       children: parseChildNodes(el),
     }
+    // Convert `invisible="expr"` to a negated condition wrapper:
+    // invisible means "hide if true", so wrap in t-if="!expr" condition
+    const invisible = el.getAttribute('invisible')
+    if (invisible) {
+      return {
+        type: 'condition',
+        if: `!(${invisible})`,
+        children: [node],
+      }
+    }
+    return node
   }
 
   // Unknown: recurse into children (skip the wrapper)

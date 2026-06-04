@@ -52,6 +52,13 @@ export function KanbanNode({
       const meta = fields[node.name]
       if (!meta) return null
 
+      // optional="hide": skip rendering when value is null/empty
+      if (node.optional === 'hide') {
+        const val = record[node.name]
+        if (val == null || val === false || val === '') return null
+        if (Array.isArray(val) && val.length === 0) return null
+      }
+
       if (node.widget === 'background_image') {
         const Widget = getFieldWidget(
           { type: 'field', name: node.name, widget: node.widget, options: node.options },
