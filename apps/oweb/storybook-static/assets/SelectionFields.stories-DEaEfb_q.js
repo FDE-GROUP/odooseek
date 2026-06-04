@@ -1,0 +1,18 @@
+import{i as e}from"./preload-helper-xPQekRTU.js";import{g as t}from"./iframe-Bbza3pWg.js";import{a as n,c as r,l as i,o as a,r as o}from"./selection-tEvRVRcB.js";function s({component:e,label:t,value:n,selection:r,readOnly:i}){return(0,c.jsxs)(`div`,{className:`w-full max-w-md space-y-1`,children:[(0,c.jsx)(`label`,{className:`text-xs font-medium text-text-muted`,children:t}),(0,c.jsx)(e,{field:{attributes:{name:t,type:`selection`}},value:n,onChange:()=>{},readOnly:i,meta:{selection:r}})]})}var c,l,u,d,f,p,m,h,g,_,v,y;e((()=>{i(),c=t(),l={title:`Widgets/Selection Fields`,tags:[`autodocs`]},u=[[`draft`,`Draft`],[`confirmed`,`Confirmed`],[`done`,`Done`],[`cancel`,`Cancelled`]],d=[[`0`,`Low`],[`1`,`Medium`],[`2`,`High`],[`3`,`Very High`]],f={render:()=>(0,c.jsx)(s,{component:n,label:`Status`,value:`draft`,selection:u})},p={render:()=>(0,c.jsx)(s,{component:n,label:`Status`,value:`confirmed`,selection:u,readOnly:!0})},m={name:`Priority Widget`,render:()=>(0,c.jsx)(s,{component:o,label:`Priority`,value:`1`,selection:d})},h={name:`Priority High`,render:()=>(0,c.jsx)(s,{component:o,label:`Priority`,value:`3`,selection:d})},g={render:()=>(0,c.jsx)(s,{component:r,label:`State`,value:`confirmed`,selection:u})},_={name:`Statusbar Draft`,render:()=>(0,c.jsx)(s,{component:r,label:`State`,value:`draft`,selection:u})},v={render:()=>(0,c.jsx)(s,{component:a,label:`State`,value:`confirmed`,selection:u,readOnly:!0})},f.parameters={...f.parameters,docs:{...f.parameters?.docs,source:{originalSource:`{
+  render: () => <SelectionWrapper component={SelectionWidget} label="Status" value="draft" selection={STATUS_SELECTION} />
+}`,...f.parameters?.docs?.source}}},p.parameters={...p.parameters,docs:{...p.parameters?.docs,source:{originalSource:`{
+  render: () => <SelectionWrapper component={SelectionWidget} label="Status" value="confirmed" selection={STATUS_SELECTION} readOnly />
+}`,...p.parameters?.docs?.source}}},m.parameters={...m.parameters,docs:{...m.parameters?.docs,source:{originalSource:`{
+  name: 'Priority Widget',
+  render: () => <SelectionWrapper component={PriorityWidget} label="Priority" value="1" selection={PRIORITY_SELECTION} />
+}`,...m.parameters?.docs?.source}}},h.parameters={...h.parameters,docs:{...h.parameters?.docs,source:{originalSource:`{
+  name: 'Priority High',
+  render: () => <SelectionWrapper component={PriorityWidget} label="Priority" value="3" selection={PRIORITY_SELECTION} />
+}`,...h.parameters?.docs?.source}}},g.parameters={...g.parameters,docs:{...g.parameters?.docs,source:{originalSource:`{
+  render: () => <SelectionWrapper component={StatusbarWidget} label="State" value="confirmed" selection={STATUS_SELECTION} />
+}`,...g.parameters?.docs?.source}}},_.parameters={..._.parameters,docs:{..._.parameters?.docs,source:{originalSource:`{
+  name: 'Statusbar Draft',
+  render: () => <SelectionWrapper component={StatusbarWidget} label="State" value="draft" selection={STATUS_SELECTION} />
+}`,..._.parameters?.docs?.source}}},v.parameters={...v.parameters,docs:{...v.parameters?.docs,source:{originalSource:`{
+  render: () => <SelectionWrapper component={StateBadgeWidget} label="State" value="confirmed" selection={STATUS_SELECTION} readOnly />
+}`,...v.parameters?.docs?.source}}},y=[`SelectionEdit`,`SelectionReadOnly`,`PriorityWidgetStory`,`PriorityHigh`,`Statusbar`,`StatusbarDraft`,`StateBadge`]}))();export{h as PriorityHigh,m as PriorityWidgetStory,f as SelectionEdit,p as SelectionReadOnly,v as StateBadge,g as Statusbar,_ as StatusbarDraft,y as __namedExportsOrder,l as default};

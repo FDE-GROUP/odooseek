@@ -1,5 +1,5 @@
 import type { O2mCommand, OdooFieldMeta, ViewField } from '@odooseek/odoo-client'
-import { callKw, evalCondition, fieldsGet } from '@odooseek/odoo-client'
+import { callKw, evalCondition, fieldsGet, isFieldValueEmpty } from '@odooseek/odoo-client'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { FormLayoutNode } from '../../form/FormLayoutNode'
@@ -53,6 +53,7 @@ export function One2ManyWidget({ field, value, onChange, readOnly, meta }: Field
   const [editValues, setEditValues] = useState<Record<string, unknown>>({})
   const [saveError, setSaveError] = useState<string | null>(null)
   const [cellErrors, setCellErrors] = useState<Set<string>>(new Set())
+  const [subFormMissingFields, setSubFormMissingFields] = useState<Set<string>>(new Set())
   // Draft rows: new rows not yet explicitly saved — not in pendingCommands
   const [draftRows, setDraftRows] = useState<Map<number, Record<string, unknown>>>(new Map())
   const tempIdCounter = useRef(0)
@@ -105,16 +106,30 @@ export function One2ManyWidget({ field, value, onChange, readOnly, meta }: Field
     })
   }, [relation, fieldNames, editable])
 
-  const handleCellChange = useCallback((_recordId: unknown, colName: string, val: unknown) => {
-    setEditValues((prev) => ({ ...prev, [colName]: val }))
-    setSaveError(null)
-    setCellErrors((prev) => {
-      if (!prev.has(colName)) return prev
-      const next = new Set(prev)
-      next.delete(colName)
-      return next
-    })
-  }, [])
+  const handleCellChange = useCallback(
+    (_recordId: unknown, colName: string, val: unknown) => {
+      setEditValues((prev) => ({ ...prev, [colName]: val }))
+      setSaveError(null)
+      setCellErrors((prev) => {
+        if (!prev.has(colName)) return prev
+        const next = new Set(prev)
+        next.delete(colName)
+        return next
+      })
+      setSubFormMissingFields((prev) => {
+        const colMeta = autoFields?.[colName]
+        if (!colMeta?.required) return prev
+        const hadBefore = prev.has(colName)
+        const shouldHave = isFieldValueEmpty(val, colMeta.type)
+        if (hadBefore === shouldHave) return prev
+        const next = new Set(prev)
+        if (shouldHave) next.add(colName)
+        else next.delete(colName)
+        return next
+      })
+    },
+    [autoFields],
+  )
 
   const handleSaveEdit = useCallback(
     (recordId: unknown) => {
@@ -122,7 +137,8 @@ export function One2ManyWidget({ field, value, onChange, readOnly, meta }: Field
       const errors = new Set<string>()
       for (const col of columns) {
         const isRequired = col.required || autoFields?.[col.name]?.required
-        if (isRequired && !editValues[col.name]) {
+        const fieldType = autoFields?.[col.name]?.type
+        if (isRequired && isFieldValueEmpty(editValues[col.name], fieldType)) {
           errors.add(col.name)
         }
       }
@@ -137,6 +153,15 @@ export function One2ManyWidget({ field, value, onChange, readOnly, meta }: Field
       }
       setCellErrors(new Set())
       setSaveError(null)
+
+      if (subFormMissingFields.size > 0) {
+        const labels = Array.from(subFormMissingFields).map(
+          (name) =>
+            columns.find((c) => c.name === name)?.string || autoFields?.[name]?.string || name,
+        )
+        setSaveError(`Required: ${labels.join(', ')}`)
+        return
+      }
 
       const isNew = typeof recordId === 'number' && recordId < 0
       if (isNew) {
@@ -165,7 +190,7 @@ export function One2ManyWidget({ field, value, onChange, readOnly, meta }: Field
       setEditingId(null)
       setEditValues({})
     },
-    [pendingCommands, editValues, emitChange, columns, autoFields],
+    [pendingCommands, editValues, emitChange, columns, autoFields, subFormMissingFields],
   )
 
   const handleCancelEdit = useCallback(() => {
@@ -173,6 +198,7 @@ export function One2ManyWidget({ field, value, onChange, readOnly, meta }: Field
     setEditValues({})
     setSaveError(null)
     setCellErrors(new Set())
+    setSubFormMissingFields(new Set())
   }, [])
 
   const handleStartEdit = useCallback(
@@ -182,12 +208,19 @@ export function One2ManyWidget({ field, value, onChange, readOnly, meta }: Field
       setSaveError(null)
       setCellErrors(new Set())
       const initialValues: Record<string, unknown> = {}
+      const initialMissing = new Set<string>()
       for (const col of columns) {
         initialValues[col.name] = record[col.name]
+        const colMeta = autoFields?.[col.name]
+        const isRequired = col.required || colMeta?.required
+        if (isRequired && isFieldValueEmpty(record[col.name], colMeta?.type)) {
+          initialMissing.add(col.name)
+        }
       }
       setEditValues(initialValues)
+      setSubFormMissingFields(initialMissing)
     },
-    [columns],
+    [columns, autoFields],
   )
 
   // Merge server records with pending commands and draft rows
@@ -286,6 +319,7 @@ export function One2ManyWidget({ field, value, onChange, readOnly, meta }: Field
                           model={relation ?? ''}
                           editMode
                           onChange={(name, v) => handleCellChange(rowId, name, v)}
+                          missingFields={subFormMissingFields}
                         />
                       </div>
                       {subViewList?.delete !== false && (
