@@ -153,6 +153,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/web/content/{*path}", get(proxy_content))
         .route("/api/report/download", get(download_report))
         .route("/api/report/barcode/{*path}", get(proxy_barcode))
+        .route("/api/event/{id}/ics", get(proxy_event_ics))
         .route("/ws/events", get(ws_events_handler))
         .merge(csrf_protected)
         .layer(axum::extract::DefaultBodyLimit::max(10 * 1024 * 1024)) // 10 MB
@@ -429,6 +430,25 @@ async fn proxy_barcode(
     headers: HeaderMap,
 ) -> Result<impl IntoResponse, AppError> {
     report::proxy_barcode(state, path, headers).await
+}
+
+// ── Event ICS download proxy ────────────────────────────────────────
+
+async fn proxy_event_ics(
+    State(state): State<AppState>,
+    axum::extract::Path(id): axum::extract::Path<u64>,
+    headers: HeaderMap,
+) -> Result<impl IntoResponse, AppError> {
+    let path = format!("event/{}/ics", id);
+    proxy::proxy_odoo_http(
+        state,
+        Method::GET,
+        &path,
+        headers,
+        None,
+        axum::body::Bytes::new(),
+    )
+    .await
 }
 
 // ── WebSocket events ───────────────────────────────────────────────

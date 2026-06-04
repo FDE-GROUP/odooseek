@@ -123,7 +123,7 @@ export interface StockMoveRecord extends BaseRecord {
   /** Show Detailed Operations — If this checkbox is ticked, the pickings lines will represent detailed stock operations. If not, the picking lines will represent an aggregate of detailed stock operations. */
   show_operations: boolean
   /** Type of Operation */
-  picking_code: 'incoming' | 'outgoing' | 'internal' | false
+  picking_code: 'incoming' | 'outgoing' | 'internal' | 'mrp_operation' | false
   /** Details Visible */
   show_details_visible: boolean
   /** Track Inventory — A storable product is a product for which you manage stock. */
@@ -178,6 +178,50 @@ export interface StockMoveRecord extends BaseRecord {
   write_uid: [number, string] /* res.users */ | false
   /** Last Updated on */
   write_date: string | false
+  /** Created Production Order */
+  created_production_id: [number, string] /* mrp.production */ | false
+  /** Production Order for finished products */
+  production_id: [number, string] /* mrp.production */ | false
+  /** Production Order for components */
+  raw_material_production_id: [number, string] /* mrp.production */ | false
+  /** Used for Productions */
+  production_group_id: [number, string] /* mrp.production.group */ | false
+  /** Disassembly Order */
+  unbuild_id: [number, string] /* mrp.unbuild */ | false
+  /** Consumed Disassembly Order */
+  consume_unbuild_id: [number, string] /* mrp.unbuild */ | false
+  /** Operations */
+  allowed_operation_ids: number[] /* mrp.routing.workcenter */
+  /** Operation To Consume */
+  operation_id: [number, string] /* mrp.routing.workcenter */ | false
+  /** Work Order To Consume */
+  workorder_id: [number, string] /* mrp.workorder */ | false
+  /** BoM Line */
+  bom_line_id: [number, string] /* mrp.bom.line */ | false
+  /** By-products — By-product line that generated the move in a manufacturing order */
+  byproduct_id: [number, string] /* mrp.bom.byproduct */ | false
+  /** Unit Factor */
+  unit_factor: number | false
+  /** Finished Lot/Serial Number */
+  order_finished_lot_ids: number[] /* stock.lot */ | false
+  /** Quantity To Consume */
+  should_consume_qty: number | false
+  /** Cost Share (%) — The percentage of the final production cost for this by-product. The total of all by-products\' cost share must be smaller or equal to 100. */
+  cost_share: number | false
+  /** Product On Hand Quantity — Current quantity of products.
+In a context with a single Stock Location, this includes goods stored at this Location, or any of its children.
+In a context with a single Warehouse, this includes goods stored in the Stock Location of this Warehouse, or any of its children.
+stored in the Stock Location of the Warehouse of this Shop, or any of its children.
+Otherwise, this includes goods stored in any Stock Location with \'internal\' type. */
+  product_qty_available: number | false
+  /** Product Forecasted Quantity — Forecast quantity (computed as Quantity On Hand - Outgoing + Incoming)
+In a context with a single Stock Location, this includes goods stored in this location, or any of its children.
+In a context with a single Warehouse, this includes goods stored in the Stock Location of this Warehouse, or any of its children.
+Otherwise, this includes goods stored in any Stock Location with \'internal\' type. */
+  product_virtual_available: number | false
+  /** Manual Consumption — When activated, then the registration of consumption for that component is recorded manually exclusively.
+If not activated, and any of the components consumption is edited manually on the manufacturing order, Odoo assumes manual consumption also. */
+  manual_consumption: boolean
   /** Update quantities on SO/PO — Trigger a decrease of the delivered/received quantity in the associated Sale Order/Purchase Order */
   to_refund: boolean
   /** Company Currency */
@@ -208,6 +252,10 @@ export interface StockMoveRecord extends BaseRecord {
   analytic_account_line_ids: number[] /* account.analytic.line */ | false
   /** stock_move_id */
   account_move_id: [number, string] /* account.move */ | false
+  /** Purchase Order Line */
+  purchase_line_id: [number, string] /* purchase.order.line */ | false
+  /** Created Purchase Order Lines */
+  created_purchase_line_ids: number[] /* purchase.order.line */ | false
   /** Sale Line */
   sale_line_id: [number, string] /* sale.order.line */ | false
   /** Weight */

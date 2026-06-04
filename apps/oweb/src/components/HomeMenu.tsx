@@ -26,11 +26,15 @@ const ICON_FALLBACK: Record<string, string> = {
   Contacts: 'oi oi-users',
   Project: 'oi oi-star-plus',
   Discuss: 'oi oi-activity',
-  Calendar: 'oi oi-schedule-today',
   Settings: 'oi oi-settings-adjust',
   Apps: 'oi oi-apps',
   Employees: 'oi oi-user-profile',
   'Human Resources': 'oi oi-user-profile',
+  Events: 'oi oi-schedule-today',
+  Calendar: 'oi oi-schedule-today',
+  Products: 'oi oi-cube',
+  Manufacturing: 'oi oi-wrench',
+  Attendance: 'oi oi-timer',
 }
 
 function getAppIconClass(app: OdooMenuEntry): string | null {

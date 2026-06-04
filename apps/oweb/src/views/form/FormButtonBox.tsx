@@ -1,7 +1,7 @@
-import type { StatButtonElement } from '@odooseek/odoo-client'
-import { callKw } from '@odooseek/odoo-client'
+import type { OdooAction, StatButtonElement } from '@odooseek/odoo-client'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useRef, useState } from 'react'
+import { MODEL_MODULE_ROUTES } from '../../lib/module-routes'
 
 const MAX_BUTTON_BOX = 4
 
@@ -33,6 +33,26 @@ export function StatButton({
     text = raw != null ? '' : (button.content.textFallback ?? button.string ?? '')
   }
 
+  const handleNavAction = useCallback(
+    (action: OdooAction) => {
+      if (action.type === 'ir.actions.client') {
+        const tag = (action as Record<string, unknown>).tag as string | undefined
+        if (tag === 'event.event_barcode_scan_view') {
+          window.open(`/event/registration-desk?event_id=${recordId}`, '_self')
+        }
+      } else if (action.type === 'ir.actions.act_window') {
+        const resModel = action.res_model
+        if (resModel && typeof resModel === 'string') {
+          const spec = MODEL_MODULE_ROUTES[resModel]
+          if (spec) {
+            window.open(spec.listPath, '_self')
+          }
+        }
+      }
+    },
+    [recordId],
+  )
+
   const handleClick = useCallback(async () => {
     if (loading) return
     if (button.confirm && !window.confirm(button.confirm)) return
@@ -40,7 +60,23 @@ export function StatButton({
     if (button.buttonType === 'action') {
       setLoading(true)
       try {
-        await callKw('ir.actions.server', 'run', [[Number(button.name)]])
+        const { loadAction } = await import('@odooseek/odoo-client')
+        const context: Record<string, unknown> = {
+          active_model: model,
+          active_id: recordId,
+          active_ids: recordId ? [recordId] : [],
+        }
+        if (button.context) {
+          try {
+            const parsed = JSON.parse(button.context.replace(/'/g, '"'))
+            Object.assign(context, parsed)
+          } catch {
+            /* skip malformed context */
+          }
+        }
+        const action = await loadAction(button.name, context)
+        if (!action) return
+        handleNavAction(action)
         if (recordId) {
           queryClient.invalidateQueries({ queryKey: ['odoo', 'read', model, recordId] })
         }
@@ -58,6 +94,7 @@ export function StatButton({
     setLoading(true)
     try {
       if (button.buttonType === 'object') {
+        const { callKw } = await import('@odooseek/odoo-client')
         await callKw(model, button.name, [[recordId]])
         queryClient.invalidateQueries({ queryKey: ['odoo', 'read', model, recordId] })
       }
@@ -67,7 +104,7 @@ export function StatButton({
     } finally {
       setLoading(false)
     }
-  }, [button, loading, model, recordId, queryClient])
+  }, [button, loading, model, recordId, queryClient, handleNavAction])
 
   return (
     <button
@@ -78,8 +115,10 @@ export function StatButton({
       className={`oe_stat_button ${error ? 'oe_stat_button--error' : ''}`}
     >
       {button.icon && <i className={`fa ${button.icon} oe_stat_button_icon`} />}
-      {value !== '' && <span className="oe_stat_button_value">{value}</span>}
-      <span className="oe_stat_button_text">{error ?? text}</span>
+      <div className="o_stat_info">
+        {value && <span className="o_stat_value">{value}</span>}
+        {text && <span className="o_stat_text">{text}</span>}
+      </div>
     </button>
   )
 }
@@ -89,7 +128,7 @@ export function ButtonBoxRenderer({
   record,
   model,
   recordId,
-  inline = false,
+  inline,
 }: {
   buttons: StatButtonElement[]
   record?: Record<string, unknown>
@@ -98,16 +137,16 @@ export function ButtonBoxRenderer({
   inline?: boolean
 }) {
   const [overflowOpen, setOverflowOpen] = useState(false)
-  const closeTimer = useRef<ReturnType<typeof setTimeout>>()
-  const primary = buttons
-    .slice(0, MAX_BUTTON_BOX)
-    .filter((btn, i, arr) => arr.findIndex((b) => b.name === btn.name) === i)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const primary = buttons.slice(0, MAX_BUTTON_BOX)
+
   const overflow = buttons
     .slice(MAX_BUTTON_BOX)
     .filter((btn, i, arr) => arr.findIndex((b) => b.name === btn.name) === i)
 
   const openMenu = () => {
-    clearTimeout(closeTimer.current)
+    if (closeTimer.current) clearTimeout(closeTimer.current)
     setOverflowOpen(true)
   }
   const closeMenu = () => {
@@ -142,15 +181,15 @@ export function ButtonBoxRenderer({
             More ▾
           </button>
           {overflowOpen && (
-            <div
-              className="absolute left-0 top-full z-50 min-w-[180px] rounded-lg border border-border-subtle bg-surface shadow-xl"
-              onMouseEnter={openMenu}
-              onMouseLeave={closeMenu}
-            >
+            <div className="absolute left-0 top-full z-50 mt-1 min-w-40 rounded border bg-white shadow-lg dark:bg-gray-800 dark:border-gray-700">
               {overflow.map((btn, bi) => (
-                <div key={bi} className="px-2 py-1">
-                  <StatButton button={btn} record={record} model={model} recordId={recordId} />
-                </div>
+                <StatButton
+                  key={`ov-${bi}`}
+                  button={btn}
+                  record={record}
+                  model={model}
+                  recordId={recordId}
+                />
               ))}
             </div>
           )}

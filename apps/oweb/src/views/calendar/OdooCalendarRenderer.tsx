@@ -229,7 +229,7 @@ export function OdooCalendarRenderer({
 
   const handleSelectSlot = useCallback(
     async ({ start, end, action }: { start: Date; end: Date; action?: string }) => {
-      if (!calView.quickCreate) return
+      if (!calView.quickCreate && !calView.multiEdit) return
 
       if (calView.quickCreateViewId) {
         setShowQuickCreate(true)

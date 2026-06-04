@@ -493,6 +493,14 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
           active_id: newRecordId,
           active_ids: [newRecordId],
         }
+        if (btn.context) {
+          try {
+            const parsed = JSON.parse(btn.context.replace(/'/g, '"'))
+            Object.assign(c, parsed)
+          } catch {
+            /* skip malformed context */
+          }
+        }
         try {
           const { loadAction } = await import('@odooseek/odoo-client')
           const action = await loadAction(btn.name, c)
@@ -690,7 +698,7 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
         ref={formRef}
         className="o_form_body min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden px-4 py-2"
       >
-        <div className={recordId ? 'o_form_main' : 'o_form_main o_form_main--solo'}>
+        <div className={recordId ? 'o_form_main mt-2' : 'o_form_main o_form_main--solo'}>
           <div className="o_form_sheet_bg">
             {recordError ? (
               <div className="rounded border border-danger/30 bg-danger/10 px-4 py-6 text-sm text-danger">

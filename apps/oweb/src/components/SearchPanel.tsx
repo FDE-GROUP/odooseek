@@ -156,7 +156,11 @@ function SearchPanelSection({
       >
         {field.icon && <i className={`fa ${field.icon} w-4 text-center`} />}
         <span className="flex-1 text-left truncate">
-          {field.name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+          {field.string ||
+            field.name
+              .replace(/_/g, ' ')
+              .replace(/\b\w/g, (c) => c.toUpperCase())
+              .replace(/\bId\b/g, '')}
         </span>
         <span className="text-[10px]">{expanded ? '▼' : '►'}</span>
       </button>

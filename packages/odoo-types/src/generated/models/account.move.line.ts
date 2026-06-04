@@ -191,14 +191,22 @@ export interface AccountMoveLineRecord extends BaseRecord {
   write_uid: [number, string] /* res.users */ | false
   /** Last Updated on */
   write_date: string | false
-  /** Cogs Origin */
-  cogs_origin_id: [number, string] /* account.move.line */ | false
   /** Is Downpayment */
   is_downpayment: boolean
+  /** Purchase Order Line */
+  purchase_line_id: [number, string] /* purchase.order.line */ | false
+  /** Purchase Order */
+  purchase_order_id: [number, string] /* purchase.order */ | false
+  /** Purchase Line Warn Msg */
+  purchase_line_warn_msg: string | false
+  /** Cogs Origin */
+  cogs_origin_id: [number, string] /* account.move.line */ | false
   /** Sales Order Lines */
   sale_line_ids: number[] /* sale.order.line */ | false
   /** Sale Line Warn Msg */
   sale_line_warn_msg: string | false
+  /** Expense */
+  expense_id: [number, string] /* hr.expense */ | false
 }
 
 /** Field names for account.move.line */

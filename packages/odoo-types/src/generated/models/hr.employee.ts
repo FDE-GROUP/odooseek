@@ -254,6 +254,38 @@ The "Coach" has no specific rights or responsibilities by default. */
   write_uid: [number, string] /* res.users */ | false
   /** Last Updated on */
   write_date: string | false
+  /** Attendance Approver — The user set in Attendance will access the attendance of the employee through the dedicated app and will be able to edit them. */
+  attendance_manager_id: [number, string] /* res.users */ | false
+  /** Attendance */
+  attendance_ids: number[] /* hr.attendance */
+  /** Last Attendance */
+  last_attendance_id: [number, string] /* hr.attendance */ | false
+  /** Check In */
+  last_check_in: string | false
+  /** Check Out */
+  last_check_out: string | false
+  /** Attendance Status */
+  attendance_state: 'checked_out' | 'checked_in' | false
+  /** Hours Last Month */
+  hours_last_month: number | false
+  /** Hours Last Month Overtime */
+  hours_last_month_overtime: number | false
+  /** Hours Today */
+  hours_today: number | false
+  /** Hours Previously Today */
+  hours_previously_today: number | false
+  /** Last Attendance Worked Hours */
+  last_attendance_worked_hours: number | false
+  /** Hours Last Month Display */
+  hours_last_month_display: string | false
+  /** Overtime */
+  overtime_ids: number[] /* hr.attendance.overtime.line */
+  /** Total Overtime */
+  total_overtime: number | false
+  /** Display Extra Hours */
+  display_extra_hours: boolean
+  /** Ruleset */
+  ruleset_id: [number, string] /* hr.attendance.overtime.ruleset */ | false
   /** Employee HR Goals */
   goal_ids: number[] /* gamification.goal */
   /** Employee Badges — All employee badges, linked to the employee either directly or through the user */
@@ -290,6 +322,8 @@ The "Coach" has no specific rights or responsibilities by default. */
   subordinate_ids: number[] /* hr.employee */
   /** Is Subordinate */
   is_subordinate: boolean
+  /** Applicants */
+  applicant_ids: number[] /* hr.applicant */
   /** Resume lines */
   resume_line_ids: number[] /* hr.resume.line */
   /** Skills */
@@ -302,6 +336,11 @@ The "Coach" has no specific rights or responsibilities by default. */
   certification_ids: number[] /* hr.employee.skill */
   /** Display Certification Page */
   display_certification_page: boolean
+  /** Expense Approver — Select the user responsible for approving "Expenses" of this employee.
+If empty, the approval is done by an Administrator or Approver (determined in settings/users). */
+  expense_manager_id: [number, string] /* res.users */ | false
+  /** Filter For Expense */
+  filter_for_expense: boolean
   /** Employee */
   employee_id: [number, string] /* hr.employee */ | false
   /** Date Version */

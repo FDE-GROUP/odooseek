@@ -61,11 +61,95 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
   { fragment: 'menu_hr_work_location_tree', to: '/hr/work-locations' },
   { fragment: 'menu_config_plan_plan', to: '/hr/plans' },
   { fragment: 'mail_activity_plan_action', to: '/hr/plans' },
+  // Event
+  { fragment: 'menu_event_registration_desk', to: '/event/registration-desk' },
+  { fragment: 'menu_event_event', to: '/event/events', recordPrefix: '/event/event' },
+  { fragment: 'event_main_menu', to: '/event/events', recordPrefix: '/event/event' },
+  {
+    fragment: 'menu_action_registration',
+    to: '/event/registrations',
+    recordPrefix: '/event/registration',
+  },
+  // Calendar
+  { fragment: 'mail_menu_calendar', to: '/calendar/events', recordPrefix: '/calendar/event' },
+  { fragment: 'menu_calendar_event_type', to: '/calendar/types' },
+  { fragment: 'action_calendar_event_type', to: '/calendar/types' },
+  { fragment: 'menu_calendar_alarm', to: '/calendar/alarms' },
+  { fragment: 'action_calendar_alarm', to: '/calendar/alarms' },
+  // Product
+  {
+    fragment: 'product_template_action',
+    to: '/product/products',
+    recordPrefix: '/product/product',
+  },
+  // Sale sub-routes
+  {
+    fragment: 'menu_purchase_root',
+    to: '/purchase/rfqs',
+    recordPrefix: '/purchase/order',
+  },
+  {
+    fragment: 'menu_purchase_rfq',
+    to: '/purchase/rfqs',
+    recordPrefix: '/purchase/order',
+  },
+  {
+    fragment: 'res_partner_action_supplier',
+    to: '/purchase/vendors',
+    recordPrefix: '/contacts/partner',
+  },
+  {
+    fragment: 'action_quotations_with_onboarding',
+    to: '/sale/quotations',
+    recordPrefix: '/sale/order',
+  },
+  {
+    fragment: 'menu_sale_order_invoice',
+    to: '/sale/to-invoice',
+    recordPrefix: '/sale/order',
+  },
+  {
+    fragment: 'action_orders_to_invoice',
+    to: '/sale/to-invoice',
+    recordPrefix: '/sale/order',
+  },
+  {
+    fragment: 'action_orders_upselling',
+    to: '/sale/to-upsell',
+    recordPrefix: '/sale/order',
+  },
+  {
+    fragment: 'menu_sale_order_upselling',
+    to: '/sale/to-upsell',
+    recordPrefix: '/sale/order',
+  },
+  {
+    fragment: 'action_order_report_all',
+    to: '/sale/reporting',
+  },
   // CRM
   {
     fragment: 'crm_team_action_pipeline',
     to: '/crm/teams',
     recordPrefix: '/crm/team',
+  },
+  {
+    fragment: 'crm_lead_action_my_activities',
+    to: '/crm/activities',
+    recordPrefix: '/crm/lead',
+  },
+  {
+    fragment: 'crm_lead_action_forecast',
+    to: '/crm/forecast',
+    recordPrefix: '/crm/lead',
+  },
+  {
+    fragment: 'crm_stage_action',
+    to: '/crm/stages',
+  },
+  {
+    fragment: 'crm_lost_reason_action',
+    to: '/crm/lost-reasons',
   },
   {
     fragment: 'sales_team_crm_team_action_config',
@@ -82,15 +166,30 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
     to: '/inventory/pickings',
     recordPrefix: '/inventory/picking',
   },
+  {
+    fragment: 'in_picking',
+    to: '/inventory/receipts',
+    recordPrefix: '/inventory/picking',
+  },
+  {
+    fragment: 'out_picking',
+    to: '/inventory/deliveries',
+    recordPrefix: '/inventory/picking',
+  },
+  {
+    fragment: 'int_picking',
+    to: '/inventory/internal',
+    recordPrefix: '/inventory/picking',
+  },
   // Accounting
   {
     fragment: 'menu_action_move_out_invoice_type',
-    to: '/accounting/moves',
+    to: '/accounting/invoices',
     recordPrefix: '/accounting/move',
   },
   {
     fragment: 'menu_action_move_in_invoice_type',
-    to: '/accounting/moves',
+    to: '/accounting/bills',
     recordPrefix: '/accounting/move',
   },
   {
@@ -98,73 +197,133 @@ const XMLID_ROUTE_RULES: ReadonlyArray<{ fragment: string; to: string; recordPre
     to: '/accounting/moves',
     recordPrefix: '/accounting/move',
   },
-  // Contacts
   {
-    fragment: 'res_partner_menu_contacts',
-    to: '/contacts/partners',
-    recordPrefix: '/contacts/partner',
-  },
-  // Purchase
-  {
-    fragment: 'menu_purchase_rfq',
-    to: '/purchase/rfqs',
-    recordPrefix: '/purchase/order',
+    fragment: 'open_account_journal_dashboard',
+    to: '/accounting/dashboard',
   },
   {
-    fragment: 'menu_purchase_form_action',
-    to: '/purchase/orders',
-    recordPrefix: '/purchase/order',
+    fragment: 'account.menu_board_journal',
+    to: '/accounting/dashboard',
   },
   {
-    fragment: 'menu_procurement_management',
-    to: '/purchase/rfqs',
-    recordPrefix: '/purchase/order',
+    fragment: 'action_account_moves_all',
+    to: '/accounting/journal-items',
+    recordPrefix: '/accounting/journal-item',
   },
   {
-    fragment: 'menu_purchase_root',
-    to: '/purchase/rfqs',
-    recordPrefix: '/purchase/order',
-  },
-  // Project
-  {
-    fragment: 'open_view_project_all',
-    to: '/project/projects',
-    recordPrefix: '/project/project',
+    fragment: 'menu_action_account_payments',
+    to: '/accounting/payments',
+    recordPrefix: '/accounting/payment',
   },
   {
-    fragment: 'action_view_all_task',
-    to: '/project/tasks',
-    recordPrefix: '/project/task',
+    fragment: 'action_account_payments',
+    to: '/accounting/payments',
+    recordPrefix: '/accounting/payment',
   },
   {
-    fragment: 'action_view_my_task',
-    to: '/project/tasks',
-    recordPrefix: '/project/task',
+    fragment: 'action_move_out_refund_type',
+    to: '/accounting/credit-notes',
+    recordPrefix: '/accounting/move',
   },
   {
-    fragment: 'project_task_action_sub_task',
-    to: '/project/tasks',
-    recordPrefix: '/project/task',
+    fragment: 'action_move_in_refund_type',
+    to: '/accounting/vendor-refunds',
+    recordPrefix: '/accounting/move',
   },
   {
-    fragment: 'menu_project_management_all_tasks',
-    to: '/project/tasks',
-    recordPrefix: '/project/task',
+    fragment: 'menu_action_account_form',
+    to: '/accounting/chart-of-accounts',
+    recordPrefix: '/accounting/account',
   },
   {
-    fragment: 'menu_project_management_my_tasks',
-    to: '/project/tasks',
-    recordPrefix: '/project/task',
-  },
-  {
-    fragment: 'menu_project_management',
-    to: '/project/tasks',
-    recordPrefix: '/project/task',
+    fragment: 'action_account_form',
+    to: '/accounting/chart-of-accounts',
+    recordPrefix: '/accounting/account',
   },
   {
     fragment: 'menu_main_pm',
     to: '/project/tasks',
     recordPrefix: '/project/task',
+  },
+  // MRP
+  {
+    fragment: 'mrp.menu_mrp_root',
+    to: '/mrp/productions',
+    recordPrefix: '/mrp/production',
+  },
+  {
+    fragment: 'mrp_bom_form_action',
+    to: '/mrp/boms',
+    recordPrefix: '/mrp/bom',
+  },
+  {
+    fragment: 'mrp_workorder_todo',
+    to: '/mrp/work-orders',
+    recordPrefix: '/mrp/work-order',
+  },
+  {
+    fragment: 'mrp_workcenter_action',
+    to: '/mrp/work-centers',
+    recordPrefix: '/mrp/work-center',
+  },
+  {
+    fragment: 'mrp_routing_action',
+    to: '/mrp/routings',
+    recordPrefix: '/mrp/routing',
+  },
+  {
+    fragment: 'mrp_unbuild',
+    to: '/mrp/unbuilds',
+    recordPrefix: '/mrp/unbuild',
+  },
+  // Expenses
+  {
+    fragment: 'menu_hr_expense_root',
+    to: '/expenses/my',
+    recordPrefix: '/expenses/expense',
+  },
+  {
+    fragment: 'action_hr_expense_my_expenses_all',
+    to: '/expenses/my',
+    recordPrefix: '/expenses/expense',
+  },
+  {
+    fragment: 'action_hr_expense_sheet_all',
+    to: '/expenses/sheets',
+    recordPrefix: '/expenses/sheet',
+  },
+  // Recruitment
+  {
+    fragment: 'menu_hr_recruitment_root',
+    to: '/recruitment/applicants',
+    recordPrefix: '/recruitment/applicant',
+  },
+  {
+    fragment: 'action_hr_job_applications',
+    to: '/recruitment/applicants',
+    recordPrefix: '/recruitment/applicant',
+  },
+  {
+    fragment: 'action_hr_recruitment_stage',
+    to: '/recruitment/stages',
+  },
+  // Attendance
+  {
+    fragment: 'hr_attendance.menu_hr_attendance_root',
+    to: '/attendance/kiosk',
+  },
+  {
+    fragment: 'project_project_stage_action',
+    to: '/project/stages',
+  },
+  {
+    fragment: 'open_task_type_form',
+    to: '/project/task-stages',
+  },
+  {
+    fragment: 'action_view_project_milestone',
+    to: '/project/milestones',
+    recordPrefix: '/project/milestone',
   },
 ]
 

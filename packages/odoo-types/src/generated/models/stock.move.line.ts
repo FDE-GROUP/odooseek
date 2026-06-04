@@ -72,7 +72,7 @@ export interface StockMoveLineRecord extends BaseRecord {
   /** Destination Address  — Optional address where goods are to be delivered, specifically used for allotment */
   move_partner_id: [number, string] /* res.partner */ | false
   /** Type of Operation */
-  picking_code: 'incoming' | 'outgoing' | 'internal' | false
+  picking_code: 'incoming' | 'outgoing' | 'internal' | 'mrp_operation' | false
   /** Operation type */
   picking_type_id: [number, string] /* stock.picking.type */ | false
   /** Create New Lots/Serial Numbers — If this is checked only, it will suppose you want to create new Lots/Serial Numbers, so you can provide them in a text field.  */
@@ -117,6 +117,10 @@ export interface StockMoveLineRecord extends BaseRecord {
   write_uid: [number, string] /* res.users */ | false
   /** Last Updated on */
   write_date: string | false
+  /** Work Order */
+  workorder_id: [number, string] /* mrp.workorder */ | false
+  /** Production Order */
+  production_id: [number, string] /* mrp.production */ | false
   /** Sale Price */
   sale_price: number | false
   /** Destination Country — The ISO country code in two chars. 

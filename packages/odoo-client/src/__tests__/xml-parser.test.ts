@@ -6,6 +6,7 @@ import {
   parseFormXml,
   parseGraphXml,
   parseActivityXml,
+  parseHierarchyXml,
   parseKanbanXml,
   parseListXml,
   parsePivotXml,
@@ -618,6 +619,20 @@ describe('parseKanbanXml', () => {
     const result = parseKanbanXml(xml)
     expect(result.progressbar).toBeUndefined()
   })
+
+  test('parses can_open=0 (hr.department)', () => {
+    const xml = `<kanban can_open="0" default_group_by="name">
+      <field name="name"/>
+    </kanban>`
+    const result = parseKanbanXml(xml)
+    expect(result.canOpen).toBe(false)
+  })
+
+  test('can_open defaults to true when not present', () => {
+    const xml = `<kanban string="Test"><field name="name"/></kanban>`
+    const result = parseKanbanXml(xml)
+    expect(result.canOpen).toBe(true)
+  })
 })
 
 describe('parseActivityXml', () => {
@@ -856,6 +871,17 @@ describe('parseCalendarXml', () => {
     expect(result.multiEdit).toBe(true)
   })
 
+  test('parses multi_create attribute (event slot calendar)', () => {
+    const xml = `<calendar date_start="start_datetime" date_stop="end_datetime"
+      color="color" multi_create="true" quick_create="0" all_day="0">
+      <field name="display_name"/>
+    </calendar>`
+    const result = parseCalendarXml(xml)
+    expect(result.multiEdit).toBe(true)
+    expect(result.quickCreate).toBe(false)
+    expect(result.allDay).toBe('0')
+  })
+
   test('full Odoo calendar arch with all attributes', () => {
     const xml = `<calendar date_start="start" date_stop="stop" date_delay="duration"
       all_day="allday" color="partner_id" mode="week" event_limit="5"
@@ -943,5 +969,41 @@ describe('xml-parser robustness', () => {
     </form>`)
     // Should at least parse the direct field element
     expect(form.elements.length).toBeGreaterThan(0)
+  })
+})
+
+describe('parseHierarchyXml', () => {
+  test('parses basic hierarchy with child_field', () => {
+    const xml = `<hierarchy child_field="child_ids">
+      <field name="name"/>
+      <field name="total_employee"/>
+    </hierarchy>`
+    const result = parseHierarchyXml(xml)
+    expect(result.type).toBe('hierarchy')
+    expect(result.childField).toBe('child_ids')
+    expect(result.fields).toEqual(['name', 'total_employee'])
+  })
+
+  test('parses draggable attribute', () => {
+    const xml = `<hierarchy child_field="child_ids" draggable="1">
+      <field name="name"/>
+    </hierarchy>`
+    const result = parseHierarchyXml(xml)
+    expect(result.draggable).toBe(true)
+  })
+
+  test('defaults child_field to child_ids', () => {
+    const xml = `<hierarchy><field name="name"/></hierarchy>`
+    const result = parseHierarchyXml(xml)
+    expect(result.childField).toBe('child_ids')
+  })
+
+  test('deduplicates fields', () => {
+    const xml = `<hierarchy child_field="child_ids">
+      <field name="name"/>
+      <field name="name"/>
+    </hierarchy>`
+    const result = parseHierarchyXml(xml)
+    expect(result.fields).toEqual(['name'])
   })
 })

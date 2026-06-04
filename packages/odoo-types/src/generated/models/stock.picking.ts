@@ -115,7 +115,7 @@ Planned: Future activities. */
   /** Address */
   warehouse_address_id: [number, string] /* res.partner */ | false
   /** Type of Operation */
-  picking_type_code: 'incoming' | 'outgoing' | 'internal' | false
+  picking_type_code: 'incoming' | 'outgoing' | 'internal' | 'mrp_operation' | false
   /** Move Entire Packages — If ticked, packages to move will be directly displayed in Barcode instead of the products they contain */
   picking_type_entire_packs: boolean
   /** Create New Lots/Serial Numbers — If this is checked only, it will suppose you want to create new Lots/Serial Numbers, so you can provide them in a text field.  */
@@ -188,11 +188,25 @@ Planned: Future activities. */
   write_uid: [number, string] /* res.users */ | false
   /** Last Updated on */
   write_date: string | false
+  /** Has Kits */
+  has_kits: boolean
+  /** Count of MO generated */
+  production_count: number | false
+  /** Manufacturing Orders */
+  production_ids: number[] /* mrp.production */
+  /** Production Group */
+  production_group_id: [number, string] /* mrp.production.group */ | false
   /** Project */
   project_id: [number, string] /* project.project */ | false
   /** Country Code — The ISO country code in two chars. 
 You can use this field for quick search. */
   country_code: string | false
+  /** Purchase Orders */
+  purchase_id: [number, string] /* purchase.order */ | false
+  /** Days To Arrive */
+  days_to_arrive: string | false
+  /** Delay Pass */
+  delay_pass: string | false
   /** Sales Order */
   sale_id: [number, string] /* sale.order */ | false
   /** Shipping Cost */

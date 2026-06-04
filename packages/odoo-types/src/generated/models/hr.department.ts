@@ -98,6 +98,14 @@ Planned: Future activities. */
   write_uid: [number, string] /* res.users */ | false
   /** Last Updated on */
   write_date: string | false
+  /** New Applicant */
+  new_applicant_count: number | false
+  /** New Hired Employee */
+  new_hired_employee: number | false
+  /** Expected Employee */
+  expected_employee: number | false
+  /** Expenses to Approve */
+  expenses_to_approve_count: number | false
 }
 
 /** Field names for hr.department */

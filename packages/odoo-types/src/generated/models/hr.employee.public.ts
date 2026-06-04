@@ -111,6 +111,26 @@ export interface HrEmployeePublicRecord extends BaseRecord {
   write_uid: [number, string] /* res.users */ | false
   /** Last Updated on */
   write_date: string | false
+  /** Attendance Status */
+  attendance_state: 'checked_out' | 'checked_in' | false
+  /** Hours Today */
+  hours_today: number | false
+  /** Hours Last Month */
+  hours_last_month: number | false
+  /** Hours Last Month Overtime */
+  hours_last_month_overtime: number | false
+  /** Last Attendance */
+  last_attendance_id: [number, string] /* hr.attendance */ | false
+  /** Total Overtime */
+  total_overtime: number | false
+  /** Attendance Approver — The user set in Attendance will access the attendance of the employee through the dedicated app and will be able to edit them. */
+  attendance_manager_id: [number, string] /* res.users */ | false
+  /** Check In */
+  last_check_in: string | false
+  /** Check Out */
+  last_check_out: string | false
+  /** Display Extra Hours */
+  display_extra_hours: boolean
   /** Badge */
   badge_ids: number[] /* gamification.badge.user */
   /** Has Badges */
@@ -151,6 +171,10 @@ export interface HrEmployeePublicRecord extends BaseRecord {
   certification_ids: number[] /* hr.employee.skill */
   /** Display Certification Page */
   display_certification_page: boolean
+  /** Expense Manager */
+  expense_manager_id: [number, string] /* res.users */ | false
+  /** Filter For Expense */
+  filter_for_expense: boolean
 }
 
 /** Field names for hr.employee.public */

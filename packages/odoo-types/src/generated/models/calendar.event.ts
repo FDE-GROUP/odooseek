@@ -177,6 +177,8 @@ export interface CalendarEventRecord extends BaseRecord {
   write_date: string | false
   /** Opportunity */
   opportunity_id: [number, string] /* crm.lead */ | false
+  /** Applicant */
+  applicant_id: [number, string] /* hr.applicant */ | false
 }
 
 /** Field names for calendar.event */

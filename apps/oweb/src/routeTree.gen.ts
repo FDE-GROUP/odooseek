@@ -13,44 +13,147 @@ import { Route as WebRouteImport } from './routes/web'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as DiscussRouteImport } from './routes/discuss'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SaleIndexRouteImport } from './routes/sale/index'
+import { Route as RecruitmentIndexRouteImport } from './routes/recruitment/index'
 import { Route as PurchaseIndexRouteImport } from './routes/purchase/index'
 import { Route as ProjectIndexRouteImport } from './routes/project/index'
+import { Route as ProductIndexRouteImport } from './routes/product/index'
+import { Route as MrpIndexRouteImport } from './routes/mrp/index'
 import { Route as InventoryIndexRouteImport } from './routes/inventory/index'
 import { Route as HrIndexRouteImport } from './routes/hr/index'
+import { Route as ExpensesIndexRouteImport } from './routes/expenses/index'
+import { Route as EventIndexRouteImport } from './routes/event/index'
 import { Route as CrmIndexRouteImport } from './routes/crm/index'
 import { Route as ContactsIndexRouteImport } from './routes/contacts/index'
+import { Route as CalendarIndexRouteImport } from './routes/calendar/index'
+import { Route as AttendanceIndexRouteImport } from './routes/attendance/index'
 import { Route as AccountingIndexRouteImport } from './routes/accounting/index'
+import { Route as SaleToUpsellRouteImport } from './routes/sale/to-upsell'
+import { Route as SaleToInvoiceRouteImport } from './routes/sale/to-invoice'
+import { Route as SaleReportingRouteImport } from './routes/sale/reporting'
+import { Route as SaleQuotationsRouteImport } from './routes/sale/quotations'
 import { Route as SaleOrdersRouteImport } from './routes/sale/orders'
+import { Route as RecruitmentStagesRouteImport } from './routes/recruitment/stages'
+import { Route as RecruitmentApplicantsRouteImport } from './routes/recruitment/applicants'
+import { Route as PurchaseVendorsRouteImport } from './routes/purchase/vendors'
 import { Route as PurchaseRfqsRouteImport } from './routes/purchase/rfqs'
+import { Route as PurchaseProductsRouteImport } from './routes/purchase/products'
 import { Route as PurchaseOrdersRouteImport } from './routes/purchase/orders'
 import { Route as ProjectTasksRouteImport } from './routes/project/tasks'
+import { Route as ProjectTaskStagesRouteImport } from './routes/project/task-stages'
+import { Route as ProjectStagesRouteImport } from './routes/project/stages'
 import { Route as ProjectProjectsRouteImport } from './routes/project/projects'
+import { Route as ProjectMilestonesRouteImport } from './routes/project/milestones'
+import { Route as ProductProductsRouteImport } from './routes/product/products'
+import { Route as MrpWorkOrdersRouteImport } from './routes/mrp/work-orders'
+import { Route as MrpWorkCentersRouteImport } from './routes/mrp/work-centers'
+import { Route as MrpUnbuildsRouteImport } from './routes/mrp/unbuilds'
+import { Route as MrpRoutingsRouteImport } from './routes/mrp/routings'
+import { Route as MrpProductionsRouteImport } from './routes/mrp/productions'
+import { Route as MrpBomsRouteImport } from './routes/mrp/boms'
+import { Route as InventoryWarehouseRouteImport } from './routes/inventory/warehouse'
+import { Route as InventoryWaitingRouteImport } from './routes/inventory/waiting'
+import { Route as InventoryTodoRouteImport } from './routes/inventory/todo'
+import { Route as InventoryScrapRouteImport } from './routes/inventory/scrap'
+import { Route as InventoryReceiptsRouteImport } from './routes/inventory/receipts'
+import { Route as InventoryQuantsRouteImport } from './routes/inventory/quants'
+import { Route as InventoryProductStockRouteImport } from './routes/inventory/product-stock'
 import { Route as InventoryPickingsRouteImport } from './routes/inventory/pickings'
+import { Route as InventoryPackagesRouteImport } from './routes/inventory/packages'
+import { Route as InventoryOverviewRouteImport } from './routes/inventory/overview'
+import { Route as InventoryOrderpointsRouteImport } from './routes/inventory/orderpoints'
+import { Route as InventoryMovesRouteImport } from './routes/inventory/moves'
+import { Route as InventoryMoveLinesRouteImport } from './routes/inventory/move-lines'
+import { Route as InventoryLotsRouteImport } from './routes/inventory/lots'
+import { Route as InventoryLocationsRouteImport } from './routes/inventory/locations'
+import { Route as InventoryLateRouteImport } from './routes/inventory/late'
+import { Route as InventoryInventoryAdjustmentRouteImport } from './routes/inventory/inventory-adjustment'
+import { Route as InventoryInternalRouteImport } from './routes/inventory/internal'
+import { Route as InventoryDeliveriesRouteImport } from './routes/inventory/deliveries'
+import { Route as InventoryBackorderRouteImport } from './routes/inventory/backorder'
 import { Route as HrWorkLocationsRouteImport } from './routes/hr/work-locations'
 import { Route as HrPlansRouteImport } from './routes/hr/plans'
 import { Route as HrJobsRouteImport } from './routes/hr/jobs'
 import { Route as HrEmployeesRouteImport } from './routes/hr/employees'
 import { Route as HrDirectoryRouteImport } from './routes/hr/directory'
 import { Route as HrDepartmentsRouteImport } from './routes/hr/departments'
+import { Route as ExpensesMyRouteImport } from './routes/expenses/my'
+import { Route as EventRegistrationsRouteImport } from './routes/event/registrations'
+import { Route as EventRegistrationDeskRouteImport } from './routes/event/registration-desk'
+import { Route as EventEventsRouteImport } from './routes/event/events'
 import { Route as CrmTeamsRouteImport } from './routes/crm/teams'
+import { Route as CrmStagesRouteImport } from './routes/crm/stages'
 import { Route as CrmPipelineRouteImport } from './routes/crm/pipeline'
+import { Route as CrmLostReasonsRouteImport } from './routes/crm/lost-reasons'
 import { Route as CrmLeadsRouteImport } from './routes/crm/leads'
+import { Route as CrmForecastRouteImport } from './routes/crm/forecast'
+import { Route as CrmActivitiesRouteImport } from './routes/crm/activities'
 import { Route as ContactsPartnersRouteImport } from './routes/contacts/partners'
+import { Route as CalendarTypesRouteImport } from './routes/calendar/types'
+import { Route as CalendarEventsRouteImport } from './routes/calendar/events'
+import { Route as CalendarAlarmsRouteImport } from './routes/calendar/alarms'
+import { Route as AttendanceKioskRouteImport } from './routes/attendance/kiosk'
+import { Route as AccountingVendorRefundsRouteImport } from './routes/accounting/vendor-refunds'
+import { Route as AccountingTaxesRouteImport } from './routes/accounting/taxes'
+import { Route as AccountingReconciliationModelsRouteImport } from './routes/accounting/reconciliation-models'
+import { Route as AccountingPaymentsRouteImport } from './routes/accounting/payments'
+import { Route as AccountingPaymentTermsRouteImport } from './routes/accounting/payment-terms'
 import { Route as AccountingMovesRouteImport } from './routes/accounting/moves'
+import { Route as AccountingJournalItemsRouteImport } from './routes/accounting/journal-items'
+import { Route as AccountingInvoicesRouteImport } from './routes/accounting/invoices'
+import { Route as AccountingIncotermsRouteImport } from './routes/accounting/incoterms'
+import { Route as AccountingFiscalPositionsRouteImport } from './routes/accounting/fiscal-positions'
+import { Route as AccountingDashboardRouteImport } from './routes/accounting/dashboard'
+import { Route as AccountingCreditNotesRouteImport } from './routes/accounting/credit-notes'
+import { Route as AccountingChartOfAccountsRouteImport } from './routes/accounting/chart-of-accounts'
+import { Route as AccountingCashRoundingRouteImport } from './routes/accounting/cash-rounding'
+import { Route as AccountingBillsRouteImport } from './routes/accounting/bills'
+import { Route as AccountingBankStatementsRouteImport } from './routes/accounting/bank-statements'
+import { Route as AccountingAnalyticAccountsRouteImport } from './routes/accounting/analytic-accounts'
 import { Route as SaleOrderIdRouteImport } from './routes/sale/order.$id'
+import { Route as RecruitmentApplicantIdRouteImport } from './routes/recruitment/applicant.$id'
 import { Route as PurchaseOrderIdRouteImport } from './routes/purchase/order.$id'
 import { Route as ProjectTaskIdRouteImport } from './routes/project/task.$id'
 import { Route as ProjectProjectIdRouteImport } from './routes/project/project.$id'
+import { Route as ProjectMilestoneIdRouteImport } from './routes/project/milestone.$id'
+import { Route as ProductProductIdRouteImport } from './routes/product/product.$id'
+import { Route as MrpWorkOrderIdRouteImport } from './routes/mrp/work-order.$id'
+import { Route as MrpWorkCenterIdRouteImport } from './routes/mrp/work-center.$id'
+import { Route as MrpUnbuildIdRouteImport } from './routes/mrp/unbuild.$id'
+import { Route as MrpRoutingIdRouteImport } from './routes/mrp/routing.$id'
+import { Route as MrpProductionIdRouteImport } from './routes/mrp/production.$id'
+import { Route as MrpBomIdRouteImport } from './routes/mrp/bom.$id'
+import { Route as InventoryWarehouseIdRouteImport } from './routes/inventory/warehouse.$id'
+import { Route as InventoryScrapIdRouteImport } from './routes/inventory/scrap.$id'
+import { Route as InventoryQuantIdRouteImport } from './routes/inventory/quant.$id'
 import { Route as InventoryPickingIdRouteImport } from './routes/inventory/picking.$id'
+import { Route as InventoryPickingTypeIdRouteImport } from './routes/inventory/picking-type.$id'
+import { Route as InventoryPackageIdRouteImport } from './routes/inventory/package.$id'
+import { Route as InventoryOrderpointIdRouteImport } from './routes/inventory/orderpoint.$id'
+import { Route as InventoryMoveIdRouteImport } from './routes/inventory/move.$id'
+import { Route as InventoryMoveLineIdRouteImport } from './routes/inventory/move-line.$id'
+import { Route as InventoryLotIdRouteImport } from './routes/inventory/lot.$id'
+import { Route as InventoryLocationIdRouteImport } from './routes/inventory/location.$id'
 import { Route as HrEmployeeIdRouteImport } from './routes/hr/employee.$id'
 import { Route as HrDepartmentIdRouteImport } from './routes/hr/department.$id'
+import { Route as ExpensesSheetIdRouteImport } from './routes/expenses/sheet.$id'
+import { Route as ExpensesExpenseIdRouteImport } from './routes/expenses/expense.$id'
+import { Route as EventRegistrationIdRouteImport } from './routes/event/registration.$id'
+import { Route as EventEventIdRouteImport } from './routes/event/event.$id'
 import { Route as CrmTeamIdRouteImport } from './routes/crm/team.$id'
 import { Route as CrmLeadIdRouteImport } from './routes/crm/lead.$id'
 import { Route as ContactsPartnerIdRouteImport } from './routes/contacts/partner.$id'
+import { Route as CalendarEventIdRouteImport } from './routes/calendar/event.$id'
+import { Route as AccountingTaxIdRouteImport } from './routes/accounting/tax.$id'
+import { Route as AccountingPaymentIdRouteImport } from './routes/accounting/payment.$id'
 import { Route as AccountingMoveIdRouteImport } from './routes/accounting/move.$id'
+import { Route as AccountingJournalItemIdRouteImport } from './routes/accounting/journal-item.$id'
+import { Route as AccountingBankStatementIdRouteImport } from './routes/accounting/bank-statement.$id'
+import { Route as AccountingAnalyticAccountIdRouteImport } from './routes/accounting/analytic-account.$id'
+import { Route as AccountingAccountIdRouteImport } from './routes/accounting/account.$id'
 
 const WebRoute = WebRouteImport.update({
   id: '/web',
@@ -72,6 +175,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiscussRoute = DiscussRouteImport.update({
+  id: '/discuss',
+  path: '/discuss',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -87,6 +195,11 @@ const SaleIndexRoute = SaleIndexRouteImport.update({
   path: '/sale/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecruitmentIndexRoute = RecruitmentIndexRouteImport.update({
+  id: '/recruitment/',
+  path: '/recruitment/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PurchaseIndexRoute = PurchaseIndexRouteImport.update({
   id: '/purchase/',
   path: '/purchase/',
@@ -95,6 +208,16 @@ const PurchaseIndexRoute = PurchaseIndexRouteImport.update({
 const ProjectIndexRoute = ProjectIndexRouteImport.update({
   id: '/project/',
   path: '/project/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductIndexRoute = ProductIndexRouteImport.update({
+  id: '/product/',
+  path: '/product/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpIndexRoute = MrpIndexRouteImport.update({
+  id: '/mrp/',
+  path: '/mrp/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InventoryIndexRoute = InventoryIndexRouteImport.update({
@@ -107,6 +230,16 @@ const HrIndexRoute = HrIndexRouteImport.update({
   path: '/hr/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExpensesIndexRoute = ExpensesIndexRouteImport.update({
+  id: '/expenses/',
+  path: '/expenses/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventIndexRoute = EventIndexRouteImport.update({
+  id: '/event/',
+  path: '/event/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CrmIndexRoute = CrmIndexRouteImport.update({
   id: '/crm/',
   path: '/crm/',
@@ -117,9 +250,39 @@ const ContactsIndexRoute = ContactsIndexRouteImport.update({
   path: '/contacts/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalendarIndexRoute = CalendarIndexRouteImport.update({
+  id: '/calendar/',
+  path: '/calendar/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AttendanceIndexRoute = AttendanceIndexRouteImport.update({
+  id: '/attendance/',
+  path: '/attendance/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccountingIndexRoute = AccountingIndexRouteImport.update({
   id: '/accounting/',
   path: '/accounting/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SaleToUpsellRoute = SaleToUpsellRouteImport.update({
+  id: '/sale/to-upsell',
+  path: '/sale/to-upsell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SaleToInvoiceRoute = SaleToInvoiceRouteImport.update({
+  id: '/sale/to-invoice',
+  path: '/sale/to-invoice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SaleReportingRoute = SaleReportingRouteImport.update({
+  id: '/sale/reporting',
+  path: '/sale/reporting',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SaleQuotationsRoute = SaleQuotationsRouteImport.update({
+  id: '/sale/quotations',
+  path: '/sale/quotations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SaleOrdersRoute = SaleOrdersRouteImport.update({
@@ -127,9 +290,29 @@ const SaleOrdersRoute = SaleOrdersRouteImport.update({
   path: '/sale/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecruitmentStagesRoute = RecruitmentStagesRouteImport.update({
+  id: '/recruitment/stages',
+  path: '/recruitment/stages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecruitmentApplicantsRoute = RecruitmentApplicantsRouteImport.update({
+  id: '/recruitment/applicants',
+  path: '/recruitment/applicants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PurchaseVendorsRoute = PurchaseVendorsRouteImport.update({
+  id: '/purchase/vendors',
+  path: '/purchase/vendors',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PurchaseRfqsRoute = PurchaseRfqsRouteImport.update({
   id: '/purchase/rfqs',
   path: '/purchase/rfqs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PurchaseProductsRoute = PurchaseProductsRouteImport.update({
+  id: '/purchase/products',
+  path: '/purchase/products',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PurchaseOrdersRoute = PurchaseOrdersRouteImport.update({
@@ -142,14 +325,160 @@ const ProjectTasksRoute = ProjectTasksRouteImport.update({
   path: '/project/tasks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectTaskStagesRoute = ProjectTaskStagesRouteImport.update({
+  id: '/project/task-stages',
+  path: '/project/task-stages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectStagesRoute = ProjectStagesRouteImport.update({
+  id: '/project/stages',
+  path: '/project/stages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProjectProjectsRoute = ProjectProjectsRouteImport.update({
   id: '/project/projects',
   path: '/project/projects',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectMilestonesRoute = ProjectMilestonesRouteImport.update({
+  id: '/project/milestones',
+  path: '/project/milestones',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductProductsRoute = ProductProductsRouteImport.update({
+  id: '/product/products',
+  path: '/product/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpWorkOrdersRoute = MrpWorkOrdersRouteImport.update({
+  id: '/mrp/work-orders',
+  path: '/mrp/work-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpWorkCentersRoute = MrpWorkCentersRouteImport.update({
+  id: '/mrp/work-centers',
+  path: '/mrp/work-centers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpUnbuildsRoute = MrpUnbuildsRouteImport.update({
+  id: '/mrp/unbuilds',
+  path: '/mrp/unbuilds',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpRoutingsRoute = MrpRoutingsRouteImport.update({
+  id: '/mrp/routings',
+  path: '/mrp/routings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpProductionsRoute = MrpProductionsRouteImport.update({
+  id: '/mrp/productions',
+  path: '/mrp/productions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpBomsRoute = MrpBomsRouteImport.update({
+  id: '/mrp/boms',
+  path: '/mrp/boms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryWarehouseRoute = InventoryWarehouseRouteImport.update({
+  id: '/inventory/warehouse',
+  path: '/inventory/warehouse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryWaitingRoute = InventoryWaitingRouteImport.update({
+  id: '/inventory/waiting',
+  path: '/inventory/waiting',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryTodoRoute = InventoryTodoRouteImport.update({
+  id: '/inventory/todo',
+  path: '/inventory/todo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryScrapRoute = InventoryScrapRouteImport.update({
+  id: '/inventory/scrap',
+  path: '/inventory/scrap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryReceiptsRoute = InventoryReceiptsRouteImport.update({
+  id: '/inventory/receipts',
+  path: '/inventory/receipts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryQuantsRoute = InventoryQuantsRouteImport.update({
+  id: '/inventory/quants',
+  path: '/inventory/quants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryProductStockRoute = InventoryProductStockRouteImport.update({
+  id: '/inventory/product-stock',
+  path: '/inventory/product-stock',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InventoryPickingsRoute = InventoryPickingsRouteImport.update({
   id: '/inventory/pickings',
   path: '/inventory/pickings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryPackagesRoute = InventoryPackagesRouteImport.update({
+  id: '/inventory/packages',
+  path: '/inventory/packages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryOverviewRoute = InventoryOverviewRouteImport.update({
+  id: '/inventory/overview',
+  path: '/inventory/overview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryOrderpointsRoute = InventoryOrderpointsRouteImport.update({
+  id: '/inventory/orderpoints',
+  path: '/inventory/orderpoints',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryMovesRoute = InventoryMovesRouteImport.update({
+  id: '/inventory/moves',
+  path: '/inventory/moves',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryMoveLinesRoute = InventoryMoveLinesRouteImport.update({
+  id: '/inventory/move-lines',
+  path: '/inventory/move-lines',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryLotsRoute = InventoryLotsRouteImport.update({
+  id: '/inventory/lots',
+  path: '/inventory/lots',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryLocationsRoute = InventoryLocationsRouteImport.update({
+  id: '/inventory/locations',
+  path: '/inventory/locations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryLateRoute = InventoryLateRouteImport.update({
+  id: '/inventory/late',
+  path: '/inventory/late',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryInventoryAdjustmentRoute =
+  InventoryInventoryAdjustmentRouteImport.update({
+    id: '/inventory/inventory-adjustment',
+    path: '/inventory/inventory-adjustment',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const InventoryInternalRoute = InventoryInternalRouteImport.update({
+  id: '/inventory/internal',
+  path: '/inventory/internal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryDeliveriesRoute = InventoryDeliveriesRouteImport.update({
+  id: '/inventory/deliveries',
+  path: '/inventory/deliveries',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryBackorderRoute = InventoryBackorderRouteImport.update({
+  id: '/inventory/backorder',
+  path: '/inventory/backorder',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HrWorkLocationsRoute = HrWorkLocationsRouteImport.update({
@@ -182,9 +511,34 @@ const HrDepartmentsRoute = HrDepartmentsRouteImport.update({
   path: '/hr/departments',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExpensesMyRoute = ExpensesMyRouteImport.update({
+  id: '/expenses/my',
+  path: '/expenses/my',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventRegistrationsRoute = EventRegistrationsRouteImport.update({
+  id: '/event/registrations',
+  path: '/event/registrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventRegistrationDeskRoute = EventRegistrationDeskRouteImport.update({
+  id: '/event/registration-desk',
+  path: '/event/registration-desk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventEventsRoute = EventEventsRouteImport.update({
+  id: '/event/events',
+  path: '/event/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CrmTeamsRoute = CrmTeamsRouteImport.update({
   id: '/crm/teams',
   path: '/crm/teams',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrmStagesRoute = CrmStagesRouteImport.update({
+  id: '/crm/stages',
+  path: '/crm/stages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CrmPipelineRoute = CrmPipelineRouteImport.update({
@@ -192,9 +546,24 @@ const CrmPipelineRoute = CrmPipelineRouteImport.update({
   path: '/crm/pipeline',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CrmLostReasonsRoute = CrmLostReasonsRouteImport.update({
+  id: '/crm/lost-reasons',
+  path: '/crm/lost-reasons',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CrmLeadsRoute = CrmLeadsRouteImport.update({
   id: '/crm/leads',
   path: '/crm/leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrmForecastRoute = CrmForecastRouteImport.update({
+  id: '/crm/forecast',
+  path: '/crm/forecast',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrmActivitiesRoute = CrmActivitiesRouteImport.update({
+  id: '/crm/activities',
+  path: '/crm/activities',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactsPartnersRoute = ContactsPartnersRouteImport.update({
@@ -202,14 +571,124 @@ const ContactsPartnersRoute = ContactsPartnersRouteImport.update({
   path: '/contacts/partners',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalendarTypesRoute = CalendarTypesRouteImport.update({
+  id: '/calendar/types',
+  path: '/calendar/types',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarEventsRoute = CalendarEventsRouteImport.update({
+  id: '/calendar/events',
+  path: '/calendar/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarAlarmsRoute = CalendarAlarmsRouteImport.update({
+  id: '/calendar/alarms',
+  path: '/calendar/alarms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AttendanceKioskRoute = AttendanceKioskRouteImport.update({
+  id: '/attendance/kiosk',
+  path: '/attendance/kiosk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingVendorRefundsRoute = AccountingVendorRefundsRouteImport.update({
+  id: '/accounting/vendor-refunds',
+  path: '/accounting/vendor-refunds',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingTaxesRoute = AccountingTaxesRouteImport.update({
+  id: '/accounting/taxes',
+  path: '/accounting/taxes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingReconciliationModelsRoute =
+  AccountingReconciliationModelsRouteImport.update({
+    id: '/accounting/reconciliation-models',
+    path: '/accounting/reconciliation-models',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AccountingPaymentsRoute = AccountingPaymentsRouteImport.update({
+  id: '/accounting/payments',
+  path: '/accounting/payments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingPaymentTermsRoute = AccountingPaymentTermsRouteImport.update({
+  id: '/accounting/payment-terms',
+  path: '/accounting/payment-terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccountingMovesRoute = AccountingMovesRouteImport.update({
   id: '/accounting/moves',
   path: '/accounting/moves',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountingJournalItemsRoute = AccountingJournalItemsRouteImport.update({
+  id: '/accounting/journal-items',
+  path: '/accounting/journal-items',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingInvoicesRoute = AccountingInvoicesRouteImport.update({
+  id: '/accounting/invoices',
+  path: '/accounting/invoices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingIncotermsRoute = AccountingIncotermsRouteImport.update({
+  id: '/accounting/incoterms',
+  path: '/accounting/incoterms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingFiscalPositionsRoute =
+  AccountingFiscalPositionsRouteImport.update({
+    id: '/accounting/fiscal-positions',
+    path: '/accounting/fiscal-positions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AccountingDashboardRoute = AccountingDashboardRouteImport.update({
+  id: '/accounting/dashboard',
+  path: '/accounting/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingCreditNotesRoute = AccountingCreditNotesRouteImport.update({
+  id: '/accounting/credit-notes',
+  path: '/accounting/credit-notes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingChartOfAccountsRoute =
+  AccountingChartOfAccountsRouteImport.update({
+    id: '/accounting/chart-of-accounts',
+    path: '/accounting/chart-of-accounts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AccountingCashRoundingRoute = AccountingCashRoundingRouteImport.update({
+  id: '/accounting/cash-rounding',
+  path: '/accounting/cash-rounding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingBillsRoute = AccountingBillsRouteImport.update({
+  id: '/accounting/bills',
+  path: '/accounting/bills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingBankStatementsRoute =
+  AccountingBankStatementsRouteImport.update({
+    id: '/accounting/bank-statements',
+    path: '/accounting/bank-statements',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AccountingAnalyticAccountsRoute =
+  AccountingAnalyticAccountsRouteImport.update({
+    id: '/accounting/analytic-accounts',
+    path: '/accounting/analytic-accounts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SaleOrderIdRoute = SaleOrderIdRouteImport.update({
   id: '/sale/order/$id',
   path: '/sale/order/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecruitmentApplicantIdRoute = RecruitmentApplicantIdRouteImport.update({
+  id: '/recruitment/applicant/$id',
+  path: '/recruitment/applicant/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PurchaseOrderIdRoute = PurchaseOrderIdRouteImport.update({
@@ -227,9 +706,99 @@ const ProjectProjectIdRoute = ProjectProjectIdRouteImport.update({
   path: '/project/project/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectMilestoneIdRoute = ProjectMilestoneIdRouteImport.update({
+  id: '/project/milestone/$id',
+  path: '/project/milestone/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductProductIdRoute = ProductProductIdRouteImport.update({
+  id: '/product/product/$id',
+  path: '/product/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpWorkOrderIdRoute = MrpWorkOrderIdRouteImport.update({
+  id: '/mrp/work-order/$id',
+  path: '/mrp/work-order/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpWorkCenterIdRoute = MrpWorkCenterIdRouteImport.update({
+  id: '/mrp/work-center/$id',
+  path: '/mrp/work-center/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpUnbuildIdRoute = MrpUnbuildIdRouteImport.update({
+  id: '/mrp/unbuild/$id',
+  path: '/mrp/unbuild/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpRoutingIdRoute = MrpRoutingIdRouteImport.update({
+  id: '/mrp/routing/$id',
+  path: '/mrp/routing/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpProductionIdRoute = MrpProductionIdRouteImport.update({
+  id: '/mrp/production/$id',
+  path: '/mrp/production/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MrpBomIdRoute = MrpBomIdRouteImport.update({
+  id: '/mrp/bom/$id',
+  path: '/mrp/bom/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryWarehouseIdRoute = InventoryWarehouseIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => InventoryWarehouseRoute,
+} as any)
+const InventoryScrapIdRoute = InventoryScrapIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => InventoryScrapRoute,
+} as any)
+const InventoryQuantIdRoute = InventoryQuantIdRouteImport.update({
+  id: '/inventory/quant/$id',
+  path: '/inventory/quant/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InventoryPickingIdRoute = InventoryPickingIdRouteImport.update({
   id: '/inventory/picking/$id',
   path: '/inventory/picking/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryPickingTypeIdRoute = InventoryPickingTypeIdRouteImport.update({
+  id: '/inventory/picking-type/$id',
+  path: '/inventory/picking-type/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryPackageIdRoute = InventoryPackageIdRouteImport.update({
+  id: '/inventory/package/$id',
+  path: '/inventory/package/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryOrderpointIdRoute = InventoryOrderpointIdRouteImport.update({
+  id: '/inventory/orderpoint/$id',
+  path: '/inventory/orderpoint/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryMoveIdRoute = InventoryMoveIdRouteImport.update({
+  id: '/inventory/move/$id',
+  path: '/inventory/move/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryMoveLineIdRoute = InventoryMoveLineIdRouteImport.update({
+  id: '/inventory/move-line/$id',
+  path: '/inventory/move-line/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryLotIdRoute = InventoryLotIdRouteImport.update({
+  id: '/inventory/lot/$id',
+  path: '/inventory/lot/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryLocationIdRoute = InventoryLocationIdRouteImport.update({
+  id: '/inventory/location/$id',
+  path: '/inventory/location/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HrEmployeeIdRoute = HrEmployeeIdRouteImport.update({
@@ -240,6 +809,26 @@ const HrEmployeeIdRoute = HrEmployeeIdRouteImport.update({
 const HrDepartmentIdRoute = HrDepartmentIdRouteImport.update({
   id: '/hr/department/$id',
   path: '/hr/department/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExpensesSheetIdRoute = ExpensesSheetIdRouteImport.update({
+  id: '/expenses/sheet/$id',
+  path: '/expenses/sheet/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExpensesExpenseIdRoute = ExpensesExpenseIdRouteImport.update({
+  id: '/expenses/expense/$id',
+  path: '/expenses/expense/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventRegistrationIdRoute = EventRegistrationIdRouteImport.update({
+  id: '/event/registration/$id',
+  path: '/event/registration/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventEventIdRoute = EventEventIdRouteImport.update({
+  id: '/event/event/$id',
+  path: '/event/event/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CrmTeamIdRoute = CrmTeamIdRouteImport.update({
@@ -257,143 +846,489 @@ const ContactsPartnerIdRoute = ContactsPartnerIdRouteImport.update({
   path: '/contacts/partner/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalendarEventIdRoute = CalendarEventIdRouteImport.update({
+  id: '/calendar/event/$id',
+  path: '/calendar/event/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingTaxIdRoute = AccountingTaxIdRouteImport.update({
+  id: '/accounting/tax/$id',
+  path: '/accounting/tax/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingPaymentIdRoute = AccountingPaymentIdRouteImport.update({
+  id: '/accounting/payment/$id',
+  path: '/accounting/payment/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccountingMoveIdRoute = AccountingMoveIdRouteImport.update({
   id: '/accounting/move/$id',
   path: '/accounting/move/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingJournalItemIdRoute = AccountingJournalItemIdRouteImport.update({
+  id: '/accounting/journal-item/$id',
+  path: '/accounting/journal-item/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingBankStatementIdRoute =
+  AccountingBankStatementIdRouteImport.update({
+    id: '/accounting/bank-statement/$id',
+    path: '/accounting/bank-statement/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AccountingAnalyticAccountIdRoute =
+  AccountingAnalyticAccountIdRouteImport.update({
+    id: '/accounting/analytic-account/$id',
+    path: '/accounting/analytic-account/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AccountingAccountIdRoute = AccountingAccountIdRouteImport.update({
+  id: '/accounting/account/$id',
+  path: '/accounting/account/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/discuss': typeof DiscussRoute
   '/login': typeof LoginRoute
   '/menu': typeof MenuRoute
   '/settings': typeof SettingsRoute
   '/web': typeof WebRoute
+  '/accounting/analytic-accounts': typeof AccountingAnalyticAccountsRoute
+  '/accounting/bank-statements': typeof AccountingBankStatementsRoute
+  '/accounting/bills': typeof AccountingBillsRoute
+  '/accounting/cash-rounding': typeof AccountingCashRoundingRoute
+  '/accounting/chart-of-accounts': typeof AccountingChartOfAccountsRoute
+  '/accounting/credit-notes': typeof AccountingCreditNotesRoute
+  '/accounting/dashboard': typeof AccountingDashboardRoute
+  '/accounting/fiscal-positions': typeof AccountingFiscalPositionsRoute
+  '/accounting/incoterms': typeof AccountingIncotermsRoute
+  '/accounting/invoices': typeof AccountingInvoicesRoute
+  '/accounting/journal-items': typeof AccountingJournalItemsRoute
   '/accounting/moves': typeof AccountingMovesRoute
+  '/accounting/payment-terms': typeof AccountingPaymentTermsRoute
+  '/accounting/payments': typeof AccountingPaymentsRoute
+  '/accounting/reconciliation-models': typeof AccountingReconciliationModelsRoute
+  '/accounting/taxes': typeof AccountingTaxesRoute
+  '/accounting/vendor-refunds': typeof AccountingVendorRefundsRoute
+  '/attendance/kiosk': typeof AttendanceKioskRoute
+  '/calendar/alarms': typeof CalendarAlarmsRoute
+  '/calendar/events': typeof CalendarEventsRoute
+  '/calendar/types': typeof CalendarTypesRoute
   '/contacts/partners': typeof ContactsPartnersRoute
+  '/crm/activities': typeof CrmActivitiesRoute
+  '/crm/forecast': typeof CrmForecastRoute
   '/crm/leads': typeof CrmLeadsRoute
+  '/crm/lost-reasons': typeof CrmLostReasonsRoute
   '/crm/pipeline': typeof CrmPipelineRoute
+  '/crm/stages': typeof CrmStagesRoute
   '/crm/teams': typeof CrmTeamsRoute
+  '/event/events': typeof EventEventsRoute
+  '/event/registration-desk': typeof EventRegistrationDeskRoute
+  '/event/registrations': typeof EventRegistrationsRoute
+  '/expenses/my': typeof ExpensesMyRoute
   '/hr/departments': typeof HrDepartmentsRoute
   '/hr/directory': typeof HrDirectoryRoute
   '/hr/employees': typeof HrEmployeesRoute
   '/hr/jobs': typeof HrJobsRoute
   '/hr/plans': typeof HrPlansRoute
   '/hr/work-locations': typeof HrWorkLocationsRoute
+  '/inventory/backorder': typeof InventoryBackorderRoute
+  '/inventory/deliveries': typeof InventoryDeliveriesRoute
+  '/inventory/internal': typeof InventoryInternalRoute
+  '/inventory/inventory-adjustment': typeof InventoryInventoryAdjustmentRoute
+  '/inventory/late': typeof InventoryLateRoute
+  '/inventory/locations': typeof InventoryLocationsRoute
+  '/inventory/lots': typeof InventoryLotsRoute
+  '/inventory/move-lines': typeof InventoryMoveLinesRoute
+  '/inventory/moves': typeof InventoryMovesRoute
+  '/inventory/orderpoints': typeof InventoryOrderpointsRoute
+  '/inventory/overview': typeof InventoryOverviewRoute
+  '/inventory/packages': typeof InventoryPackagesRoute
   '/inventory/pickings': typeof InventoryPickingsRoute
+  '/inventory/product-stock': typeof InventoryProductStockRoute
+  '/inventory/quants': typeof InventoryQuantsRoute
+  '/inventory/receipts': typeof InventoryReceiptsRoute
+  '/inventory/scrap': typeof InventoryScrapRouteWithChildren
+  '/inventory/todo': typeof InventoryTodoRoute
+  '/inventory/waiting': typeof InventoryWaitingRoute
+  '/inventory/warehouse': typeof InventoryWarehouseRouteWithChildren
+  '/mrp/boms': typeof MrpBomsRoute
+  '/mrp/productions': typeof MrpProductionsRoute
+  '/mrp/routings': typeof MrpRoutingsRoute
+  '/mrp/unbuilds': typeof MrpUnbuildsRoute
+  '/mrp/work-centers': typeof MrpWorkCentersRoute
+  '/mrp/work-orders': typeof MrpWorkOrdersRoute
+  '/product/products': typeof ProductProductsRoute
+  '/project/milestones': typeof ProjectMilestonesRoute
   '/project/projects': typeof ProjectProjectsRoute
+  '/project/stages': typeof ProjectStagesRoute
+  '/project/task-stages': typeof ProjectTaskStagesRoute
   '/project/tasks': typeof ProjectTasksRoute
   '/purchase/orders': typeof PurchaseOrdersRoute
+  '/purchase/products': typeof PurchaseProductsRoute
   '/purchase/rfqs': typeof PurchaseRfqsRoute
+  '/purchase/vendors': typeof PurchaseVendorsRoute
+  '/recruitment/applicants': typeof RecruitmentApplicantsRoute
+  '/recruitment/stages': typeof RecruitmentStagesRoute
   '/sale/orders': typeof SaleOrdersRoute
+  '/sale/quotations': typeof SaleQuotationsRoute
+  '/sale/reporting': typeof SaleReportingRoute
+  '/sale/to-invoice': typeof SaleToInvoiceRoute
+  '/sale/to-upsell': typeof SaleToUpsellRoute
   '/accounting/': typeof AccountingIndexRoute
+  '/attendance/': typeof AttendanceIndexRoute
+  '/calendar/': typeof CalendarIndexRoute
   '/contacts/': typeof ContactsIndexRoute
   '/crm/': typeof CrmIndexRoute
+  '/event/': typeof EventIndexRoute
+  '/expenses/': typeof ExpensesIndexRoute
   '/hr/': typeof HrIndexRoute
   '/inventory/': typeof InventoryIndexRoute
+  '/mrp/': typeof MrpIndexRoute
+  '/product/': typeof ProductIndexRoute
   '/project/': typeof ProjectIndexRoute
   '/purchase/': typeof PurchaseIndexRoute
+  '/recruitment/': typeof RecruitmentIndexRoute
   '/sale/': typeof SaleIndexRoute
+  '/accounting/account/$id': typeof AccountingAccountIdRoute
+  '/accounting/analytic-account/$id': typeof AccountingAnalyticAccountIdRoute
+  '/accounting/bank-statement/$id': typeof AccountingBankStatementIdRoute
+  '/accounting/journal-item/$id': typeof AccountingJournalItemIdRoute
   '/accounting/move/$id': typeof AccountingMoveIdRoute
+  '/accounting/payment/$id': typeof AccountingPaymentIdRoute
+  '/accounting/tax/$id': typeof AccountingTaxIdRoute
+  '/calendar/event/$id': typeof CalendarEventIdRoute
   '/contacts/partner/$id': typeof ContactsPartnerIdRoute
   '/crm/lead/$id': typeof CrmLeadIdRoute
   '/crm/team/$id': typeof CrmTeamIdRoute
+  '/event/event/$id': typeof EventEventIdRoute
+  '/event/registration/$id': typeof EventRegistrationIdRoute
+  '/expenses/expense/$id': typeof ExpensesExpenseIdRoute
+  '/expenses/sheet/$id': typeof ExpensesSheetIdRoute
   '/hr/department/$id': typeof HrDepartmentIdRoute
   '/hr/employee/$id': typeof HrEmployeeIdRoute
+  '/inventory/location/$id': typeof InventoryLocationIdRoute
+  '/inventory/lot/$id': typeof InventoryLotIdRoute
+  '/inventory/move-line/$id': typeof InventoryMoveLineIdRoute
+  '/inventory/move/$id': typeof InventoryMoveIdRoute
+  '/inventory/orderpoint/$id': typeof InventoryOrderpointIdRoute
+  '/inventory/package/$id': typeof InventoryPackageIdRoute
+  '/inventory/picking-type/$id': typeof InventoryPickingTypeIdRoute
   '/inventory/picking/$id': typeof InventoryPickingIdRoute
+  '/inventory/quant/$id': typeof InventoryQuantIdRoute
+  '/inventory/scrap/$id': typeof InventoryScrapIdRoute
+  '/inventory/warehouse/$id': typeof InventoryWarehouseIdRoute
+  '/mrp/bom/$id': typeof MrpBomIdRoute
+  '/mrp/production/$id': typeof MrpProductionIdRoute
+  '/mrp/routing/$id': typeof MrpRoutingIdRoute
+  '/mrp/unbuild/$id': typeof MrpUnbuildIdRoute
+  '/mrp/work-center/$id': typeof MrpWorkCenterIdRoute
+  '/mrp/work-order/$id': typeof MrpWorkOrderIdRoute
+  '/product/product/$id': typeof ProductProductIdRoute
+  '/project/milestone/$id': typeof ProjectMilestoneIdRoute
   '/project/project/$id': typeof ProjectProjectIdRoute
   '/project/task/$id': typeof ProjectTaskIdRoute
   '/purchase/order/$id': typeof PurchaseOrderIdRoute
+  '/recruitment/applicant/$id': typeof RecruitmentApplicantIdRoute
   '/sale/order/$id': typeof SaleOrderIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/discuss': typeof DiscussRoute
   '/login': typeof LoginRoute
   '/menu': typeof MenuRoute
   '/settings': typeof SettingsRoute
   '/web': typeof WebRoute
+  '/accounting/analytic-accounts': typeof AccountingAnalyticAccountsRoute
+  '/accounting/bank-statements': typeof AccountingBankStatementsRoute
+  '/accounting/bills': typeof AccountingBillsRoute
+  '/accounting/cash-rounding': typeof AccountingCashRoundingRoute
+  '/accounting/chart-of-accounts': typeof AccountingChartOfAccountsRoute
+  '/accounting/credit-notes': typeof AccountingCreditNotesRoute
+  '/accounting/dashboard': typeof AccountingDashboardRoute
+  '/accounting/fiscal-positions': typeof AccountingFiscalPositionsRoute
+  '/accounting/incoterms': typeof AccountingIncotermsRoute
+  '/accounting/invoices': typeof AccountingInvoicesRoute
+  '/accounting/journal-items': typeof AccountingJournalItemsRoute
   '/accounting/moves': typeof AccountingMovesRoute
+  '/accounting/payment-terms': typeof AccountingPaymentTermsRoute
+  '/accounting/payments': typeof AccountingPaymentsRoute
+  '/accounting/reconciliation-models': typeof AccountingReconciliationModelsRoute
+  '/accounting/taxes': typeof AccountingTaxesRoute
+  '/accounting/vendor-refunds': typeof AccountingVendorRefundsRoute
+  '/attendance/kiosk': typeof AttendanceKioskRoute
+  '/calendar/alarms': typeof CalendarAlarmsRoute
+  '/calendar/events': typeof CalendarEventsRoute
+  '/calendar/types': typeof CalendarTypesRoute
   '/contacts/partners': typeof ContactsPartnersRoute
+  '/crm/activities': typeof CrmActivitiesRoute
+  '/crm/forecast': typeof CrmForecastRoute
   '/crm/leads': typeof CrmLeadsRoute
+  '/crm/lost-reasons': typeof CrmLostReasonsRoute
   '/crm/pipeline': typeof CrmPipelineRoute
+  '/crm/stages': typeof CrmStagesRoute
   '/crm/teams': typeof CrmTeamsRoute
+  '/event/events': typeof EventEventsRoute
+  '/event/registration-desk': typeof EventRegistrationDeskRoute
+  '/event/registrations': typeof EventRegistrationsRoute
+  '/expenses/my': typeof ExpensesMyRoute
   '/hr/departments': typeof HrDepartmentsRoute
   '/hr/directory': typeof HrDirectoryRoute
   '/hr/employees': typeof HrEmployeesRoute
   '/hr/jobs': typeof HrJobsRoute
   '/hr/plans': typeof HrPlansRoute
   '/hr/work-locations': typeof HrWorkLocationsRoute
+  '/inventory/backorder': typeof InventoryBackorderRoute
+  '/inventory/deliveries': typeof InventoryDeliveriesRoute
+  '/inventory/internal': typeof InventoryInternalRoute
+  '/inventory/inventory-adjustment': typeof InventoryInventoryAdjustmentRoute
+  '/inventory/late': typeof InventoryLateRoute
+  '/inventory/locations': typeof InventoryLocationsRoute
+  '/inventory/lots': typeof InventoryLotsRoute
+  '/inventory/move-lines': typeof InventoryMoveLinesRoute
+  '/inventory/moves': typeof InventoryMovesRoute
+  '/inventory/orderpoints': typeof InventoryOrderpointsRoute
+  '/inventory/overview': typeof InventoryOverviewRoute
+  '/inventory/packages': typeof InventoryPackagesRoute
   '/inventory/pickings': typeof InventoryPickingsRoute
+  '/inventory/product-stock': typeof InventoryProductStockRoute
+  '/inventory/quants': typeof InventoryQuantsRoute
+  '/inventory/receipts': typeof InventoryReceiptsRoute
+  '/inventory/scrap': typeof InventoryScrapRouteWithChildren
+  '/inventory/todo': typeof InventoryTodoRoute
+  '/inventory/waiting': typeof InventoryWaitingRoute
+  '/inventory/warehouse': typeof InventoryWarehouseRouteWithChildren
+  '/mrp/boms': typeof MrpBomsRoute
+  '/mrp/productions': typeof MrpProductionsRoute
+  '/mrp/routings': typeof MrpRoutingsRoute
+  '/mrp/unbuilds': typeof MrpUnbuildsRoute
+  '/mrp/work-centers': typeof MrpWorkCentersRoute
+  '/mrp/work-orders': typeof MrpWorkOrdersRoute
+  '/product/products': typeof ProductProductsRoute
+  '/project/milestones': typeof ProjectMilestonesRoute
   '/project/projects': typeof ProjectProjectsRoute
+  '/project/stages': typeof ProjectStagesRoute
+  '/project/task-stages': typeof ProjectTaskStagesRoute
   '/project/tasks': typeof ProjectTasksRoute
   '/purchase/orders': typeof PurchaseOrdersRoute
+  '/purchase/products': typeof PurchaseProductsRoute
   '/purchase/rfqs': typeof PurchaseRfqsRoute
+  '/purchase/vendors': typeof PurchaseVendorsRoute
+  '/recruitment/applicants': typeof RecruitmentApplicantsRoute
+  '/recruitment/stages': typeof RecruitmentStagesRoute
   '/sale/orders': typeof SaleOrdersRoute
+  '/sale/quotations': typeof SaleQuotationsRoute
+  '/sale/reporting': typeof SaleReportingRoute
+  '/sale/to-invoice': typeof SaleToInvoiceRoute
+  '/sale/to-upsell': typeof SaleToUpsellRoute
   '/accounting': typeof AccountingIndexRoute
+  '/attendance': typeof AttendanceIndexRoute
+  '/calendar': typeof CalendarIndexRoute
   '/contacts': typeof ContactsIndexRoute
   '/crm': typeof CrmIndexRoute
+  '/event': typeof EventIndexRoute
+  '/expenses': typeof ExpensesIndexRoute
   '/hr': typeof HrIndexRoute
   '/inventory': typeof InventoryIndexRoute
+  '/mrp': typeof MrpIndexRoute
+  '/product': typeof ProductIndexRoute
   '/project': typeof ProjectIndexRoute
   '/purchase': typeof PurchaseIndexRoute
+  '/recruitment': typeof RecruitmentIndexRoute
   '/sale': typeof SaleIndexRoute
+  '/accounting/account/$id': typeof AccountingAccountIdRoute
+  '/accounting/analytic-account/$id': typeof AccountingAnalyticAccountIdRoute
+  '/accounting/bank-statement/$id': typeof AccountingBankStatementIdRoute
+  '/accounting/journal-item/$id': typeof AccountingJournalItemIdRoute
   '/accounting/move/$id': typeof AccountingMoveIdRoute
+  '/accounting/payment/$id': typeof AccountingPaymentIdRoute
+  '/accounting/tax/$id': typeof AccountingTaxIdRoute
+  '/calendar/event/$id': typeof CalendarEventIdRoute
   '/contacts/partner/$id': typeof ContactsPartnerIdRoute
   '/crm/lead/$id': typeof CrmLeadIdRoute
   '/crm/team/$id': typeof CrmTeamIdRoute
+  '/event/event/$id': typeof EventEventIdRoute
+  '/event/registration/$id': typeof EventRegistrationIdRoute
+  '/expenses/expense/$id': typeof ExpensesExpenseIdRoute
+  '/expenses/sheet/$id': typeof ExpensesSheetIdRoute
   '/hr/department/$id': typeof HrDepartmentIdRoute
   '/hr/employee/$id': typeof HrEmployeeIdRoute
+  '/inventory/location/$id': typeof InventoryLocationIdRoute
+  '/inventory/lot/$id': typeof InventoryLotIdRoute
+  '/inventory/move-line/$id': typeof InventoryMoveLineIdRoute
+  '/inventory/move/$id': typeof InventoryMoveIdRoute
+  '/inventory/orderpoint/$id': typeof InventoryOrderpointIdRoute
+  '/inventory/package/$id': typeof InventoryPackageIdRoute
+  '/inventory/picking-type/$id': typeof InventoryPickingTypeIdRoute
   '/inventory/picking/$id': typeof InventoryPickingIdRoute
+  '/inventory/quant/$id': typeof InventoryQuantIdRoute
+  '/inventory/scrap/$id': typeof InventoryScrapIdRoute
+  '/inventory/warehouse/$id': typeof InventoryWarehouseIdRoute
+  '/mrp/bom/$id': typeof MrpBomIdRoute
+  '/mrp/production/$id': typeof MrpProductionIdRoute
+  '/mrp/routing/$id': typeof MrpRoutingIdRoute
+  '/mrp/unbuild/$id': typeof MrpUnbuildIdRoute
+  '/mrp/work-center/$id': typeof MrpWorkCenterIdRoute
+  '/mrp/work-order/$id': typeof MrpWorkOrderIdRoute
+  '/product/product/$id': typeof ProductProductIdRoute
+  '/project/milestone/$id': typeof ProjectMilestoneIdRoute
   '/project/project/$id': typeof ProjectProjectIdRoute
   '/project/task/$id': typeof ProjectTaskIdRoute
   '/purchase/order/$id': typeof PurchaseOrderIdRoute
+  '/recruitment/applicant/$id': typeof RecruitmentApplicantIdRoute
   '/sale/order/$id': typeof SaleOrderIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/discuss': typeof DiscussRoute
   '/login': typeof LoginRoute
   '/menu': typeof MenuRoute
   '/settings': typeof SettingsRoute
   '/web': typeof WebRoute
+  '/accounting/analytic-accounts': typeof AccountingAnalyticAccountsRoute
+  '/accounting/bank-statements': typeof AccountingBankStatementsRoute
+  '/accounting/bills': typeof AccountingBillsRoute
+  '/accounting/cash-rounding': typeof AccountingCashRoundingRoute
+  '/accounting/chart-of-accounts': typeof AccountingChartOfAccountsRoute
+  '/accounting/credit-notes': typeof AccountingCreditNotesRoute
+  '/accounting/dashboard': typeof AccountingDashboardRoute
+  '/accounting/fiscal-positions': typeof AccountingFiscalPositionsRoute
+  '/accounting/incoterms': typeof AccountingIncotermsRoute
+  '/accounting/invoices': typeof AccountingInvoicesRoute
+  '/accounting/journal-items': typeof AccountingJournalItemsRoute
   '/accounting/moves': typeof AccountingMovesRoute
+  '/accounting/payment-terms': typeof AccountingPaymentTermsRoute
+  '/accounting/payments': typeof AccountingPaymentsRoute
+  '/accounting/reconciliation-models': typeof AccountingReconciliationModelsRoute
+  '/accounting/taxes': typeof AccountingTaxesRoute
+  '/accounting/vendor-refunds': typeof AccountingVendorRefundsRoute
+  '/attendance/kiosk': typeof AttendanceKioskRoute
+  '/calendar/alarms': typeof CalendarAlarmsRoute
+  '/calendar/events': typeof CalendarEventsRoute
+  '/calendar/types': typeof CalendarTypesRoute
   '/contacts/partners': typeof ContactsPartnersRoute
+  '/crm/activities': typeof CrmActivitiesRoute
+  '/crm/forecast': typeof CrmForecastRoute
   '/crm/leads': typeof CrmLeadsRoute
+  '/crm/lost-reasons': typeof CrmLostReasonsRoute
   '/crm/pipeline': typeof CrmPipelineRoute
+  '/crm/stages': typeof CrmStagesRoute
   '/crm/teams': typeof CrmTeamsRoute
+  '/event/events': typeof EventEventsRoute
+  '/event/registration-desk': typeof EventRegistrationDeskRoute
+  '/event/registrations': typeof EventRegistrationsRoute
+  '/expenses/my': typeof ExpensesMyRoute
   '/hr/departments': typeof HrDepartmentsRoute
   '/hr/directory': typeof HrDirectoryRoute
   '/hr/employees': typeof HrEmployeesRoute
   '/hr/jobs': typeof HrJobsRoute
   '/hr/plans': typeof HrPlansRoute
   '/hr/work-locations': typeof HrWorkLocationsRoute
+  '/inventory/backorder': typeof InventoryBackorderRoute
+  '/inventory/deliveries': typeof InventoryDeliveriesRoute
+  '/inventory/internal': typeof InventoryInternalRoute
+  '/inventory/inventory-adjustment': typeof InventoryInventoryAdjustmentRoute
+  '/inventory/late': typeof InventoryLateRoute
+  '/inventory/locations': typeof InventoryLocationsRoute
+  '/inventory/lots': typeof InventoryLotsRoute
+  '/inventory/move-lines': typeof InventoryMoveLinesRoute
+  '/inventory/moves': typeof InventoryMovesRoute
+  '/inventory/orderpoints': typeof InventoryOrderpointsRoute
+  '/inventory/overview': typeof InventoryOverviewRoute
+  '/inventory/packages': typeof InventoryPackagesRoute
   '/inventory/pickings': typeof InventoryPickingsRoute
+  '/inventory/product-stock': typeof InventoryProductStockRoute
+  '/inventory/quants': typeof InventoryQuantsRoute
+  '/inventory/receipts': typeof InventoryReceiptsRoute
+  '/inventory/scrap': typeof InventoryScrapRouteWithChildren
+  '/inventory/todo': typeof InventoryTodoRoute
+  '/inventory/waiting': typeof InventoryWaitingRoute
+  '/inventory/warehouse': typeof InventoryWarehouseRouteWithChildren
+  '/mrp/boms': typeof MrpBomsRoute
+  '/mrp/productions': typeof MrpProductionsRoute
+  '/mrp/routings': typeof MrpRoutingsRoute
+  '/mrp/unbuilds': typeof MrpUnbuildsRoute
+  '/mrp/work-centers': typeof MrpWorkCentersRoute
+  '/mrp/work-orders': typeof MrpWorkOrdersRoute
+  '/product/products': typeof ProductProductsRoute
+  '/project/milestones': typeof ProjectMilestonesRoute
   '/project/projects': typeof ProjectProjectsRoute
+  '/project/stages': typeof ProjectStagesRoute
+  '/project/task-stages': typeof ProjectTaskStagesRoute
   '/project/tasks': typeof ProjectTasksRoute
   '/purchase/orders': typeof PurchaseOrdersRoute
+  '/purchase/products': typeof PurchaseProductsRoute
   '/purchase/rfqs': typeof PurchaseRfqsRoute
+  '/purchase/vendors': typeof PurchaseVendorsRoute
+  '/recruitment/applicants': typeof RecruitmentApplicantsRoute
+  '/recruitment/stages': typeof RecruitmentStagesRoute
   '/sale/orders': typeof SaleOrdersRoute
+  '/sale/quotations': typeof SaleQuotationsRoute
+  '/sale/reporting': typeof SaleReportingRoute
+  '/sale/to-invoice': typeof SaleToInvoiceRoute
+  '/sale/to-upsell': typeof SaleToUpsellRoute
   '/accounting/': typeof AccountingIndexRoute
+  '/attendance/': typeof AttendanceIndexRoute
+  '/calendar/': typeof CalendarIndexRoute
   '/contacts/': typeof ContactsIndexRoute
   '/crm/': typeof CrmIndexRoute
+  '/event/': typeof EventIndexRoute
+  '/expenses/': typeof ExpensesIndexRoute
   '/hr/': typeof HrIndexRoute
   '/inventory/': typeof InventoryIndexRoute
+  '/mrp/': typeof MrpIndexRoute
+  '/product/': typeof ProductIndexRoute
   '/project/': typeof ProjectIndexRoute
   '/purchase/': typeof PurchaseIndexRoute
+  '/recruitment/': typeof RecruitmentIndexRoute
   '/sale/': typeof SaleIndexRoute
+  '/accounting/account/$id': typeof AccountingAccountIdRoute
+  '/accounting/analytic-account/$id': typeof AccountingAnalyticAccountIdRoute
+  '/accounting/bank-statement/$id': typeof AccountingBankStatementIdRoute
+  '/accounting/journal-item/$id': typeof AccountingJournalItemIdRoute
   '/accounting/move/$id': typeof AccountingMoveIdRoute
+  '/accounting/payment/$id': typeof AccountingPaymentIdRoute
+  '/accounting/tax/$id': typeof AccountingTaxIdRoute
+  '/calendar/event/$id': typeof CalendarEventIdRoute
   '/contacts/partner/$id': typeof ContactsPartnerIdRoute
   '/crm/lead/$id': typeof CrmLeadIdRoute
   '/crm/team/$id': typeof CrmTeamIdRoute
+  '/event/event/$id': typeof EventEventIdRoute
+  '/event/registration/$id': typeof EventRegistrationIdRoute
+  '/expenses/expense/$id': typeof ExpensesExpenseIdRoute
+  '/expenses/sheet/$id': typeof ExpensesSheetIdRoute
   '/hr/department/$id': typeof HrDepartmentIdRoute
   '/hr/employee/$id': typeof HrEmployeeIdRoute
+  '/inventory/location/$id': typeof InventoryLocationIdRoute
+  '/inventory/lot/$id': typeof InventoryLotIdRoute
+  '/inventory/move-line/$id': typeof InventoryMoveLineIdRoute
+  '/inventory/move/$id': typeof InventoryMoveIdRoute
+  '/inventory/orderpoint/$id': typeof InventoryOrderpointIdRoute
+  '/inventory/package/$id': typeof InventoryPackageIdRoute
+  '/inventory/picking-type/$id': typeof InventoryPickingTypeIdRoute
   '/inventory/picking/$id': typeof InventoryPickingIdRoute
+  '/inventory/quant/$id': typeof InventoryQuantIdRoute
+  '/inventory/scrap/$id': typeof InventoryScrapIdRoute
+  '/inventory/warehouse/$id': typeof InventoryWarehouseIdRoute
+  '/mrp/bom/$id': typeof MrpBomIdRoute
+  '/mrp/production/$id': typeof MrpProductionIdRoute
+  '/mrp/routing/$id': typeof MrpRoutingIdRoute
+  '/mrp/unbuild/$id': typeof MrpUnbuildIdRoute
+  '/mrp/work-center/$id': typeof MrpWorkCenterIdRoute
+  '/mrp/work-order/$id': typeof MrpWorkOrderIdRoute
+  '/product/product/$id': typeof ProductProductIdRoute
+  '/project/milestone/$id': typeof ProjectMilestoneIdRoute
   '/project/project/$id': typeof ProjectProjectIdRoute
   '/project/task/$id': typeof ProjectTaskIdRoute
   '/purchase/order/$id': typeof PurchaseOrderIdRoute
+  '/recruitment/applicant/$id': typeof RecruitmentApplicantIdRoute
   '/sale/order/$id': typeof SaleOrderIdRoute
 }
 export interface FileRouteTypes {
@@ -401,178 +1336,588 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/discuss'
     | '/login'
     | '/menu'
     | '/settings'
     | '/web'
+    | '/accounting/analytic-accounts'
+    | '/accounting/bank-statements'
+    | '/accounting/bills'
+    | '/accounting/cash-rounding'
+    | '/accounting/chart-of-accounts'
+    | '/accounting/credit-notes'
+    | '/accounting/dashboard'
+    | '/accounting/fiscal-positions'
+    | '/accounting/incoterms'
+    | '/accounting/invoices'
+    | '/accounting/journal-items'
     | '/accounting/moves'
+    | '/accounting/payment-terms'
+    | '/accounting/payments'
+    | '/accounting/reconciliation-models'
+    | '/accounting/taxes'
+    | '/accounting/vendor-refunds'
+    | '/attendance/kiosk'
+    | '/calendar/alarms'
+    | '/calendar/events'
+    | '/calendar/types'
     | '/contacts/partners'
+    | '/crm/activities'
+    | '/crm/forecast'
     | '/crm/leads'
+    | '/crm/lost-reasons'
     | '/crm/pipeline'
+    | '/crm/stages'
     | '/crm/teams'
+    | '/event/events'
+    | '/event/registration-desk'
+    | '/event/registrations'
+    | '/expenses/my'
     | '/hr/departments'
     | '/hr/directory'
     | '/hr/employees'
     | '/hr/jobs'
     | '/hr/plans'
     | '/hr/work-locations'
+    | '/inventory/backorder'
+    | '/inventory/deliveries'
+    | '/inventory/internal'
+    | '/inventory/inventory-adjustment'
+    | '/inventory/late'
+    | '/inventory/locations'
+    | '/inventory/lots'
+    | '/inventory/move-lines'
+    | '/inventory/moves'
+    | '/inventory/orderpoints'
+    | '/inventory/overview'
+    | '/inventory/packages'
     | '/inventory/pickings'
+    | '/inventory/product-stock'
+    | '/inventory/quants'
+    | '/inventory/receipts'
+    | '/inventory/scrap'
+    | '/inventory/todo'
+    | '/inventory/waiting'
+    | '/inventory/warehouse'
+    | '/mrp/boms'
+    | '/mrp/productions'
+    | '/mrp/routings'
+    | '/mrp/unbuilds'
+    | '/mrp/work-centers'
+    | '/mrp/work-orders'
+    | '/product/products'
+    | '/project/milestones'
     | '/project/projects'
+    | '/project/stages'
+    | '/project/task-stages'
     | '/project/tasks'
     | '/purchase/orders'
+    | '/purchase/products'
     | '/purchase/rfqs'
+    | '/purchase/vendors'
+    | '/recruitment/applicants'
+    | '/recruitment/stages'
     | '/sale/orders'
+    | '/sale/quotations'
+    | '/sale/reporting'
+    | '/sale/to-invoice'
+    | '/sale/to-upsell'
     | '/accounting/'
+    | '/attendance/'
+    | '/calendar/'
     | '/contacts/'
     | '/crm/'
+    | '/event/'
+    | '/expenses/'
     | '/hr/'
     | '/inventory/'
+    | '/mrp/'
+    | '/product/'
     | '/project/'
     | '/purchase/'
+    | '/recruitment/'
     | '/sale/'
+    | '/accounting/account/$id'
+    | '/accounting/analytic-account/$id'
+    | '/accounting/bank-statement/$id'
+    | '/accounting/journal-item/$id'
     | '/accounting/move/$id'
+    | '/accounting/payment/$id'
+    | '/accounting/tax/$id'
+    | '/calendar/event/$id'
     | '/contacts/partner/$id'
     | '/crm/lead/$id'
     | '/crm/team/$id'
+    | '/event/event/$id'
+    | '/event/registration/$id'
+    | '/expenses/expense/$id'
+    | '/expenses/sheet/$id'
     | '/hr/department/$id'
     | '/hr/employee/$id'
+    | '/inventory/location/$id'
+    | '/inventory/lot/$id'
+    | '/inventory/move-line/$id'
+    | '/inventory/move/$id'
+    | '/inventory/orderpoint/$id'
+    | '/inventory/package/$id'
+    | '/inventory/picking-type/$id'
     | '/inventory/picking/$id'
+    | '/inventory/quant/$id'
+    | '/inventory/scrap/$id'
+    | '/inventory/warehouse/$id'
+    | '/mrp/bom/$id'
+    | '/mrp/production/$id'
+    | '/mrp/routing/$id'
+    | '/mrp/unbuild/$id'
+    | '/mrp/work-center/$id'
+    | '/mrp/work-order/$id'
+    | '/product/product/$id'
+    | '/project/milestone/$id'
     | '/project/project/$id'
     | '/project/task/$id'
     | '/purchase/order/$id'
+    | '/recruitment/applicant/$id'
     | '/sale/order/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
+    | '/discuss'
     | '/login'
     | '/menu'
     | '/settings'
     | '/web'
+    | '/accounting/analytic-accounts'
+    | '/accounting/bank-statements'
+    | '/accounting/bills'
+    | '/accounting/cash-rounding'
+    | '/accounting/chart-of-accounts'
+    | '/accounting/credit-notes'
+    | '/accounting/dashboard'
+    | '/accounting/fiscal-positions'
+    | '/accounting/incoterms'
+    | '/accounting/invoices'
+    | '/accounting/journal-items'
     | '/accounting/moves'
+    | '/accounting/payment-terms'
+    | '/accounting/payments'
+    | '/accounting/reconciliation-models'
+    | '/accounting/taxes'
+    | '/accounting/vendor-refunds'
+    | '/attendance/kiosk'
+    | '/calendar/alarms'
+    | '/calendar/events'
+    | '/calendar/types'
     | '/contacts/partners'
+    | '/crm/activities'
+    | '/crm/forecast'
     | '/crm/leads'
+    | '/crm/lost-reasons'
     | '/crm/pipeline'
+    | '/crm/stages'
     | '/crm/teams'
+    | '/event/events'
+    | '/event/registration-desk'
+    | '/event/registrations'
+    | '/expenses/my'
     | '/hr/departments'
     | '/hr/directory'
     | '/hr/employees'
     | '/hr/jobs'
     | '/hr/plans'
     | '/hr/work-locations'
+    | '/inventory/backorder'
+    | '/inventory/deliveries'
+    | '/inventory/internal'
+    | '/inventory/inventory-adjustment'
+    | '/inventory/late'
+    | '/inventory/locations'
+    | '/inventory/lots'
+    | '/inventory/move-lines'
+    | '/inventory/moves'
+    | '/inventory/orderpoints'
+    | '/inventory/overview'
+    | '/inventory/packages'
     | '/inventory/pickings'
+    | '/inventory/product-stock'
+    | '/inventory/quants'
+    | '/inventory/receipts'
+    | '/inventory/scrap'
+    | '/inventory/todo'
+    | '/inventory/waiting'
+    | '/inventory/warehouse'
+    | '/mrp/boms'
+    | '/mrp/productions'
+    | '/mrp/routings'
+    | '/mrp/unbuilds'
+    | '/mrp/work-centers'
+    | '/mrp/work-orders'
+    | '/product/products'
+    | '/project/milestones'
     | '/project/projects'
+    | '/project/stages'
+    | '/project/task-stages'
     | '/project/tasks'
     | '/purchase/orders'
+    | '/purchase/products'
     | '/purchase/rfqs'
+    | '/purchase/vendors'
+    | '/recruitment/applicants'
+    | '/recruitment/stages'
     | '/sale/orders'
+    | '/sale/quotations'
+    | '/sale/reporting'
+    | '/sale/to-invoice'
+    | '/sale/to-upsell'
     | '/accounting'
+    | '/attendance'
+    | '/calendar'
     | '/contacts'
     | '/crm'
+    | '/event'
+    | '/expenses'
     | '/hr'
     | '/inventory'
+    | '/mrp'
+    | '/product'
     | '/project'
     | '/purchase'
+    | '/recruitment'
     | '/sale'
+    | '/accounting/account/$id'
+    | '/accounting/analytic-account/$id'
+    | '/accounting/bank-statement/$id'
+    | '/accounting/journal-item/$id'
     | '/accounting/move/$id'
+    | '/accounting/payment/$id'
+    | '/accounting/tax/$id'
+    | '/calendar/event/$id'
     | '/contacts/partner/$id'
     | '/crm/lead/$id'
     | '/crm/team/$id'
+    | '/event/event/$id'
+    | '/event/registration/$id'
+    | '/expenses/expense/$id'
+    | '/expenses/sheet/$id'
     | '/hr/department/$id'
     | '/hr/employee/$id'
+    | '/inventory/location/$id'
+    | '/inventory/lot/$id'
+    | '/inventory/move-line/$id'
+    | '/inventory/move/$id'
+    | '/inventory/orderpoint/$id'
+    | '/inventory/package/$id'
+    | '/inventory/picking-type/$id'
     | '/inventory/picking/$id'
+    | '/inventory/quant/$id'
+    | '/inventory/scrap/$id'
+    | '/inventory/warehouse/$id'
+    | '/mrp/bom/$id'
+    | '/mrp/production/$id'
+    | '/mrp/routing/$id'
+    | '/mrp/unbuild/$id'
+    | '/mrp/work-center/$id'
+    | '/mrp/work-order/$id'
+    | '/product/product/$id'
+    | '/project/milestone/$id'
     | '/project/project/$id'
     | '/project/task/$id'
     | '/purchase/order/$id'
+    | '/recruitment/applicant/$id'
     | '/sale/order/$id'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/discuss'
     | '/login'
     | '/menu'
     | '/settings'
     | '/web'
+    | '/accounting/analytic-accounts'
+    | '/accounting/bank-statements'
+    | '/accounting/bills'
+    | '/accounting/cash-rounding'
+    | '/accounting/chart-of-accounts'
+    | '/accounting/credit-notes'
+    | '/accounting/dashboard'
+    | '/accounting/fiscal-positions'
+    | '/accounting/incoterms'
+    | '/accounting/invoices'
+    | '/accounting/journal-items'
     | '/accounting/moves'
+    | '/accounting/payment-terms'
+    | '/accounting/payments'
+    | '/accounting/reconciliation-models'
+    | '/accounting/taxes'
+    | '/accounting/vendor-refunds'
+    | '/attendance/kiosk'
+    | '/calendar/alarms'
+    | '/calendar/events'
+    | '/calendar/types'
     | '/contacts/partners'
+    | '/crm/activities'
+    | '/crm/forecast'
     | '/crm/leads'
+    | '/crm/lost-reasons'
     | '/crm/pipeline'
+    | '/crm/stages'
     | '/crm/teams'
+    | '/event/events'
+    | '/event/registration-desk'
+    | '/event/registrations'
+    | '/expenses/my'
     | '/hr/departments'
     | '/hr/directory'
     | '/hr/employees'
     | '/hr/jobs'
     | '/hr/plans'
     | '/hr/work-locations'
+    | '/inventory/backorder'
+    | '/inventory/deliveries'
+    | '/inventory/internal'
+    | '/inventory/inventory-adjustment'
+    | '/inventory/late'
+    | '/inventory/locations'
+    | '/inventory/lots'
+    | '/inventory/move-lines'
+    | '/inventory/moves'
+    | '/inventory/orderpoints'
+    | '/inventory/overview'
+    | '/inventory/packages'
     | '/inventory/pickings'
+    | '/inventory/product-stock'
+    | '/inventory/quants'
+    | '/inventory/receipts'
+    | '/inventory/scrap'
+    | '/inventory/todo'
+    | '/inventory/waiting'
+    | '/inventory/warehouse'
+    | '/mrp/boms'
+    | '/mrp/productions'
+    | '/mrp/routings'
+    | '/mrp/unbuilds'
+    | '/mrp/work-centers'
+    | '/mrp/work-orders'
+    | '/product/products'
+    | '/project/milestones'
     | '/project/projects'
+    | '/project/stages'
+    | '/project/task-stages'
     | '/project/tasks'
     | '/purchase/orders'
+    | '/purchase/products'
     | '/purchase/rfqs'
+    | '/purchase/vendors'
+    | '/recruitment/applicants'
+    | '/recruitment/stages'
     | '/sale/orders'
+    | '/sale/quotations'
+    | '/sale/reporting'
+    | '/sale/to-invoice'
+    | '/sale/to-upsell'
     | '/accounting/'
+    | '/attendance/'
+    | '/calendar/'
     | '/contacts/'
     | '/crm/'
+    | '/event/'
+    | '/expenses/'
     | '/hr/'
     | '/inventory/'
+    | '/mrp/'
+    | '/product/'
     | '/project/'
     | '/purchase/'
+    | '/recruitment/'
     | '/sale/'
+    | '/accounting/account/$id'
+    | '/accounting/analytic-account/$id'
+    | '/accounting/bank-statement/$id'
+    | '/accounting/journal-item/$id'
     | '/accounting/move/$id'
+    | '/accounting/payment/$id'
+    | '/accounting/tax/$id'
+    | '/calendar/event/$id'
     | '/contacts/partner/$id'
     | '/crm/lead/$id'
     | '/crm/team/$id'
+    | '/event/event/$id'
+    | '/event/registration/$id'
+    | '/expenses/expense/$id'
+    | '/expenses/sheet/$id'
     | '/hr/department/$id'
     | '/hr/employee/$id'
+    | '/inventory/location/$id'
+    | '/inventory/lot/$id'
+    | '/inventory/move-line/$id'
+    | '/inventory/move/$id'
+    | '/inventory/orderpoint/$id'
+    | '/inventory/package/$id'
+    | '/inventory/picking-type/$id'
     | '/inventory/picking/$id'
+    | '/inventory/quant/$id'
+    | '/inventory/scrap/$id'
+    | '/inventory/warehouse/$id'
+    | '/mrp/bom/$id'
+    | '/mrp/production/$id'
+    | '/mrp/routing/$id'
+    | '/mrp/unbuild/$id'
+    | '/mrp/work-center/$id'
+    | '/mrp/work-order/$id'
+    | '/product/product/$id'
+    | '/project/milestone/$id'
     | '/project/project/$id'
     | '/project/task/$id'
     | '/purchase/order/$id'
+    | '/recruitment/applicant/$id'
     | '/sale/order/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  DiscussRoute: typeof DiscussRoute
   LoginRoute: typeof LoginRoute
   MenuRoute: typeof MenuRoute
   SettingsRoute: typeof SettingsRoute
   WebRoute: typeof WebRoute
+  AccountingAnalyticAccountsRoute: typeof AccountingAnalyticAccountsRoute
+  AccountingBankStatementsRoute: typeof AccountingBankStatementsRoute
+  AccountingBillsRoute: typeof AccountingBillsRoute
+  AccountingCashRoundingRoute: typeof AccountingCashRoundingRoute
+  AccountingChartOfAccountsRoute: typeof AccountingChartOfAccountsRoute
+  AccountingCreditNotesRoute: typeof AccountingCreditNotesRoute
+  AccountingDashboardRoute: typeof AccountingDashboardRoute
+  AccountingFiscalPositionsRoute: typeof AccountingFiscalPositionsRoute
+  AccountingIncotermsRoute: typeof AccountingIncotermsRoute
+  AccountingInvoicesRoute: typeof AccountingInvoicesRoute
+  AccountingJournalItemsRoute: typeof AccountingJournalItemsRoute
   AccountingMovesRoute: typeof AccountingMovesRoute
+  AccountingPaymentTermsRoute: typeof AccountingPaymentTermsRoute
+  AccountingPaymentsRoute: typeof AccountingPaymentsRoute
+  AccountingReconciliationModelsRoute: typeof AccountingReconciliationModelsRoute
+  AccountingTaxesRoute: typeof AccountingTaxesRoute
+  AccountingVendorRefundsRoute: typeof AccountingVendorRefundsRoute
+  AttendanceKioskRoute: typeof AttendanceKioskRoute
+  CalendarAlarmsRoute: typeof CalendarAlarmsRoute
+  CalendarEventsRoute: typeof CalendarEventsRoute
+  CalendarTypesRoute: typeof CalendarTypesRoute
   ContactsPartnersRoute: typeof ContactsPartnersRoute
+  CrmActivitiesRoute: typeof CrmActivitiesRoute
+  CrmForecastRoute: typeof CrmForecastRoute
   CrmLeadsRoute: typeof CrmLeadsRoute
+  CrmLostReasonsRoute: typeof CrmLostReasonsRoute
   CrmPipelineRoute: typeof CrmPipelineRoute
+  CrmStagesRoute: typeof CrmStagesRoute
   CrmTeamsRoute: typeof CrmTeamsRoute
+  EventEventsRoute: typeof EventEventsRoute
+  EventRegistrationDeskRoute: typeof EventRegistrationDeskRoute
+  EventRegistrationsRoute: typeof EventRegistrationsRoute
+  ExpensesMyRoute: typeof ExpensesMyRoute
   HrDepartmentsRoute: typeof HrDepartmentsRoute
   HrDirectoryRoute: typeof HrDirectoryRoute
   HrEmployeesRoute: typeof HrEmployeesRoute
   HrJobsRoute: typeof HrJobsRoute
   HrPlansRoute: typeof HrPlansRoute
   HrWorkLocationsRoute: typeof HrWorkLocationsRoute
+  InventoryBackorderRoute: typeof InventoryBackorderRoute
+  InventoryDeliveriesRoute: typeof InventoryDeliveriesRoute
+  InventoryInternalRoute: typeof InventoryInternalRoute
+  InventoryInventoryAdjustmentRoute: typeof InventoryInventoryAdjustmentRoute
+  InventoryLateRoute: typeof InventoryLateRoute
+  InventoryLocationsRoute: typeof InventoryLocationsRoute
+  InventoryLotsRoute: typeof InventoryLotsRoute
+  InventoryMoveLinesRoute: typeof InventoryMoveLinesRoute
+  InventoryMovesRoute: typeof InventoryMovesRoute
+  InventoryOrderpointsRoute: typeof InventoryOrderpointsRoute
+  InventoryOverviewRoute: typeof InventoryOverviewRoute
+  InventoryPackagesRoute: typeof InventoryPackagesRoute
   InventoryPickingsRoute: typeof InventoryPickingsRoute
+  InventoryProductStockRoute: typeof InventoryProductStockRoute
+  InventoryQuantsRoute: typeof InventoryQuantsRoute
+  InventoryReceiptsRoute: typeof InventoryReceiptsRoute
+  InventoryScrapRoute: typeof InventoryScrapRouteWithChildren
+  InventoryTodoRoute: typeof InventoryTodoRoute
+  InventoryWaitingRoute: typeof InventoryWaitingRoute
+  InventoryWarehouseRoute: typeof InventoryWarehouseRouteWithChildren
+  MrpBomsRoute: typeof MrpBomsRoute
+  MrpProductionsRoute: typeof MrpProductionsRoute
+  MrpRoutingsRoute: typeof MrpRoutingsRoute
+  MrpUnbuildsRoute: typeof MrpUnbuildsRoute
+  MrpWorkCentersRoute: typeof MrpWorkCentersRoute
+  MrpWorkOrdersRoute: typeof MrpWorkOrdersRoute
+  ProductProductsRoute: typeof ProductProductsRoute
+  ProjectMilestonesRoute: typeof ProjectMilestonesRoute
   ProjectProjectsRoute: typeof ProjectProjectsRoute
+  ProjectStagesRoute: typeof ProjectStagesRoute
+  ProjectTaskStagesRoute: typeof ProjectTaskStagesRoute
   ProjectTasksRoute: typeof ProjectTasksRoute
   PurchaseOrdersRoute: typeof PurchaseOrdersRoute
+  PurchaseProductsRoute: typeof PurchaseProductsRoute
   PurchaseRfqsRoute: typeof PurchaseRfqsRoute
+  PurchaseVendorsRoute: typeof PurchaseVendorsRoute
+  RecruitmentApplicantsRoute: typeof RecruitmentApplicantsRoute
+  RecruitmentStagesRoute: typeof RecruitmentStagesRoute
   SaleOrdersRoute: typeof SaleOrdersRoute
+  SaleQuotationsRoute: typeof SaleQuotationsRoute
+  SaleReportingRoute: typeof SaleReportingRoute
+  SaleToInvoiceRoute: typeof SaleToInvoiceRoute
+  SaleToUpsellRoute: typeof SaleToUpsellRoute
   AccountingIndexRoute: typeof AccountingIndexRoute
+  AttendanceIndexRoute: typeof AttendanceIndexRoute
+  CalendarIndexRoute: typeof CalendarIndexRoute
   ContactsIndexRoute: typeof ContactsIndexRoute
   CrmIndexRoute: typeof CrmIndexRoute
+  EventIndexRoute: typeof EventIndexRoute
+  ExpensesIndexRoute: typeof ExpensesIndexRoute
   HrIndexRoute: typeof HrIndexRoute
   InventoryIndexRoute: typeof InventoryIndexRoute
+  MrpIndexRoute: typeof MrpIndexRoute
+  ProductIndexRoute: typeof ProductIndexRoute
   ProjectIndexRoute: typeof ProjectIndexRoute
   PurchaseIndexRoute: typeof PurchaseIndexRoute
+  RecruitmentIndexRoute: typeof RecruitmentIndexRoute
   SaleIndexRoute: typeof SaleIndexRoute
+  AccountingAccountIdRoute: typeof AccountingAccountIdRoute
+  AccountingAnalyticAccountIdRoute: typeof AccountingAnalyticAccountIdRoute
+  AccountingBankStatementIdRoute: typeof AccountingBankStatementIdRoute
+  AccountingJournalItemIdRoute: typeof AccountingJournalItemIdRoute
   AccountingMoveIdRoute: typeof AccountingMoveIdRoute
+  AccountingPaymentIdRoute: typeof AccountingPaymentIdRoute
+  AccountingTaxIdRoute: typeof AccountingTaxIdRoute
+  CalendarEventIdRoute: typeof CalendarEventIdRoute
   ContactsPartnerIdRoute: typeof ContactsPartnerIdRoute
   CrmLeadIdRoute: typeof CrmLeadIdRoute
   CrmTeamIdRoute: typeof CrmTeamIdRoute
+  EventEventIdRoute: typeof EventEventIdRoute
+  EventRegistrationIdRoute: typeof EventRegistrationIdRoute
+  ExpensesExpenseIdRoute: typeof ExpensesExpenseIdRoute
+  ExpensesSheetIdRoute: typeof ExpensesSheetIdRoute
   HrDepartmentIdRoute: typeof HrDepartmentIdRoute
   HrEmployeeIdRoute: typeof HrEmployeeIdRoute
+  InventoryLocationIdRoute: typeof InventoryLocationIdRoute
+  InventoryLotIdRoute: typeof InventoryLotIdRoute
+  InventoryMoveLineIdRoute: typeof InventoryMoveLineIdRoute
+  InventoryMoveIdRoute: typeof InventoryMoveIdRoute
+  InventoryOrderpointIdRoute: typeof InventoryOrderpointIdRoute
+  InventoryPackageIdRoute: typeof InventoryPackageIdRoute
+  InventoryPickingTypeIdRoute: typeof InventoryPickingTypeIdRoute
   InventoryPickingIdRoute: typeof InventoryPickingIdRoute
+  InventoryQuantIdRoute: typeof InventoryQuantIdRoute
+  MrpBomIdRoute: typeof MrpBomIdRoute
+  MrpProductionIdRoute: typeof MrpProductionIdRoute
+  MrpRoutingIdRoute: typeof MrpRoutingIdRoute
+  MrpUnbuildIdRoute: typeof MrpUnbuildIdRoute
+  MrpWorkCenterIdRoute: typeof MrpWorkCenterIdRoute
+  MrpWorkOrderIdRoute: typeof MrpWorkOrderIdRoute
+  ProductProductIdRoute: typeof ProductProductIdRoute
+  ProjectMilestoneIdRoute: typeof ProjectMilestoneIdRoute
   ProjectProjectIdRoute: typeof ProjectProjectIdRoute
   ProjectTaskIdRoute: typeof ProjectTaskIdRoute
   PurchaseOrderIdRoute: typeof PurchaseOrderIdRoute
+  RecruitmentApplicantIdRoute: typeof RecruitmentApplicantIdRoute
   SaleOrderIdRoute: typeof SaleOrderIdRoute
 }
 
@@ -606,6 +1951,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/discuss': {
+      id: '/discuss'
+      path: '/discuss'
+      fullPath: '/discuss'
+      preLoaderRoute: typeof DiscussRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -627,6 +1979,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SaleIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recruitment/': {
+      id: '/recruitment/'
+      path: '/recruitment'
+      fullPath: '/recruitment/'
+      preLoaderRoute: typeof RecruitmentIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/purchase/': {
       id: '/purchase/'
       path: '/purchase'
@@ -639,6 +1998,20 @@ declare module '@tanstack/react-router' {
       path: '/project'
       fullPath: '/project/'
       preLoaderRoute: typeof ProjectIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/': {
+      id: '/product/'
+      path: '/product'
+      fullPath: '/product/'
+      preLoaderRoute: typeof ProductIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/': {
+      id: '/mrp/'
+      path: '/mrp'
+      fullPath: '/mrp/'
+      preLoaderRoute: typeof MrpIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inventory/': {
@@ -655,6 +2028,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HrIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/expenses/': {
+      id: '/expenses/'
+      path: '/expenses'
+      fullPath: '/expenses/'
+      preLoaderRoute: typeof ExpensesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/event/': {
+      id: '/event/'
+      path: '/event'
+      fullPath: '/event/'
+      preLoaderRoute: typeof EventIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/crm/': {
       id: '/crm/'
       path: '/crm'
@@ -669,11 +2056,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calendar/': {
+      id: '/calendar/'
+      path: '/calendar'
+      fullPath: '/calendar/'
+      preLoaderRoute: typeof CalendarIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/attendance/': {
+      id: '/attendance/'
+      path: '/attendance'
+      fullPath: '/attendance/'
+      preLoaderRoute: typeof AttendanceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/accounting/': {
       id: '/accounting/'
       path: '/accounting'
       fullPath: '/accounting/'
       preLoaderRoute: typeof AccountingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sale/to-upsell': {
+      id: '/sale/to-upsell'
+      path: '/sale/to-upsell'
+      fullPath: '/sale/to-upsell'
+      preLoaderRoute: typeof SaleToUpsellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sale/to-invoice': {
+      id: '/sale/to-invoice'
+      path: '/sale/to-invoice'
+      fullPath: '/sale/to-invoice'
+      preLoaderRoute: typeof SaleToInvoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sale/reporting': {
+      id: '/sale/reporting'
+      path: '/sale/reporting'
+      fullPath: '/sale/reporting'
+      preLoaderRoute: typeof SaleReportingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sale/quotations': {
+      id: '/sale/quotations'
+      path: '/sale/quotations'
+      fullPath: '/sale/quotations'
+      preLoaderRoute: typeof SaleQuotationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sale/orders': {
@@ -683,11 +2112,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SaleOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recruitment/stages': {
+      id: '/recruitment/stages'
+      path: '/recruitment/stages'
+      fullPath: '/recruitment/stages'
+      preLoaderRoute: typeof RecruitmentStagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recruitment/applicants': {
+      id: '/recruitment/applicants'
+      path: '/recruitment/applicants'
+      fullPath: '/recruitment/applicants'
+      preLoaderRoute: typeof RecruitmentApplicantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/purchase/vendors': {
+      id: '/purchase/vendors'
+      path: '/purchase/vendors'
+      fullPath: '/purchase/vendors'
+      preLoaderRoute: typeof PurchaseVendorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/purchase/rfqs': {
       id: '/purchase/rfqs'
       path: '/purchase/rfqs'
       fullPath: '/purchase/rfqs'
       preLoaderRoute: typeof PurchaseRfqsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/purchase/products': {
+      id: '/purchase/products'
+      path: '/purchase/products'
+      fullPath: '/purchase/products'
+      preLoaderRoute: typeof PurchaseProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/purchase/orders': {
@@ -704,6 +2161,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectTasksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/project/task-stages': {
+      id: '/project/task-stages'
+      path: '/project/task-stages'
+      fullPath: '/project/task-stages'
+      preLoaderRoute: typeof ProjectTaskStagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/project/stages': {
+      id: '/project/stages'
+      path: '/project/stages'
+      fullPath: '/project/stages'
+      preLoaderRoute: typeof ProjectStagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/project/projects': {
       id: '/project/projects'
       path: '/project/projects'
@@ -711,11 +2182,200 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectProjectsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/project/milestones': {
+      id: '/project/milestones'
+      path: '/project/milestones'
+      fullPath: '/project/milestones'
+      preLoaderRoute: typeof ProjectMilestonesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/products': {
+      id: '/product/products'
+      path: '/product/products'
+      fullPath: '/product/products'
+      preLoaderRoute: typeof ProductProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/work-orders': {
+      id: '/mrp/work-orders'
+      path: '/mrp/work-orders'
+      fullPath: '/mrp/work-orders'
+      preLoaderRoute: typeof MrpWorkOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/work-centers': {
+      id: '/mrp/work-centers'
+      path: '/mrp/work-centers'
+      fullPath: '/mrp/work-centers'
+      preLoaderRoute: typeof MrpWorkCentersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/unbuilds': {
+      id: '/mrp/unbuilds'
+      path: '/mrp/unbuilds'
+      fullPath: '/mrp/unbuilds'
+      preLoaderRoute: typeof MrpUnbuildsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/routings': {
+      id: '/mrp/routings'
+      path: '/mrp/routings'
+      fullPath: '/mrp/routings'
+      preLoaderRoute: typeof MrpRoutingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/productions': {
+      id: '/mrp/productions'
+      path: '/mrp/productions'
+      fullPath: '/mrp/productions'
+      preLoaderRoute: typeof MrpProductionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/boms': {
+      id: '/mrp/boms'
+      path: '/mrp/boms'
+      fullPath: '/mrp/boms'
+      preLoaderRoute: typeof MrpBomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/warehouse': {
+      id: '/inventory/warehouse'
+      path: '/inventory/warehouse'
+      fullPath: '/inventory/warehouse'
+      preLoaderRoute: typeof InventoryWarehouseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/waiting': {
+      id: '/inventory/waiting'
+      path: '/inventory/waiting'
+      fullPath: '/inventory/waiting'
+      preLoaderRoute: typeof InventoryWaitingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/todo': {
+      id: '/inventory/todo'
+      path: '/inventory/todo'
+      fullPath: '/inventory/todo'
+      preLoaderRoute: typeof InventoryTodoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/scrap': {
+      id: '/inventory/scrap'
+      path: '/inventory/scrap'
+      fullPath: '/inventory/scrap'
+      preLoaderRoute: typeof InventoryScrapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/receipts': {
+      id: '/inventory/receipts'
+      path: '/inventory/receipts'
+      fullPath: '/inventory/receipts'
+      preLoaderRoute: typeof InventoryReceiptsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/quants': {
+      id: '/inventory/quants'
+      path: '/inventory/quants'
+      fullPath: '/inventory/quants'
+      preLoaderRoute: typeof InventoryQuantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/product-stock': {
+      id: '/inventory/product-stock'
+      path: '/inventory/product-stock'
+      fullPath: '/inventory/product-stock'
+      preLoaderRoute: typeof InventoryProductStockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inventory/pickings': {
       id: '/inventory/pickings'
       path: '/inventory/pickings'
       fullPath: '/inventory/pickings'
       preLoaderRoute: typeof InventoryPickingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/packages': {
+      id: '/inventory/packages'
+      path: '/inventory/packages'
+      fullPath: '/inventory/packages'
+      preLoaderRoute: typeof InventoryPackagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/overview': {
+      id: '/inventory/overview'
+      path: '/inventory/overview'
+      fullPath: '/inventory/overview'
+      preLoaderRoute: typeof InventoryOverviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/orderpoints': {
+      id: '/inventory/orderpoints'
+      path: '/inventory/orderpoints'
+      fullPath: '/inventory/orderpoints'
+      preLoaderRoute: typeof InventoryOrderpointsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/moves': {
+      id: '/inventory/moves'
+      path: '/inventory/moves'
+      fullPath: '/inventory/moves'
+      preLoaderRoute: typeof InventoryMovesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/move-lines': {
+      id: '/inventory/move-lines'
+      path: '/inventory/move-lines'
+      fullPath: '/inventory/move-lines'
+      preLoaderRoute: typeof InventoryMoveLinesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/lots': {
+      id: '/inventory/lots'
+      path: '/inventory/lots'
+      fullPath: '/inventory/lots'
+      preLoaderRoute: typeof InventoryLotsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/locations': {
+      id: '/inventory/locations'
+      path: '/inventory/locations'
+      fullPath: '/inventory/locations'
+      preLoaderRoute: typeof InventoryLocationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/late': {
+      id: '/inventory/late'
+      path: '/inventory/late'
+      fullPath: '/inventory/late'
+      preLoaderRoute: typeof InventoryLateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/inventory-adjustment': {
+      id: '/inventory/inventory-adjustment'
+      path: '/inventory/inventory-adjustment'
+      fullPath: '/inventory/inventory-adjustment'
+      preLoaderRoute: typeof InventoryInventoryAdjustmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/internal': {
+      id: '/inventory/internal'
+      path: '/inventory/internal'
+      fullPath: '/inventory/internal'
+      preLoaderRoute: typeof InventoryInternalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/deliveries': {
+      id: '/inventory/deliveries'
+      path: '/inventory/deliveries'
+      fullPath: '/inventory/deliveries'
+      preLoaderRoute: typeof InventoryDeliveriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/backorder': {
+      id: '/inventory/backorder'
+      path: '/inventory/backorder'
+      fullPath: '/inventory/backorder'
+      preLoaderRoute: typeof InventoryBackorderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hr/work-locations': {
@@ -760,11 +2420,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HrDepartmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/expenses/my': {
+      id: '/expenses/my'
+      path: '/expenses/my'
+      fullPath: '/expenses/my'
+      preLoaderRoute: typeof ExpensesMyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/event/registrations': {
+      id: '/event/registrations'
+      path: '/event/registrations'
+      fullPath: '/event/registrations'
+      preLoaderRoute: typeof EventRegistrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/event/registration-desk': {
+      id: '/event/registration-desk'
+      path: '/event/registration-desk'
+      fullPath: '/event/registration-desk'
+      preLoaderRoute: typeof EventRegistrationDeskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/event/events': {
+      id: '/event/events'
+      path: '/event/events'
+      fullPath: '/event/events'
+      preLoaderRoute: typeof EventEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/crm/teams': {
       id: '/crm/teams'
       path: '/crm/teams'
       fullPath: '/crm/teams'
       preLoaderRoute: typeof CrmTeamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crm/stages': {
+      id: '/crm/stages'
+      path: '/crm/stages'
+      fullPath: '/crm/stages'
+      preLoaderRoute: typeof CrmStagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crm/pipeline': {
@@ -774,11 +2469,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CrmPipelineRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/crm/lost-reasons': {
+      id: '/crm/lost-reasons'
+      path: '/crm/lost-reasons'
+      fullPath: '/crm/lost-reasons'
+      preLoaderRoute: typeof CrmLostReasonsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/crm/leads': {
       id: '/crm/leads'
       path: '/crm/leads'
       fullPath: '/crm/leads'
       preLoaderRoute: typeof CrmLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crm/forecast': {
+      id: '/crm/forecast'
+      path: '/crm/forecast'
+      fullPath: '/crm/forecast'
+      preLoaderRoute: typeof CrmForecastRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crm/activities': {
+      id: '/crm/activities'
+      path: '/crm/activities'
+      fullPath: '/crm/activities'
+      preLoaderRoute: typeof CrmActivitiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contacts/partners': {
@@ -788,6 +2504,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactsPartnersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calendar/types': {
+      id: '/calendar/types'
+      path: '/calendar/types'
+      fullPath: '/calendar/types'
+      preLoaderRoute: typeof CalendarTypesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar/events': {
+      id: '/calendar/events'
+      path: '/calendar/events'
+      fullPath: '/calendar/events'
+      preLoaderRoute: typeof CalendarEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar/alarms': {
+      id: '/calendar/alarms'
+      path: '/calendar/alarms'
+      fullPath: '/calendar/alarms'
+      preLoaderRoute: typeof CalendarAlarmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/attendance/kiosk': {
+      id: '/attendance/kiosk'
+      path: '/attendance/kiosk'
+      fullPath: '/attendance/kiosk'
+      preLoaderRoute: typeof AttendanceKioskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/vendor-refunds': {
+      id: '/accounting/vendor-refunds'
+      path: '/accounting/vendor-refunds'
+      fullPath: '/accounting/vendor-refunds'
+      preLoaderRoute: typeof AccountingVendorRefundsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/taxes': {
+      id: '/accounting/taxes'
+      path: '/accounting/taxes'
+      fullPath: '/accounting/taxes'
+      preLoaderRoute: typeof AccountingTaxesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/reconciliation-models': {
+      id: '/accounting/reconciliation-models'
+      path: '/accounting/reconciliation-models'
+      fullPath: '/accounting/reconciliation-models'
+      preLoaderRoute: typeof AccountingReconciliationModelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/payments': {
+      id: '/accounting/payments'
+      path: '/accounting/payments'
+      fullPath: '/accounting/payments'
+      preLoaderRoute: typeof AccountingPaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/payment-terms': {
+      id: '/accounting/payment-terms'
+      path: '/accounting/payment-terms'
+      fullPath: '/accounting/payment-terms'
+      preLoaderRoute: typeof AccountingPaymentTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/accounting/moves': {
       id: '/accounting/moves'
       path: '/accounting/moves'
@@ -795,11 +2574,95 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountingMovesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/accounting/journal-items': {
+      id: '/accounting/journal-items'
+      path: '/accounting/journal-items'
+      fullPath: '/accounting/journal-items'
+      preLoaderRoute: typeof AccountingJournalItemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/invoices': {
+      id: '/accounting/invoices'
+      path: '/accounting/invoices'
+      fullPath: '/accounting/invoices'
+      preLoaderRoute: typeof AccountingInvoicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/incoterms': {
+      id: '/accounting/incoterms'
+      path: '/accounting/incoterms'
+      fullPath: '/accounting/incoterms'
+      preLoaderRoute: typeof AccountingIncotermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/fiscal-positions': {
+      id: '/accounting/fiscal-positions'
+      path: '/accounting/fiscal-positions'
+      fullPath: '/accounting/fiscal-positions'
+      preLoaderRoute: typeof AccountingFiscalPositionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/dashboard': {
+      id: '/accounting/dashboard'
+      path: '/accounting/dashboard'
+      fullPath: '/accounting/dashboard'
+      preLoaderRoute: typeof AccountingDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/credit-notes': {
+      id: '/accounting/credit-notes'
+      path: '/accounting/credit-notes'
+      fullPath: '/accounting/credit-notes'
+      preLoaderRoute: typeof AccountingCreditNotesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/chart-of-accounts': {
+      id: '/accounting/chart-of-accounts'
+      path: '/accounting/chart-of-accounts'
+      fullPath: '/accounting/chart-of-accounts'
+      preLoaderRoute: typeof AccountingChartOfAccountsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/cash-rounding': {
+      id: '/accounting/cash-rounding'
+      path: '/accounting/cash-rounding'
+      fullPath: '/accounting/cash-rounding'
+      preLoaderRoute: typeof AccountingCashRoundingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/bills': {
+      id: '/accounting/bills'
+      path: '/accounting/bills'
+      fullPath: '/accounting/bills'
+      preLoaderRoute: typeof AccountingBillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/bank-statements': {
+      id: '/accounting/bank-statements'
+      path: '/accounting/bank-statements'
+      fullPath: '/accounting/bank-statements'
+      preLoaderRoute: typeof AccountingBankStatementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/analytic-accounts': {
+      id: '/accounting/analytic-accounts'
+      path: '/accounting/analytic-accounts'
+      fullPath: '/accounting/analytic-accounts'
+      preLoaderRoute: typeof AccountingAnalyticAccountsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sale/order/$id': {
       id: '/sale/order/$id'
       path: '/sale/order/$id'
       fullPath: '/sale/order/$id'
       preLoaderRoute: typeof SaleOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recruitment/applicant/$id': {
+      id: '/recruitment/applicant/$id'
+      path: '/recruitment/applicant/$id'
+      fullPath: '/recruitment/applicant/$id'
+      preLoaderRoute: typeof RecruitmentApplicantIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/purchase/order/$id': {
@@ -823,11 +2686,137 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectProjectIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/project/milestone/$id': {
+      id: '/project/milestone/$id'
+      path: '/project/milestone/$id'
+      fullPath: '/project/milestone/$id'
+      preLoaderRoute: typeof ProjectMilestoneIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/product/$id': {
+      id: '/product/product/$id'
+      path: '/product/product/$id'
+      fullPath: '/product/product/$id'
+      preLoaderRoute: typeof ProductProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/work-order/$id': {
+      id: '/mrp/work-order/$id'
+      path: '/mrp/work-order/$id'
+      fullPath: '/mrp/work-order/$id'
+      preLoaderRoute: typeof MrpWorkOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/work-center/$id': {
+      id: '/mrp/work-center/$id'
+      path: '/mrp/work-center/$id'
+      fullPath: '/mrp/work-center/$id'
+      preLoaderRoute: typeof MrpWorkCenterIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/unbuild/$id': {
+      id: '/mrp/unbuild/$id'
+      path: '/mrp/unbuild/$id'
+      fullPath: '/mrp/unbuild/$id'
+      preLoaderRoute: typeof MrpUnbuildIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/routing/$id': {
+      id: '/mrp/routing/$id'
+      path: '/mrp/routing/$id'
+      fullPath: '/mrp/routing/$id'
+      preLoaderRoute: typeof MrpRoutingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/production/$id': {
+      id: '/mrp/production/$id'
+      path: '/mrp/production/$id'
+      fullPath: '/mrp/production/$id'
+      preLoaderRoute: typeof MrpProductionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mrp/bom/$id': {
+      id: '/mrp/bom/$id'
+      path: '/mrp/bom/$id'
+      fullPath: '/mrp/bom/$id'
+      preLoaderRoute: typeof MrpBomIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/warehouse/$id': {
+      id: '/inventory/warehouse/$id'
+      path: '/$id'
+      fullPath: '/inventory/warehouse/$id'
+      preLoaderRoute: typeof InventoryWarehouseIdRouteImport
+      parentRoute: typeof InventoryWarehouseRoute
+    }
+    '/inventory/scrap/$id': {
+      id: '/inventory/scrap/$id'
+      path: '/$id'
+      fullPath: '/inventory/scrap/$id'
+      preLoaderRoute: typeof InventoryScrapIdRouteImport
+      parentRoute: typeof InventoryScrapRoute
+    }
+    '/inventory/quant/$id': {
+      id: '/inventory/quant/$id'
+      path: '/inventory/quant/$id'
+      fullPath: '/inventory/quant/$id'
+      preLoaderRoute: typeof InventoryQuantIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inventory/picking/$id': {
       id: '/inventory/picking/$id'
       path: '/inventory/picking/$id'
       fullPath: '/inventory/picking/$id'
       preLoaderRoute: typeof InventoryPickingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/picking-type/$id': {
+      id: '/inventory/picking-type/$id'
+      path: '/inventory/picking-type/$id'
+      fullPath: '/inventory/picking-type/$id'
+      preLoaderRoute: typeof InventoryPickingTypeIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/package/$id': {
+      id: '/inventory/package/$id'
+      path: '/inventory/package/$id'
+      fullPath: '/inventory/package/$id'
+      preLoaderRoute: typeof InventoryPackageIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/orderpoint/$id': {
+      id: '/inventory/orderpoint/$id'
+      path: '/inventory/orderpoint/$id'
+      fullPath: '/inventory/orderpoint/$id'
+      preLoaderRoute: typeof InventoryOrderpointIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/move/$id': {
+      id: '/inventory/move/$id'
+      path: '/inventory/move/$id'
+      fullPath: '/inventory/move/$id'
+      preLoaderRoute: typeof InventoryMoveIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/move-line/$id': {
+      id: '/inventory/move-line/$id'
+      path: '/inventory/move-line/$id'
+      fullPath: '/inventory/move-line/$id'
+      preLoaderRoute: typeof InventoryMoveLineIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/lot/$id': {
+      id: '/inventory/lot/$id'
+      path: '/inventory/lot/$id'
+      fullPath: '/inventory/lot/$id'
+      preLoaderRoute: typeof InventoryLotIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/location/$id': {
+      id: '/inventory/location/$id'
+      path: '/inventory/location/$id'
+      fullPath: '/inventory/location/$id'
+      preLoaderRoute: typeof InventoryLocationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hr/employee/$id': {
@@ -842,6 +2831,34 @@ declare module '@tanstack/react-router' {
       path: '/hr/department/$id'
       fullPath: '/hr/department/$id'
       preLoaderRoute: typeof HrDepartmentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/expenses/sheet/$id': {
+      id: '/expenses/sheet/$id'
+      path: '/expenses/sheet/$id'
+      fullPath: '/expenses/sheet/$id'
+      preLoaderRoute: typeof ExpensesSheetIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/expenses/expense/$id': {
+      id: '/expenses/expense/$id'
+      path: '/expenses/expense/$id'
+      fullPath: '/expenses/expense/$id'
+      preLoaderRoute: typeof ExpensesExpenseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/event/registration/$id': {
+      id: '/event/registration/$id'
+      path: '/event/registration/$id'
+      fullPath: '/event/registration/$id'
+      preLoaderRoute: typeof EventRegistrationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/event/event/$id': {
+      id: '/event/event/$id'
+      path: '/event/event/$id'
+      fullPath: '/event/event/$id'
+      preLoaderRoute: typeof EventEventIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crm/team/$id': {
@@ -865,6 +2882,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactsPartnerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calendar/event/$id': {
+      id: '/calendar/event/$id'
+      path: '/calendar/event/$id'
+      fullPath: '/calendar/event/$id'
+      preLoaderRoute: typeof CalendarEventIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/tax/$id': {
+      id: '/accounting/tax/$id'
+      path: '/accounting/tax/$id'
+      fullPath: '/accounting/tax/$id'
+      preLoaderRoute: typeof AccountingTaxIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/payment/$id': {
+      id: '/accounting/payment/$id'
+      path: '/accounting/payment/$id'
+      fullPath: '/accounting/payment/$id'
+      preLoaderRoute: typeof AccountingPaymentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/accounting/move/$id': {
       id: '/accounting/move/$id'
       path: '/accounting/move/$id'
@@ -872,51 +2910,203 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountingMoveIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/accounting/journal-item/$id': {
+      id: '/accounting/journal-item/$id'
+      path: '/accounting/journal-item/$id'
+      fullPath: '/accounting/journal-item/$id'
+      preLoaderRoute: typeof AccountingJournalItemIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/bank-statement/$id': {
+      id: '/accounting/bank-statement/$id'
+      path: '/accounting/bank-statement/$id'
+      fullPath: '/accounting/bank-statement/$id'
+      preLoaderRoute: typeof AccountingBankStatementIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/analytic-account/$id': {
+      id: '/accounting/analytic-account/$id'
+      path: '/accounting/analytic-account/$id'
+      fullPath: '/accounting/analytic-account/$id'
+      preLoaderRoute: typeof AccountingAnalyticAccountIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/account/$id': {
+      id: '/accounting/account/$id'
+      path: '/accounting/account/$id'
+      fullPath: '/accounting/account/$id'
+      preLoaderRoute: typeof AccountingAccountIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface InventoryScrapRouteChildren {
+  InventoryScrapIdRoute: typeof InventoryScrapIdRoute
+}
+
+const InventoryScrapRouteChildren: InventoryScrapRouteChildren = {
+  InventoryScrapIdRoute: InventoryScrapIdRoute,
+}
+
+const InventoryScrapRouteWithChildren = InventoryScrapRoute._addFileChildren(
+  InventoryScrapRouteChildren,
+)
+
+interface InventoryWarehouseRouteChildren {
+  InventoryWarehouseIdRoute: typeof InventoryWarehouseIdRoute
+}
+
+const InventoryWarehouseRouteChildren: InventoryWarehouseRouteChildren = {
+  InventoryWarehouseIdRoute: InventoryWarehouseIdRoute,
+}
+
+const InventoryWarehouseRouteWithChildren =
+  InventoryWarehouseRoute._addFileChildren(InventoryWarehouseRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  DiscussRoute: DiscussRoute,
   LoginRoute: LoginRoute,
   MenuRoute: MenuRoute,
   SettingsRoute: SettingsRoute,
   WebRoute: WebRoute,
+  AccountingAnalyticAccountsRoute: AccountingAnalyticAccountsRoute,
+  AccountingBankStatementsRoute: AccountingBankStatementsRoute,
+  AccountingBillsRoute: AccountingBillsRoute,
+  AccountingCashRoundingRoute: AccountingCashRoundingRoute,
+  AccountingChartOfAccountsRoute: AccountingChartOfAccountsRoute,
+  AccountingCreditNotesRoute: AccountingCreditNotesRoute,
+  AccountingDashboardRoute: AccountingDashboardRoute,
+  AccountingFiscalPositionsRoute: AccountingFiscalPositionsRoute,
+  AccountingIncotermsRoute: AccountingIncotermsRoute,
+  AccountingInvoicesRoute: AccountingInvoicesRoute,
+  AccountingJournalItemsRoute: AccountingJournalItemsRoute,
   AccountingMovesRoute: AccountingMovesRoute,
+  AccountingPaymentTermsRoute: AccountingPaymentTermsRoute,
+  AccountingPaymentsRoute: AccountingPaymentsRoute,
+  AccountingReconciliationModelsRoute: AccountingReconciliationModelsRoute,
+  AccountingTaxesRoute: AccountingTaxesRoute,
+  AccountingVendorRefundsRoute: AccountingVendorRefundsRoute,
+  AttendanceKioskRoute: AttendanceKioskRoute,
+  CalendarAlarmsRoute: CalendarAlarmsRoute,
+  CalendarEventsRoute: CalendarEventsRoute,
+  CalendarTypesRoute: CalendarTypesRoute,
   ContactsPartnersRoute: ContactsPartnersRoute,
+  CrmActivitiesRoute: CrmActivitiesRoute,
+  CrmForecastRoute: CrmForecastRoute,
   CrmLeadsRoute: CrmLeadsRoute,
+  CrmLostReasonsRoute: CrmLostReasonsRoute,
   CrmPipelineRoute: CrmPipelineRoute,
+  CrmStagesRoute: CrmStagesRoute,
   CrmTeamsRoute: CrmTeamsRoute,
+  EventEventsRoute: EventEventsRoute,
+  EventRegistrationDeskRoute: EventRegistrationDeskRoute,
+  EventRegistrationsRoute: EventRegistrationsRoute,
+  ExpensesMyRoute: ExpensesMyRoute,
   HrDepartmentsRoute: HrDepartmentsRoute,
   HrDirectoryRoute: HrDirectoryRoute,
   HrEmployeesRoute: HrEmployeesRoute,
   HrJobsRoute: HrJobsRoute,
   HrPlansRoute: HrPlansRoute,
   HrWorkLocationsRoute: HrWorkLocationsRoute,
+  InventoryBackorderRoute: InventoryBackorderRoute,
+  InventoryDeliveriesRoute: InventoryDeliveriesRoute,
+  InventoryInternalRoute: InventoryInternalRoute,
+  InventoryInventoryAdjustmentRoute: InventoryInventoryAdjustmentRoute,
+  InventoryLateRoute: InventoryLateRoute,
+  InventoryLocationsRoute: InventoryLocationsRoute,
+  InventoryLotsRoute: InventoryLotsRoute,
+  InventoryMoveLinesRoute: InventoryMoveLinesRoute,
+  InventoryMovesRoute: InventoryMovesRoute,
+  InventoryOrderpointsRoute: InventoryOrderpointsRoute,
+  InventoryOverviewRoute: InventoryOverviewRoute,
+  InventoryPackagesRoute: InventoryPackagesRoute,
   InventoryPickingsRoute: InventoryPickingsRoute,
+  InventoryProductStockRoute: InventoryProductStockRoute,
+  InventoryQuantsRoute: InventoryQuantsRoute,
+  InventoryReceiptsRoute: InventoryReceiptsRoute,
+  InventoryScrapRoute: InventoryScrapRouteWithChildren,
+  InventoryTodoRoute: InventoryTodoRoute,
+  InventoryWaitingRoute: InventoryWaitingRoute,
+  InventoryWarehouseRoute: InventoryWarehouseRouteWithChildren,
+  MrpBomsRoute: MrpBomsRoute,
+  MrpProductionsRoute: MrpProductionsRoute,
+  MrpRoutingsRoute: MrpRoutingsRoute,
+  MrpUnbuildsRoute: MrpUnbuildsRoute,
+  MrpWorkCentersRoute: MrpWorkCentersRoute,
+  MrpWorkOrdersRoute: MrpWorkOrdersRoute,
+  ProductProductsRoute: ProductProductsRoute,
+  ProjectMilestonesRoute: ProjectMilestonesRoute,
   ProjectProjectsRoute: ProjectProjectsRoute,
+  ProjectStagesRoute: ProjectStagesRoute,
+  ProjectTaskStagesRoute: ProjectTaskStagesRoute,
   ProjectTasksRoute: ProjectTasksRoute,
   PurchaseOrdersRoute: PurchaseOrdersRoute,
+  PurchaseProductsRoute: PurchaseProductsRoute,
   PurchaseRfqsRoute: PurchaseRfqsRoute,
+  PurchaseVendorsRoute: PurchaseVendorsRoute,
+  RecruitmentApplicantsRoute: RecruitmentApplicantsRoute,
+  RecruitmentStagesRoute: RecruitmentStagesRoute,
   SaleOrdersRoute: SaleOrdersRoute,
+  SaleQuotationsRoute: SaleQuotationsRoute,
+  SaleReportingRoute: SaleReportingRoute,
+  SaleToInvoiceRoute: SaleToInvoiceRoute,
+  SaleToUpsellRoute: SaleToUpsellRoute,
   AccountingIndexRoute: AccountingIndexRoute,
+  AttendanceIndexRoute: AttendanceIndexRoute,
+  CalendarIndexRoute: CalendarIndexRoute,
   ContactsIndexRoute: ContactsIndexRoute,
   CrmIndexRoute: CrmIndexRoute,
+  EventIndexRoute: EventIndexRoute,
+  ExpensesIndexRoute: ExpensesIndexRoute,
   HrIndexRoute: HrIndexRoute,
   InventoryIndexRoute: InventoryIndexRoute,
+  MrpIndexRoute: MrpIndexRoute,
+  ProductIndexRoute: ProductIndexRoute,
   ProjectIndexRoute: ProjectIndexRoute,
   PurchaseIndexRoute: PurchaseIndexRoute,
+  RecruitmentIndexRoute: RecruitmentIndexRoute,
   SaleIndexRoute: SaleIndexRoute,
+  AccountingAccountIdRoute: AccountingAccountIdRoute,
+  AccountingAnalyticAccountIdRoute: AccountingAnalyticAccountIdRoute,
+  AccountingBankStatementIdRoute: AccountingBankStatementIdRoute,
+  AccountingJournalItemIdRoute: AccountingJournalItemIdRoute,
   AccountingMoveIdRoute: AccountingMoveIdRoute,
+  AccountingPaymentIdRoute: AccountingPaymentIdRoute,
+  AccountingTaxIdRoute: AccountingTaxIdRoute,
+  CalendarEventIdRoute: CalendarEventIdRoute,
   ContactsPartnerIdRoute: ContactsPartnerIdRoute,
   CrmLeadIdRoute: CrmLeadIdRoute,
   CrmTeamIdRoute: CrmTeamIdRoute,
+  EventEventIdRoute: EventEventIdRoute,
+  EventRegistrationIdRoute: EventRegistrationIdRoute,
+  ExpensesExpenseIdRoute: ExpensesExpenseIdRoute,
+  ExpensesSheetIdRoute: ExpensesSheetIdRoute,
   HrDepartmentIdRoute: HrDepartmentIdRoute,
   HrEmployeeIdRoute: HrEmployeeIdRoute,
+  InventoryLocationIdRoute: InventoryLocationIdRoute,
+  InventoryLotIdRoute: InventoryLotIdRoute,
+  InventoryMoveLineIdRoute: InventoryMoveLineIdRoute,
+  InventoryMoveIdRoute: InventoryMoveIdRoute,
+  InventoryOrderpointIdRoute: InventoryOrderpointIdRoute,
+  InventoryPackageIdRoute: InventoryPackageIdRoute,
+  InventoryPickingTypeIdRoute: InventoryPickingTypeIdRoute,
   InventoryPickingIdRoute: InventoryPickingIdRoute,
+  InventoryQuantIdRoute: InventoryQuantIdRoute,
+  MrpBomIdRoute: MrpBomIdRoute,
+  MrpProductionIdRoute: MrpProductionIdRoute,
+  MrpRoutingIdRoute: MrpRoutingIdRoute,
+  MrpUnbuildIdRoute: MrpUnbuildIdRoute,
+  MrpWorkCenterIdRoute: MrpWorkCenterIdRoute,
+  MrpWorkOrderIdRoute: MrpWorkOrderIdRoute,
+  ProductProductIdRoute: ProductProductIdRoute,
+  ProjectMilestoneIdRoute: ProjectMilestoneIdRoute,
   ProjectProjectIdRoute: ProjectProjectIdRoute,
   ProjectTaskIdRoute: ProjectTaskIdRoute,
   PurchaseOrderIdRoute: PurchaseOrderIdRoute,
+  RecruitmentApplicantIdRoute: RecruitmentApplicantIdRoute,
   SaleOrderIdRoute: SaleOrderIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -14,6 +14,7 @@ export {
   parsePivotXml,
   parseGraphXml,
   parseCalendarXml,
+  parseHierarchyXml,
   parseSearchPanel,
 } from './xml-parser'
 
@@ -54,7 +55,7 @@ export { generateReport, generateReportByXmlId } from './report'
 
 export type {
   ViewType, OdooFieldMeta, ViewField,
-  ParsedListView, ParsedFormView, ParsedKanbanView, ParsedActivityView, ParsedSearchView, ParsedPivotView, ParsedGraphView, ParsedCalendarView,
+  ParsedListView, ParsedFormView, ParsedKanbanView, ParsedActivityView, ParsedSearchView, ParsedPivotView, ParsedGraphView, ParsedCalendarView, ParsedHierarchyView,
   OdooActivityData, OdooActivityTypeInfo, OdooActivityGroupCell,
   FormElement, FieldElement, ButtonElement, HeaderElement, GroupElement, NotebookElement,
   KanbanTemplateNode, SearchFilter, SearchGroupBy, PivotField, PivotMeasure, GraphField, GraphMeasure, ListColumn,

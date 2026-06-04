@@ -621,7 +621,7 @@ export function SearchBar({
           })}
           {keywordDomain.length > 0 && keyword && (
             <FacetChip
-              label={`${field} ${operator === 'ilike' ? '∋' : operator} ${keyword}`}
+              label={`${advancedFields.find((f) => f.name === field)?.label || field} ${operator === 'ilike' ? '∋' : operator} ${keyword}`}
               color="blue"
               onRemove={() => {
                 setKeyword('')

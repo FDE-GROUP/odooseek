@@ -8,6 +8,7 @@ const SUPPORTED_VIEW_TYPES: ViewType[] = [
   'graph',
   'calendar',
   'activity',
+  'hierarchy',
 ]
 
 /** Map Odoo view mode tokens to frontend ViewType (`tree` → `list`). */

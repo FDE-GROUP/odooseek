@@ -453,6 +453,8 @@ You can use this field for quick search. */
   self: [number, string] /* res.partner */ | false
   /** Stats */
   application_statistics: unknown | false
+  /** Geolocation Date */
+  date_localization: string | false
   /** Channels */
   channel_ids: number[] /* discuss.channel */ | false
   /** Channel Member */
@@ -612,10 +614,42 @@ You can use this field for quick search. */
   peppol_eas: '9923' | '9922' | '0151' | '9914' | '9915' | '0208' | '9925' | '9924' | '9926' | '9934' | '9928' | '9929' | '0096' | '0184' | '0198' | '0191' | '9931' | '0037' | '0216' | '0213' | '0002' | '0009' | '9957' | '0225' | '0240' | '0246' | '0204' | '9930' | '9933' | '9910' | '0196' | '9935' | '0211' | '0097' | '0188' | '0221' | '0218' | '9939' | '9936' | '0200' | '9937' | '9938' | '9942' | '0230' | '9943' | '9940' | '9941' | '0106' | '0190' | '9944' | '0244' | '0192' | '9945' | '9946' | '9947' | '9948' | '0195' | '0245' | '9949' | '9950' | '9920' | '0007' | '9955' | '9927' | '0183' | '9952' | '0235' | '9932' | '9959' | '0060' | '0088' | '0130' | '0135' | '0142' | '0193' | '0199' | '0201' | '0202' | '0209' | '0210' | '9913' | '9918' | '9919' | '9951' | '9953' | 'AN' | 'AQ' | 'AS' | 'AU' | 'EM' | false
   /** Available Peppol Eas */
   available_peppol_eas: unknown | false
+  /** Applicants */
+  applicant_ids: number[] /* hr.applicant */
+  /** Supplier Currency — This currency will be used for purchases from the current partner */
+  property_purchase_currency_id: [number, string] /* res.currency */ | false
+  /** Purchase Order Count */
+  purchase_order_count: number | false
+  /** Message for Purchase Order */
+  purchase_warn_msg: string | false
+  /** Receipt Reminder — Automatically send a confirmation email to the vendor X days before the expected receipt date, asking him to confirm the exact date. */
+  receipt_reminder_email: boolean
+  /** Days Before Receipt — Number of days to send reminder email before the promised receipt date */
+  reminder_date_before_receipt: number | false
+  /** Buyer */
+  buyer_id: [number, string] /* res.users */ | false
   /** Website Partner Full Description */
   website_description: string | false
   /** Website Partner Short Description */
   website_short_description: string | false
+  /** Purchase Lines */
+  purchase_line_ids: number[] /* purchase.order.line */
+  /** On-Time Delivery Rate — Over the past x days; the number of products received on time divided by the number of ordered products.x is either the System Parameter purchase_stock.on_time_delivery_days or the default 365 */
+  on_time_rate: number | false
+  /** Suggest Based On */
+  suggest_based_on: string | false
+  /** Suggest Days */
+  suggest_days: number | false
+  /** Suggest Percent */
+  suggest_percent: number | false
+  /** Group RFQ — Define if RFQ should be grouped         together based on expected arrival, except for dropship operations.
+         On Order: Replenishment needs will be grouped together except for MTO.
+         Daily: Replenishment needs will be grouped if the expected arrival is the same day
+         Weekly: Replenishment needs will be grouped if the expected arrival is the same week or week day
+         Always: Replenishment needs will always be grouped. */
+  group_rfq: 'default' | 'day' | 'week' | 'all'
+  /** Week Day */
+  group_on: 'default' | '1' | '2' | '3' | '4' | '5' | '6' | '7'
   /** Sale Order Count */
   sale_order_count: number | false
   /** Sales Order */

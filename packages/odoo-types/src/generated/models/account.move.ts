@@ -386,8 +386,24 @@ Odoo will automatically create one invoice line with default values to match it.
   transaction_count: number | false
   /** Amount paid */
   amount_paid: number | false
+  /** Auto-complete — Auto-complete from a previous bill, refund, or purchase order. */
+  purchase_vendor_bill_id: [number, string] /* purchase.bill.union */ | false
+  /** Purchase Order — Auto-complete from a past purchase order. */
+  purchase_id: [number, string] /* purchase.order */ | false
+  /** Purchase Order Count */
+  purchase_order_count: number | false
+  /** Purchase Order Name */
+  purchase_order_name: string | false
+  /** Is Purchase Matched */
+  is_purchase_matched: boolean
+  /** Purchase Warning — Internal warning for the partner or the products as set by the user. */
+  purchase_warning_text: string | false
   /** Stock Move */
   stock_move_ids: number[] /* stock.move */
+  /** Relevant WIP MOs — The MOs that this WIP entry was based on. Expected to be set at time of WIP entry creation. */
+  wip_production_ids: number[] /* mrp.production */ | false
+  /** Manufacturing Orders Count */
+  wip_production_count: number | false
   /** Sales Team */
   team_id: [number, string] /* crm.team */ | false
   /** Sale Order Count */
@@ -396,6 +412,10 @@ Odoo will automatically create one invoice line with default values to match it.
   sale_warning_text: string | false
   /** Website — Website through which this invoice was created for eCommerce orders. */
   website_id: [number, string] /* website */ | false
+  /** Expense */
+  expense_ids: number[] /* hr.expense */
+  /** Number of Expenses */
+  nb_expenses: number | false
 }
 
 /** Field names for account.move */

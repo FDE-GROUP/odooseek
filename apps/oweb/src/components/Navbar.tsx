@@ -63,6 +63,14 @@ export function Navbar() {
       inventory: 'stock',
       accounting: 'account',
       hr: 'hr',
+      event: 'event',
+      calendar: 'calendar',
+      product: 'product',
+      mrp: 'mrp',
+      attendance: 'hr_attendance',
+      discuss: 'mail',
+      expenses: 'expense',
+      recruitment: 'recruitment',
     }
     const topSegment = currentPath.split('/')[1]
     const knownModule = routeAppMap[topSegment]

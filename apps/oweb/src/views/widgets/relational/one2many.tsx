@@ -22,7 +22,7 @@ export function One2ManyWidget({ field, value, onChange, readOnly, meta }: Field
         [],
         ['string', 'type', 'relation', 'selection', 'required'],
       ),
-    enabled: !!relation && !columnDefs,
+    enabled: !!relation,
   })
 
   const columns = useMemo<ViewField[]>(() => {
@@ -232,7 +232,7 @@ export function One2ManyWidget({ field, value, onChange, readOnly, meta }: Field
   if (!relation) return <span className="text-sm text-text-muted">—</span>
 
   return (
-    <div className="rounded-lg border border-border-subtle">
+    <div className="rounded-lg border border-border-subtle overflow-x-auto">
       {isLoading && (
         <div className="flex items-center justify-center py-4">
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent border-t-transparent" />

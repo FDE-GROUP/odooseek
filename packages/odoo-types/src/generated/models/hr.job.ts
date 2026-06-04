@@ -5,6 +5,55 @@ import type { BaseRecord, ModelFieldName, ModelRecord } from '../core'
 
 /** hr.job */
 export interface HrJobRecord extends BaseRecord {
+  /** Website — Restrict to a specific website. */
+  website_id: [number, string] /* website */ | false
+  /** Visible on current website — Set if the application is published on the website of the company. */
+  website_published: boolean
+  /** Is Published */
+  is_published: boolean
+  /** Can Publish */
+  can_publish: boolean
+  /** Website URL — The full relative URL to access the document through the website. */
+  website_url: string | false
+  /** Website Absolute URL — The full absolute URL to access the document through the website. */
+  website_absolute_url: string | false
+  /** SEO optimized */
+  is_seo_optimized: boolean
+  /** Website meta title */
+  website_meta_title: string | false
+  /** Website meta description */
+  website_meta_description: string | false
+  /** Website meta keywords */
+  website_meta_keywords: string | false
+  /** Website opengraph image */
+  website_meta_og_img: string | false
+  /** Seo name */
+  seo_name: string | false
+  /** Activities */
+  activity_ids: number[] /* mail.activity */
+  /** Activity State — Status based on activities
+Overdue: Due date is already passed
+Today: Activity date is today
+Planned: Future activities. */
+  activity_state: 'overdue' | 'today' | 'planned' | false
+  /** Responsible User */
+  activity_user_id: [number, string] /* res.users */ | false
+  /** Next Activity Type */
+  activity_type_id: [number, string] /* mail.activity.type */ | false
+  /** Activity Type Icon — Font awesome icon e.g. fa-tasks */
+  activity_type_icon: string | false
+  /** Next Activity Deadline */
+  activity_date_deadline: string | false
+  /** My Activity Deadline */
+  my_activity_date_deadline: string | false
+  /** Next Activity Summary */
+  activity_summary: string | false
+  /** Activity Exception Decoration — Type of the exception activity on record. */
+  activity_exception_decoration: 'warning' | 'danger' | false
+  /** Icon — Icon to indicate an exception activity. */
+  activity_exception_icon: string | false
+  /** Next Activity Calendar Event */
+  activity_calendar_event_id: [number, string] /* calendar.event */ | false
   /** Is Follower */
   message_is_follower: boolean
   /** Followers */
@@ -67,12 +116,104 @@ export interface HrJobRecord extends BaseRecord {
   write_uid: [number, string] /* res.users */ | false
   /** Last Updated on */
   write_date: string | false
+  /** Alias — Email alias for this job position. New emails will automatically create new applicants for this job position. */
+  alias_id: [number, string] /* mail.alias */
+  /** Alias Name — The name of the email alias, e.g. \'jobs\' if you want to catch emails for <jobs@example.odoo.com> */
+  alias_name: string | false
+  /** Alias Domain */
+  alias_domain_id: [number, string] /* mail.alias.domain */ | false
+  /** Alias Domain Name — Email domain e.g. \'example.com\' in \'odoo@example.com\' */
+  alias_domain: string | false
+  /** Default Values — A Python dictionary that will be evaluated to provide default values when creating new records for this alias. */
+  alias_defaults: string
+  /** Email Alias */
+  alias_email: string | false
+  /** Job Location — Select the location where the applicant will work. Addresses listed here are defined on the company\'s contact information. */
+  address_id: [number, string] /* res.partner */ | false
+  /** Job Applications */
+  application_ids: number[] /* hr.applicant */
+  /** Application Count */
+  application_count: number | false
+  /** Open Application Count — Number of applications that are still ongoing (not hired or refused) */
+  open_application_count: number | false
+  /** All Application Count */
+  all_application_count: number | false
+  /** New Application — Number of applications that are new in the flow (typically at first step of the flow) */
+  new_application_count: number | false
+  /** Old Application */
+  old_application_count: number | false
+  /** Applicants Hired */
+  applicant_hired: number | false
+  /** Department Manager */
+  manager_id: [number, string] /* hr.employee */ | false
+  /** Documents */
+  document_ids: number[] /* ir.attachment */
+  /** Document Count */
+  documents_count: number | false
+  /** Employee Count */
+  employee_count: number | false
+  /** Color Index */
+  color: number | false
+  /** Is Favorite */
+  is_favorite: boolean
+  /** Favorite User */
+  favorite_user_ids: number[] /* res.users */ | false
+  /** Interviewers — The Interviewers set on the job position can see all Applicants in it. They have access to the information, the attachments, the meeting management and they can refuse him. You don\'t need to have Recruitment rights to be set as an interviewer. */
+  interviewer_ids: number[] /* res.users */ | false
+  /** Extended Interviewer */
+  extended_interviewer_ids: number[] /* res.users */ | false
+  /** Industry */
+  industry_id: [number, string] /* res.partner.industry */ | false
+  /** Expected Degree */
+  expected_degree: [number, string] /* hr.recruitment.degree */ | false
+  /** Activity Count */
+  activity_count: number | false
+  /** Properties */
+  job_properties: unknown | false
+  /** Applicant Properties */
+  applicant_properties_definition: unknown | false
+  /** Hired — Number of hired employees for this job position during recruitment phase. */
+  no_of_hired_employee: number | false
+  /** Job Source */
+  job_source_ids: number[] /* hr.recruitment.source */
   /** Skills */
   job_skill_ids: number[] /* hr.job.skill */
   /** Current Job Skill */
   current_job_skill_ids: number[] /* hr.job.skill */
   /** Skill */
   skill_ids: number[] /* hr.skill */ | false
+  /** Matching Score(%) */
+  applicant_matching_score: number | false
+  /** Website description */
+  website_description: string | false
+  /** Process Details — Complementary information that will appear on the job submission page */
+  job_details: string | false
+  /** Published Date */
+  published_date: string | false
+  /** job URL */
+  full_url: string | false
+  /** Alias Email */
+  alias_full_name: string | false
+  /** Aliased Model — The model (Odoo Document Kind) to which this alias corresponds. Any incoming email that does not reply to an existing record will cause the creation of a new record of this model (e.g. a Project Task) */
+  alias_model_id: [number, string] /* ir.model */
+  /** Record Thread ID — Optional ID of a thread (record) to which all incoming messages will be attached, even if they did not reply to it. If set, this will disable the creation of new records completely. */
+  alias_force_thread_id: number | false
+  /** Parent Model — Parent model holding the alias. The model holding the alias reference is not necessarily the model given by alias_model_id (example: project (parent_model) and task (model)) */
+  alias_parent_model_id: [number, string] /* ir.model */ | false
+  /** Parent Record Thread ID — ID of the parent record holding the alias (example: project holding the task creation alias) */
+  alias_parent_thread_id: number | false
+  /** Alias Contact Security — Policy to post a message on the document using the mailgateway.
+- everyone: everyone can post
+- partners: only authenticated partners
+- followers: only followers of the related document or members of following channels
+ */
+  alias_contact: 'everyone' | 'partners' | 'followers' | 'employees'
+  /** Local-part based incoming detection */
+  alias_incoming_local: boolean
+  /** Custom Bounced Message — If set, this content will automatically be sent out to unauthorized users instead of the default message. */
+  alias_bounced_content: string | false
+  /** Alias Status — Alias status assessed on the last message received. */
+  alias_status: 'not_tested' | 'valid' | 'invalid' | false
 }
 
 /** Field names for hr.job */

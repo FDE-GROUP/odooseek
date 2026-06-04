@@ -16,6 +16,7 @@ import type {
   ParsedCalendarView,
   ParsedFormView,
   ParsedGraphView,
+  ParsedHierarchyView,
   ParsedActivityView,
   ParsedKanbanView,
   ParsedListView,
@@ -141,6 +142,7 @@ function parseButtonBox(el: Element): ButtonBoxElement {
       icon: base.icon,
       invisible: base.invisible,
       confirm: base.confirm,
+      context: base.context,
       content,
     })
   }
@@ -379,6 +381,7 @@ export function parseListXml(xml: string): ParsedListView {
   return {
     type: 'list',
     string: root.getAttribute('string') ?? '',
+    jsClass: root.getAttribute('js_class') ?? undefined,
     editable: root.getAttribute('editable') ?? undefined,
     create: root.getAttribute('create') !== 'false',
     delete: root.getAttribute('delete') !== 'false',
@@ -425,6 +428,7 @@ export function parseKanbanXml(xml: string): ParsedKanbanView {
   const defaultGroupBy = root.getAttribute('default_group_by') ?? undefined
   const highlightColor = root.getAttribute('highlight_color') ?? undefined
   const quickCreateView = root.getAttribute('quick_create_view') ?? undefined
+  const canOpen = root.getAttribute('can_open') !== '0'
 
   // Use XMLSerializer to preserve inner XML (textContent strips tags!)
   const serializer = new XMLSerializer()
@@ -464,6 +468,7 @@ export function parseKanbanXml(xml: string): ParsedKanbanView {
   return {
     type: 'kanban',
     string: root.getAttribute('string') ?? '',
+    jsClass: root.getAttribute('js_class') ?? undefined,
     fields,
     template: templateText || qwebText,
     templateNodes,
@@ -471,6 +476,7 @@ export function parseKanbanXml(xml: string): ParsedKanbanView {
     highlightColor,
     progressbar,
     quickCreateView,
+    canOpen,
   }
 }
 
@@ -797,6 +803,7 @@ export function parsePivotXml(xml: string): ParsedPivotView {
   return {
     type: 'pivot',
     string: root.getAttribute('string') ?? 'Pivot',
+    jsClass: root.getAttribute('js_class') ?? undefined,
     disableLinking: root.getAttribute('disable_linking') !== undefined,
     defaultOrder: root.getAttribute('default_order') ?? undefined,
     rowFields,
@@ -839,6 +846,7 @@ export function parseGraphXml(xml: string): ParsedGraphView {
   return {
     type: 'graph',
     string: root.getAttribute('string') ?? '',
+    jsClass: root.getAttribute('js_class') ?? undefined,
     graphType,
     rowFields,
     colFields,
@@ -885,6 +893,7 @@ export function parseCalendarXml(xml: string): ParsedCalendarView {
   return {
     type: 'calendar',
     string: root.getAttribute('string') ?? '',
+    jsClass: root.getAttribute('js_class') ?? undefined,
     dateStart: root.getAttribute('date_start') ?? '',
     dateStop: root.getAttribute('date_stop') ?? undefined,
     dateDelay: root.getAttribute('date_delay') ?? undefined,
@@ -903,7 +912,10 @@ export function parseCalendarXml(xml: string): ParsedCalendarView {
       ? Number(eventOpenPopup) !== 0
       : undefined,
     quickCreateViewId: qcvId ? Number(qcvId) : undefined,
-    multiEdit: root.getAttribute('multi_create_view') === '1',
+    multiEdit:
+      root.getAttribute('multi_create_view') === '1' ||
+      root.getAttribute('multi_create') === '1' ||
+      root.getAttribute('multi_create') === 'true',
   }
 }
 
@@ -916,6 +928,7 @@ export function parseSearchPanel(el: Element): ParsedSearchPanel {
     const limit = child.getAttribute('limit')
     fields.push({
       name: child.getAttribute('name') ?? '',
+      string: child.getAttribute('string') ?? undefined,
       select,
       icon: child.getAttribute('icon') ?? undefined,
       enableCounters: child.getAttribute('enable_counters') === '1',
@@ -956,7 +969,36 @@ export function parseActivityXml(xml: string): ParsedActivityView {
   return {
     type: 'activity',
     string: root.getAttribute('string') ?? '',
+    jsClass: root.getAttribute('js_class') ?? undefined,
     fields,
     boxFields: parseActivityBoxFields(root),
+  }
+}
+
+/** Parse Odoo `<hierarchy>` XML */
+export function parseHierarchyXml(xml: string): ParsedHierarchyView {
+  const doc = new DOMParser().parseFromString(xml, 'text/xml')
+  const root = doc.documentElement
+
+  const fields = [
+    ...new Set(
+      Array.from(root.querySelectorAll(':scope > field'))
+        .map((el) => el.getAttribute('name') ?? '')
+        .filter(Boolean),
+    ),
+  ]
+
+  const templateEl = root.querySelector('templates')
+  const serializer = new XMLSerializer()
+  const template = templateEl ? serializer.serializeToString(templateEl) : undefined
+
+  return {
+    type: 'hierarchy',
+    string: root.getAttribute('string') ?? '',
+    jsClass: root.getAttribute('js_class') ?? undefined,
+    childField: root.getAttribute('child_field') ?? 'child_ids',
+    fields,
+    draggable: root.getAttribute('draggable') === '1',
+    template,
   }
 }

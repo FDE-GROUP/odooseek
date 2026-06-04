@@ -317,13 +317,79 @@ const WIDGET_ALIASES: Record<string, keyof typeof WIDGET_OVERRIDES> = {
   timesheet_uom_no_toggle: 'timesheet_uom',
   many2many_avatar_employee: 'many2many_avatar_user',
   website_redirect: 'website_redirect_button',
+  // Event module
+  event_state_selection: 'state_selection',
+  event_icon_selection: 'selection',
+  EventMailTemplateReferenceField: 'many2one',
+  // Stock module
+  forecast_widget: 'gauge',
+  counted_quantity_widget: 'float',
+  stock_action_field: 'statinfo',
+  package_m2o: 'many2one',
+  package_m2m: 'many2many_tags',
+  pick_from: 'many2one',
+  sml_x2_many: 'one2many',
+  move_product_label_field: 'many2one',
+  stock_rescheduling_popover: 'many2one',
+  many2many_barcode_tags: 'many2many_tags',
+  picking_type_dashboard_graph: 'gauge',
+  stock_move_one2many: 'one2many',
+  popover_widget: 'many2one',
+  stock_forced_placeholder: 'char',
+  generate_serials: 'text',
+  import_lots: 'text',
+  // Account module
+  account_type_selection: 'selection',
+  many2many_tax_tags: 'many2many_tags',
+  open_move_widget: 'many2one',
+  line_open_move_widget: 'many2one',
+  analytic_distribution: 'many2one',
+  receipt_selector: 'selection',
+  account_move_statusbar_secured: 'statusbar',
+  invoice_payments_widget: 'many2one',
+  x2many_buttons: 'many2one',
+  actionable_errors: 'many2one',
+  many2many_tags_banks: 'many2many_tags',
+  account_tax_repartition_line_factor_percent: 'float',
+  // Sale module
+  sol_o2m: 'one2many',
+  sol_product_many2one: 'many2one',
+  sol_text: 'text',
+  'account-tax-totals-field': 'text',
+  // CRM module — extras not already in aliases
+  open_match_line_widget: 'many2one',
+  monetary_no_zero: 'monetary',
+  // Purchase module
+  purchase_file_uploader: 'binary',
+  product_label_section_and_note_field: 'many2one',
+  product_label_section_and_note_field_o2m: 'one2many',
+  toaster_button: 'many2one',
+  // Project module
+  project_is_favorite: 'boolean_favorite',
+  project_state_selection: 'state_selection',
+  status_with_color: 'selection_badge',
+  name_with_subtask_count: 'many2one',
+  statusbar_duration: 'statusbar',
+  // MRP module
+  mrp_timer: 'float',
+  mrp_workorder_popover: 'many2one',
+  mrp_remaining_days_unformatted: 'remaining_days',
+  mrp_should_consume: 'boolean',
+  // Calendar module
+  many2manyattendee: 'many2many_tags',
+  many2manyattendeeexpandable: 'many2many_tags',
+  calendar_week_days: 'many2many_checkboxes',
+  calendar_event_notes_html: 'text',
 }
 
-function resolveWidgetOverride(widget?: string) {
-  if (!widget) return undefined
-  if (WIDGET_OVERRIDES[widget]) return WIDGET_OVERRIDES[widget]
-  const alias = WIDGET_ALIASES[widget]
-  if (alias) return WIDGET_OVERRIDES[alias]
+function resolveWidgetOverride(
+  widgetName?: string,
+): React.ComponentType<FieldWidgetProps> | undefined {
+  if (!widgetName) return undefined
+  const direct = WIDGET_OVERRIDES[widgetName]
+  if (direct) return direct
+  const aliasKey = WIDGET_ALIASES[widgetName]
+  if (aliasKey) return WIDGET_OVERRIDES[aliasKey]
   return undefined
 }
 

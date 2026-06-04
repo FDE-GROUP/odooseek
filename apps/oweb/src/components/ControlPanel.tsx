@@ -152,41 +152,6 @@ export function ControlPanel({
     <div className="flex shrink-0 flex-wrap items-center gap-2">
       {showMenus && (
         <div className="flex items-center gap-1">
-          {hasPrint && (
-            <div className="relative" {...menuHoverHandlers('print')}>
-              <button
-                ref={printBtnRef}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  openMenuOnHover('print')
-                }}
-                className={cpNeutralPill()}
-              >
-                Print
-                <ChevronDown className="h-3 w-3" />
-              </button>
-              <AnchoredDropdown
-                open={openMenu === 'print'}
-                onClose={() => setOpenMenu(null)}
-                anchorRef={printBtnRef}
-                width={176}
-                closeOnBackdropClick={false}
-                {...menuPanelHoverHandlers}
-              >
-                {toolbar?.print.map((a) => (
-                  <button
-                    key={a.id}
-                    type="button"
-                    onClick={() => handlePrintAction(a.id)}
-                    className="flex w-full items-center px-3 py-2 text-left text-xs text-text-primary hover:bg-hover/50"
-                  >
-                    {a.name}
-                  </button>
-                ))}
-              </AnchoredDropdown>
-            </div>
-          )}
           {formEditActions && <FormEditActions {...formEditActions} />}
           {hasAction && (
             <div className="relative" {...menuHoverHandlers('action')}>
@@ -271,6 +236,41 @@ export function ControlPanel({
               </AnchoredDropdown>
             </div>
           )}
+          {hasPrint && (
+            <div className="relative" {...menuHoverHandlers('print')}>
+              <button
+                ref={printBtnRef}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  openMenuOnHover('print')
+                }}
+                className={cpNeutralPill()}
+              >
+                Print
+                <ChevronDown className="h-3 w-3" />
+              </button>
+              <AnchoredDropdown
+                open={openMenu === 'print'}
+                onClose={() => setOpenMenu(null)}
+                anchorRef={printBtnRef}
+                width={176}
+                closeOnBackdropClick={false}
+                {...menuPanelHoverHandlers}
+              >
+                {toolbar?.print.map((a) => (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => handlePrintAction(a.id)}
+                    className="flex w-full items-center px-3 py-2 text-left text-xs text-text-primary hover:bg-hover/50"
+                  >
+                    {a.name}
+                  </button>
+                ))}
+              </AnchoredDropdown>
+            </div>
+          )}
         </div>
       )}
       {onImport && currentView !== 'form' && (
@@ -320,7 +320,7 @@ export function ControlPanel({
               <button
                 type="button"
                 onClick={searchPanelToggle.onToggle}
-                className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium md:hidden ${
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium ${
                   searchPanelToggle.open
                     ? 'border-accent bg-accent/10 text-accent'
                     : 'border-border-default text-text-secondary hover:bg-hover'

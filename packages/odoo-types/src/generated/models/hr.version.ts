@@ -189,6 +189,8 @@ You can use this field for quick search. */
   write_uid: [number, string] /* res.users */ | false
   /** Last Updated on */
   write_date: string | false
+  /** Ruleset */
+  ruleset_id: [number, string] /* hr.attendance.overtime.ruleset */ | false
 }
 
 /** Field names for hr.version */

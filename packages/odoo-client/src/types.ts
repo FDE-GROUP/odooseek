@@ -1,6 +1,6 @@
 // Odoo 19 CE view type definitions
 
-export type ViewType = 'list' | 'form' | 'kanban' | 'pivot' | 'graph' | 'calendar' | 'activity'
+export type ViewType = 'list' | 'form' | 'kanban' | 'pivot' | 'graph' | 'calendar' | 'activity' | 'hierarchy'
 
 export interface OdooFieldMeta {
   name: string
@@ -51,6 +51,7 @@ export interface ViewField {
 export interface ParsedListView {
   type: 'list'
   string: string
+  jsClass?: string
   editable?: string
   create?: boolean
   delete?: boolean
@@ -175,6 +176,7 @@ export interface StatButtonElement {
   icon?: string
   invisible?: string
   confirm?: string
+  context?: string
   content?: StatButtonContent
 }
 
@@ -265,6 +267,7 @@ export interface KanbanProgressbar {
 export interface ParsedKanbanView {
   type: 'kanban'
   string: string
+  jsClass?: string
   fields: string[]
   template: string // raw template HTML
   templateNodes?: KanbanTemplateNode[] // AST (Phase 4)
@@ -272,12 +275,14 @@ export interface ParsedKanbanView {
   highlightColor?: string // e.g. "color"
   progressbar?: KanbanProgressbar
   quickCreateView?: string
+  canOpen?: boolean // when false, clicking cards does nothing (e.g. hr.department)
 }
 
 /** Odoo `<activity>` view — matrix of records × mail.activity.type */
 export interface ParsedActivityView {
   type: 'activity'
   string: string
+  jsClass?: string
   fields: string[]
   boxFields: ViewField[]
 }
@@ -335,6 +340,7 @@ export interface ParsedSearchPanel {
 
 export interface SearchPanelField {
   name: string
+  string?: string
   select: 'one' | 'multi'
   icon?: string
   enableCounters: boolean
@@ -380,6 +386,7 @@ export interface ReadGroupResult {
 export interface ParsedPivotView {
   type: 'pivot'
   string: string
+  jsClass?: string
   disableLinking?: boolean
   defaultOrder?: string
   rowFields: PivotField[]
@@ -414,6 +421,7 @@ export interface GraphMeasure {
 export interface ParsedGraphView {
   type: 'graph'
   string: string
+  jsClass?: string
   graphType: 'bar' | 'line' | 'pie' | 'area'
   rowFields: GraphField[]
   colFields: GraphField[]
@@ -425,6 +433,7 @@ export interface ParsedGraphView {
 export interface ParsedCalendarView {
   type: 'calendar'
   string: string
+  jsClass?: string
   dateStart: string
   dateStop?: string
   dateDelay?: string
@@ -449,6 +458,16 @@ export interface ToolbarAction {
   binding_view_types?: string
   domain?: string
   sequence?: number
+}
+
+export interface ParsedHierarchyView {
+  type: 'hierarchy'
+  string: string
+  jsClass?: string
+  childField: string
+  fields: string[]
+  draggable?: boolean
+  template?: string
 }
 
 export interface ViewToolbar {

@@ -218,6 +218,8 @@ You can use this field for quick search. */
   opportunity_id: [number, string] /* crm.lead */ | false
   /** Quotation Template */
   sale_order_template_id: [number, string] /* sale.order.template */ | false
+  /** Number of Purchase Order Generated */
+  purchase_order_count: number | false
   /** Incoterm — International Commercial Terms are a series of predefined commercial terms used in international transactions. */
   incoterm: [number, string] /* account.incoterms */ | false
   /** Incoterm Location */
@@ -246,6 +248,10 @@ You can use this field for quick search. */
   show_json_popover: boolean
   /** Attendee Count */
   attendee_count: number | false
+  /** Count of MO generated */
+  mrp_production_count: number | false
+  /** Manufacturing orders associated with this sales order. */
+  mrp_production_ids: number[] /* mrp.production */ | false
   /** Available Quotation Documents */
   available_quotation_document_ids: number[] /* quotation.document */ | false
   /** Is Pdf Quote Builder Available */
@@ -296,6 +302,10 @@ You can use this field for quick search. */
   project_id: [number, string] /* project.project */ | false
   /** Project Account */
   project_account_id: [number, string] /* account.analytic.account */ | false
+  /** Expenses */
+  expense_ids: number[] /* hr.expense */
+  /** # of Expenses */
+  expense_count: number | false
 }
 
 /** Field names for sale.order */

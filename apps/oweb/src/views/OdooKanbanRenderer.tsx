@@ -49,6 +49,7 @@ export function OdooKanbanRenderer({
   const groupBy = activeGroupBy?.[0] || kanbanView.defaultGroupBy || undefined
   const highlightColor = kanbanView.highlightColor
   const progressbar = kanbanView.progressbar
+  const canOpen = kanbanView.canOpen !== false // defaults to true when undefined
 
   // Ensure groupBy + name + template fields (e.g. image_1024 in HR kanban aside)
   const searchFields = useMemo(() => {
@@ -251,7 +252,7 @@ export function OdooKanbanRenderer({
               templateNodes={templateNodes}
               fields={fields}
               highlightColor={highlightColor}
-              onClick={onRecordClick}
+              onClick={canOpen ? onRecordClick : undefined}
               onDelete={handleCardDelete}
               onArchive={handleCardArchive}
             />
@@ -286,6 +287,7 @@ export function OdooKanbanRenderer({
             progressbarCounts={progressbarData?.[colId]}
             sumField={progressbar?.sumField}
             onRecordClick={onRecordClick}
+            canRecordOpen={canOpen}
             onDrop={handleDragEnd}
             onQuickCreate={handleQuickCreate}
             onDelete={handleCardDelete}
@@ -320,6 +322,7 @@ function KanbanColumn({
   progressbarCounts,
   sumField,
   onRecordClick,
+  canRecordOpen,
   onDrop,
   onQuickCreate,
   onDelete,
@@ -339,6 +342,7 @@ function KanbanColumn({
   progressbarCounts?: Record<string, number>
   sumField?: string
   onRecordClick?: (id: number) => void
+  canRecordOpen?: boolean
   onDrop: (recordId: number, newStageId: number) => void
   onQuickCreate?: (vals: Record<string, unknown>) => void
   onDelete?: (id: number) => void
@@ -399,7 +403,7 @@ function KanbanColumn({
             templateNodes={templateNodes}
             fields={fields}
             highlightColor={highlightColor}
-            onClick={onRecordClick}
+            onClick={canRecordOpen !== false ? onRecordClick : undefined}
             onDelete={onDelete}
             onArchive={onArchive}
           />
@@ -620,7 +624,9 @@ function KanbanCard({
         )
       })
     ) : (
-      <span className="text-sm font-medium text-text-primary">{record.name as string}</span>
+      <span className="text-sm font-medium text-text-primary">
+        {(record.display_name || record.name) as string}
+      </span>
     )
 
   return (
