@@ -1,26 +1,40 @@
-//! Simple in-memory response cache for the BFF proxy layer.
+//! Cache abstraction layer for the BFF proxy.
 //!
-//! Caches JSON-RPC responses for commonly-called, slow-changing endpoints
-//! to reduce load on the Odoo server and improve frontend responsiveness.
+//! Provides a `CacheStore` trait with two implementations:
+//! - `InMemoryCache`: process-local HashMap (default)
+//! - `RedisCache`: shared Redis-backed cache (behind `redis-cache` feature)
 
+use async_trait::async_trait;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use tokio::time::{Duration, Instant};
 
-#[derive(Clone)]
-pub struct ResponseCache {
-    inner: Arc<RwLock<HashMap<String, CacheEntry>>>,
-    max_entries: usize,
+// ── Trait ───────────────────────────────────────────────────────────
+
+#[async_trait]
+pub trait CacheStore: Send + Sync {
+    async fn get(&self, key: &str) -> Option<Value>;
+    async fn set(&self, key: &str, value: Value, endpoint_hint: &str);
+    async fn invalidate(&self, prefix: &str);
+    async fn entry_count(&self) -> usize;
 }
+
+// ── InMemory ────────────────────────────────────────────────────────
 
 struct CacheEntry {
     value: Value,
     expires_at: Instant,
 }
 
-impl ResponseCache {
+#[derive(Clone)]
+pub struct InMemoryCache {
+    inner: Arc<RwLock<HashMap<String, CacheEntry>>>,
+    max_entries: usize,
+}
+
+impl InMemoryCache {
     const DEFAULT_MAX_ENTRIES: usize = 5000;
 
     pub fn new() -> Self {
@@ -38,8 +52,17 @@ impl ResponseCache {
         });
         cache
     }
+}
 
-    pub async fn get(&self, key: &str) -> Option<Value> {
+impl Default for InMemoryCache {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[async_trait]
+impl CacheStore for InMemoryCache {
+    async fn get(&self, key: &str) -> Option<Value> {
         let cache = self.inner.read().await;
         cache.get(key).and_then(|entry| {
             if entry.expires_at > Instant::now() {
@@ -50,7 +73,7 @@ impl ResponseCache {
         })
     }
 
-    pub async fn set(&self, key: &str, value: Value, endpoint_hint: &str) {
+    async fn set(&self, key: &str, value: Value, endpoint_hint: &str) {
         let ttl = ttl_for_endpoint(endpoint_hint);
         let entry = CacheEntry {
             value,
@@ -59,7 +82,6 @@ impl ResponseCache {
         let mut cache = self.inner.write().await;
         cache.insert(key.to_string(), entry);
 
-        // Evict oldest entry if over capacity
         if cache.len() > self.max_entries
             && let Some(oldest_key) = cache
                 .iter()
@@ -70,21 +92,104 @@ impl ResponseCache {
         }
     }
 
-    pub async fn invalidate(&self, prefix: &str) {
+    async fn invalidate(&self, prefix: &str) {
         self.inner
             .write()
             .await
             .retain(|k, _| !k.starts_with(prefix));
     }
-}
 
-impl Default for ResponseCache {
-    fn default() -> Self {
-        Self::new()
+    async fn entry_count(&self) -> usize {
+        self.inner.read().await.len()
     }
 }
 
-/// Build a deterministic cache key from model, method, and args hash.
+// ── Redis ───────────────────────────────────────────────────────────
+
+#[cfg(feature = "redis-cache")]
+pub mod redis_impl {
+    use super::*;
+    use ::redis::AsyncCommands;
+
+    #[derive(Clone)]
+    pub struct RedisCache {
+        client: ::redis::Client,
+        key_prefix: String,
+    }
+
+    impl RedisCache {
+        pub fn new(redis_url: &str, key_prefix: &str) -> Result<Self, ::redis::RedisError> {
+            let client = ::redis::Client::open(redis_url)?;
+            Ok(Self {
+                client,
+                key_prefix: key_prefix.to_string(),
+            })
+        }
+
+        fn prefixed_key(&self, key: &str) -> String {
+            format!("{}:{}", self.key_prefix, key)
+        }
+    }
+
+    #[async_trait]
+    impl CacheStore for RedisCache {
+        async fn get(&self, key: &str) -> Option<Value> {
+            let mut conn = self.client.get_multiplexed_async_connection().await.ok()?;
+            let data: Option<String> = conn.get(self.prefixed_key(key)).await.ok()?;
+            data.and_then(|s| serde_json::from_str(&s).ok())
+        }
+
+        async fn set(&self, key: &str, value: Value, endpoint_hint: &str) {
+            let Ok(mut conn) = self.client.get_multiplexed_async_connection().await else {
+                return;
+            };
+            let ttl = ttl_for_endpoint(endpoint_hint);
+            let prefixed = self.prefixed_key(key);
+            let _ = conn
+                .set_ex::<_, _, ()>(&prefixed, value.to_string(), ttl.as_secs())
+                .await;
+        }
+
+        async fn invalidate(&self, prefix: &str) {
+            let Ok(mut conn) = self.client.get_multiplexed_async_connection().await else {
+                return;
+            };
+            let pattern = format!("{}*", self.prefixed_key(prefix));
+            let mut cursor: u64 = 0;
+            loop {
+                let (new_cursor, keys): (u64, Vec<String>) = ::redis::cmd("SCAN")
+                    .arg(cursor)
+                    .arg("MATCH")
+                    .arg(&pattern)
+                    .arg("COUNT")
+                    .arg(100)
+                    .query_async(&mut conn)
+                    .await
+                    .unwrap_or((0, vec![]));
+                if !keys.is_empty() {
+                    let _ = conn.del::<_, ()>(&keys).await;
+                }
+                cursor = new_cursor;
+                if cursor == 0 {
+                    break;
+                }
+            }
+        }
+
+        async fn entry_count(&self) -> usize {
+            let Ok(mut conn) = self.client.get_multiplexed_async_connection().await else {
+                return 0;
+            };
+            let Ok(count) = ::redis::cmd("DBSIZE").query_async::<i64>(&mut conn).await else {
+                return 0;
+            };
+            count as usize
+        }
+    }
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────
+
 pub fn cache_key(model: &str, method: &str, args: &Value) -> String {
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
@@ -107,6 +212,23 @@ fn ttl_for_endpoint(method: &str) -> Duration {
         _ => Duration::from_secs(60),
     }
 }
+
+// ── Type alias for ergonomic usage ──────────────────────────────────
+
+pub type Cache = Arc<dyn CacheStore>;
+
+pub fn default_cache() -> Cache {
+    Arc::new(InMemoryCache::new())
+}
+
+#[cfg(feature = "redis-cache")]
+pub fn redis_cache(redis_url: &str, key_prefix: &str) -> Result<Cache, ::redis::RedisError> {
+    Ok(Arc::new(redis_impl::RedisCache::new(
+        redis_url, key_prefix,
+    )?))
+}
+
+// ── Tests ───────────────────────────────────────────────────────────
 
 #[cfg(test)]
 mod tests {
@@ -163,5 +285,44 @@ mod tests {
     #[test]
     fn ttl_default_get_is_1h() {
         assert_eq!(ttl_for_endpoint("default_get"), Duration::from_secs(3_600));
+    }
+
+    #[tokio::test]
+    async fn in_memory_hit_and_miss() {
+        let cache = InMemoryCache::new();
+        assert!(cache.get("key1").await.is_none());
+        cache.set("key1", json!({"a": 1}), "test").await;
+        let v = cache.get("key1").await;
+        assert!(v.is_some());
+        assert_eq!(v.unwrap(), json!({"a": 1}));
+    }
+
+    #[tokio::test]
+    async fn in_memory_invalidate_prefix() {
+        let cache = InMemoryCache::new();
+        cache.set("test:a", json!({}), "test").await;
+        cache.set("test:b", json!({}), "test").await;
+        cache.set("other:c", json!({}), "test").await;
+        cache.invalidate("test").await;
+        assert!(cache.get("test:a").await.is_none());
+        assert!(cache.get("test:b").await.is_none());
+        assert!(cache.get("other:c").await.is_some());
+    }
+
+    #[tokio::test]
+    async fn in_memory_entry_count() {
+        let cache = InMemoryCache::new();
+        assert_eq!(cache.entry_count().await, 0);
+        cache.set("k1", json!(1), "test").await;
+        cache.set("k2", json!(2), "test").await;
+        assert_eq!(cache.entry_count().await, 2);
+    }
+
+    #[tokio::test]
+    async fn trait_object_works() {
+        let cache: Cache = default_cache();
+        assert!(cache.get("missing").await.is_none());
+        cache.set("present", json!(42), "test").await;
+        assert_eq!(cache.get("present").await, Some(json!(42)));
     }
 }

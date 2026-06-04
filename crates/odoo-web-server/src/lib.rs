@@ -16,7 +16,7 @@ pub mod report;
 pub mod session;
 pub mod ws;
 
-pub use cache::ResponseCache;
+pub use cache::{Cache, CacheStore, InMemoryCache};
 pub use error::AppError;
 pub use rate_limit::RateLimiter;
 
@@ -29,7 +29,7 @@ pub struct AppState {
     pub http_client: reqwest::Client,
     pub odoo_url: String,
     pub event_tx: tokio::sync::broadcast::Sender<serde_json::Value>,
-    pub cache: ResponseCache,
+    pub cache: Cache,
     pub rate_limiter: std::sync::Arc<RateLimiter>,
     pub report_rate_limiter: std::sync::Arc<RateLimiter>,
     pub menu_rate_limiter: std::sync::Arc<RateLimiter>,
@@ -45,10 +45,15 @@ impl AppState {
             http_client: client,
             odoo_url,
             event_tx: tx,
-            cache: ResponseCache::new(),
+            cache: cache::default_cache(),
             rate_limiter: std::sync::Arc::new(RateLimiter::new(30, 60)),
             report_rate_limiter: std::sync::Arc::new(RateLimiter::new(10, 60)),
             menu_rate_limiter: std::sync::Arc::new(RateLimiter::new(30, 60)),
         }
+    }
+
+    pub fn with_cache(mut self, cache: Cache) -> Self {
+        self.cache = cache;
+        self
     }
 }

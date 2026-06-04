@@ -52,6 +52,12 @@ struct Cli {
         default_value = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:3000"
     )]
     allowed_origins: String,
+
+    #[arg(long, env = "REDIS_URL")]
+    redis_url: Option<String>,
+
+    #[arg(long, env = "REDIS_KEY_PREFIX", default_value = "odooseek:cache")]
+    redis_key_prefix: String,
 }
 
 #[tokio::main]
@@ -95,11 +101,35 @@ async fn main() -> anyhow::Result<()> {
     let (event_tx, _) = broadcast::channel::<serde_json::Value>(256);
 
     let odoo_url_clean = config.odoo_url.trim_end_matches('/').to_string();
-    let state = AppState::new(
-        http_client.clone(),
-        odoo_url_clean.clone(),
-        event_tx.clone(),
-    );
+    let state = {
+        let base = AppState::new(
+            http_client.clone(),
+            odoo_url_clean.clone(),
+            event_tx.clone(),
+        );
+        match &cli.redis_url {
+            Some(url) => {
+                info!("Using Redis cache: {url}");
+                #[cfg(feature = "redis-cache")]
+                {
+                    base.with_cache(
+                        odoo_web_server::cache::redis_cache(url, &cli.redis_key_prefix)
+                            .expect("Failed to connect to Redis"),
+                    )
+                }
+                #[cfg(not(feature = "redis-cache"))]
+                {
+                    info!("redis-cache feature not enabled, falling back to in-memory cache");
+                    let _ = url;
+                    base
+                }
+            }
+            None => {
+                info!("Using in-memory cache");
+                base
+            }
+        }
+    };
 
     // Spawn Odoo Bus polling task
     tokio::spawn(ws::poll_odoo_bus(http_client, odoo_url_clean, event_tx));
