@@ -48,6 +48,7 @@ import { Route as ProjectStagesRouteImport } from './routes/project/stages'
 import { Route as ProjectProjectsRouteImport } from './routes/project/projects'
 import { Route as ProjectMilestonesRouteImport } from './routes/project/milestones'
 import { Route as ProductProductsRouteImport } from './routes/product/products'
+import { Route as ProductCategoriesRouteImport } from './routes/product/categories'
 import { Route as MrpWorkOrdersRouteImport } from './routes/mrp/work-orders'
 import { Route as MrpWorkCentersRouteImport } from './routes/mrp/work-centers'
 import { Route as MrpUnbuildsRouteImport } from './routes/mrp/unbuilds'
@@ -58,6 +59,8 @@ import { Route as InventoryWarehouseRouteImport } from './routes/inventory/wareh
 import { Route as InventoryWaitingRouteImport } from './routes/inventory/waiting'
 import { Route as InventoryTodoRouteImport } from './routes/inventory/todo'
 import { Route as InventoryScrapRouteImport } from './routes/inventory/scrap'
+import { Route as InventoryRulesRouteImport } from './routes/inventory/rules'
+import { Route as InventoryRoutesRouteImport } from './routes/inventory/routes'
 import { Route as InventoryReceiptsRouteImport } from './routes/inventory/receipts'
 import { Route as InventoryQuantsRouteImport } from './routes/inventory/quants'
 import { Route as InventoryProductStockRouteImport } from './routes/inventory/product-stock'
@@ -73,6 +76,7 @@ import { Route as InventoryLateRouteImport } from './routes/inventory/late'
 import { Route as InventoryInventoryAdjustmentRouteImport } from './routes/inventory/inventory-adjustment'
 import { Route as InventoryInternalRouteImport } from './routes/inventory/internal'
 import { Route as InventoryDeliveriesRouteImport } from './routes/inventory/deliveries'
+import { Route as InventoryCarriersRouteImport } from './routes/inventory/carriers'
 import { Route as InventoryBackorderRouteImport } from './routes/inventory/backorder'
 import { Route as HrWorkLocationsRouteImport } from './routes/hr/work-locations'
 import { Route as HrPlansRouteImport } from './routes/hr/plans'
@@ -81,8 +85,12 @@ import { Route as HrEmployeesRouteImport } from './routes/hr/employees'
 import { Route as HrDirectoryRouteImport } from './routes/hr/directory'
 import { Route as HrDepartmentsRouteImport } from './routes/hr/departments'
 import { Route as ExpensesMyRouteImport } from './routes/expenses/my'
+import { Route as EventTypesRouteImport } from './routes/event/types'
+import { Route as EventTicketsRouteImport } from './routes/event/tickets'
+import { Route as EventStagesRouteImport } from './routes/event/stages'
 import { Route as EventRegistrationsRouteImport } from './routes/event/registrations'
 import { Route as EventRegistrationDeskRouteImport } from './routes/event/registration-desk'
+import { Route as EventQuestionsRouteImport } from './routes/event/questions'
 import { Route as EventEventsRouteImport } from './routes/event/events'
 import { Route as CrmTeamsRouteImport } from './routes/crm/teams'
 import { Route as CrmStagesRouteImport } from './routes/crm/stages'
@@ -98,6 +106,7 @@ import { Route as CalendarAlarmsRouteImport } from './routes/calendar/alarms'
 import { Route as AttendanceKioskRouteImport } from './routes/attendance/kiosk'
 import { Route as AccountingVendorRefundsRouteImport } from './routes/accounting/vendor-refunds'
 import { Route as AccountingTaxesRouteImport } from './routes/accounting/taxes'
+import { Route as AccountingTaxGroupsRouteImport } from './routes/accounting/tax-groups'
 import { Route as AccountingReconciliationModelsRouteImport } from './routes/accounting/reconciliation-models'
 import { Route as AccountingPaymentsRouteImport } from './routes/accounting/payments'
 import { Route as AccountingPaymentTermsRouteImport } from './routes/accounting/payment-terms'
@@ -112,6 +121,8 @@ import { Route as AccountingChartOfAccountsRouteImport } from './routes/accounti
 import { Route as AccountingCashRoundingRouteImport } from './routes/accounting/cash-rounding'
 import { Route as AccountingBillsRouteImport } from './routes/accounting/bills'
 import { Route as AccountingBankStatementsRouteImport } from './routes/accounting/bank-statements'
+import { Route as AccountingAnalyticPlansRouteImport } from './routes/accounting/analytic-plans'
+import { Route as AccountingAnalyticLinesRouteImport } from './routes/accounting/analytic-lines'
 import { Route as AccountingAnalyticAccountsRouteImport } from './routes/accounting/analytic-accounts'
 import { Route as SaleOrderIdRouteImport } from './routes/sale/order.$id'
 import { Route as RecruitmentApplicantIdRouteImport } from './routes/recruitment/applicant.$id'
@@ -120,6 +131,7 @@ import { Route as ProjectTaskIdRouteImport } from './routes/project/task.$id'
 import { Route as ProjectProjectIdRouteImport } from './routes/project/project.$id'
 import { Route as ProjectMilestoneIdRouteImport } from './routes/project/milestone.$id'
 import { Route as ProductProductIdRouteImport } from './routes/product/product.$id'
+import { Route as ProductCategoryCategoryIdRouteImport } from './routes/product/category.$categoryId'
 import { Route as MrpWorkOrderIdRouteImport } from './routes/mrp/work-order.$id'
 import { Route as MrpWorkCenterIdRouteImport } from './routes/mrp/work-center.$id'
 import { Route as MrpUnbuildIdRouteImport } from './routes/mrp/unbuild.$id'
@@ -137,6 +149,7 @@ import { Route as InventoryMoveIdRouteImport } from './routes/inventory/move.$id
 import { Route as InventoryMoveLineIdRouteImport } from './routes/inventory/move-line.$id'
 import { Route as InventoryLotIdRouteImport } from './routes/inventory/lot.$id'
 import { Route as InventoryLocationIdRouteImport } from './routes/inventory/location.$id'
+import { Route as InventoryCarrierCarrierIdRouteImport } from './routes/inventory/carrier.$carrierId'
 import { Route as HrEmployeeIdRouteImport } from './routes/hr/employee.$id'
 import { Route as HrDepartmentIdRouteImport } from './routes/hr/department.$id'
 import { Route as ExpensesSheetIdRouteImport } from './routes/expenses/sheet.$id'
@@ -350,6 +363,11 @@ const ProductProductsRoute = ProductProductsRouteImport.update({
   path: '/product/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductCategoriesRoute = ProductCategoriesRouteImport.update({
+  id: '/product/categories',
+  path: '/product/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MrpWorkOrdersRoute = MrpWorkOrdersRouteImport.update({
   id: '/mrp/work-orders',
   path: '/mrp/work-orders',
@@ -398,6 +416,16 @@ const InventoryTodoRoute = InventoryTodoRouteImport.update({
 const InventoryScrapRoute = InventoryScrapRouteImport.update({
   id: '/inventory/scrap',
   path: '/inventory/scrap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryRulesRoute = InventoryRulesRouteImport.update({
+  id: '/inventory/rules',
+  path: '/inventory/rules',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryRoutesRoute = InventoryRoutesRouteImport.update({
+  id: '/inventory/routes',
+  path: '/inventory/routes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InventoryReceiptsRoute = InventoryReceiptsRouteImport.update({
@@ -476,6 +504,11 @@ const InventoryDeliveriesRoute = InventoryDeliveriesRouteImport.update({
   path: '/inventory/deliveries',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InventoryCarriersRoute = InventoryCarriersRouteImport.update({
+  id: '/inventory/carriers',
+  path: '/inventory/carriers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InventoryBackorderRoute = InventoryBackorderRouteImport.update({
   id: '/inventory/backorder',
   path: '/inventory/backorder',
@@ -516,6 +549,21 @@ const ExpensesMyRoute = ExpensesMyRouteImport.update({
   path: '/expenses/my',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventTypesRoute = EventTypesRouteImport.update({
+  id: '/event/types',
+  path: '/event/types',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventTicketsRoute = EventTicketsRouteImport.update({
+  id: '/event/tickets',
+  path: '/event/tickets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventStagesRoute = EventStagesRouteImport.update({
+  id: '/event/stages',
+  path: '/event/stages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventRegistrationsRoute = EventRegistrationsRouteImport.update({
   id: '/event/registrations',
   path: '/event/registrations',
@@ -524,6 +572,11 @@ const EventRegistrationsRoute = EventRegistrationsRouteImport.update({
 const EventRegistrationDeskRoute = EventRegistrationDeskRouteImport.update({
   id: '/event/registration-desk',
   path: '/event/registration-desk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventQuestionsRoute = EventQuestionsRouteImport.update({
+  id: '/event/questions',
+  path: '/event/questions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventEventsRoute = EventEventsRouteImport.update({
@@ -601,6 +654,11 @@ const AccountingTaxesRoute = AccountingTaxesRouteImport.update({
   path: '/accounting/taxes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountingTaxGroupsRoute = AccountingTaxGroupsRouteImport.update({
+  id: '/accounting/tax-groups',
+  path: '/accounting/tax-groups',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccountingReconciliationModelsRoute =
   AccountingReconciliationModelsRouteImport.update({
     id: '/accounting/reconciliation-models',
@@ -675,6 +733,16 @@ const AccountingBankStatementsRoute =
     path: '/accounting/bank-statements',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AccountingAnalyticPlansRoute = AccountingAnalyticPlansRouteImport.update({
+  id: '/accounting/analytic-plans',
+  path: '/accounting/analytic-plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingAnalyticLinesRoute = AccountingAnalyticLinesRouteImport.update({
+  id: '/accounting/analytic-lines',
+  path: '/accounting/analytic-lines',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccountingAnalyticAccountsRoute =
   AccountingAnalyticAccountsRouteImport.update({
     id: '/accounting/analytic-accounts',
@@ -716,6 +784,12 @@ const ProductProductIdRoute = ProductProductIdRouteImport.update({
   path: '/product/product/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductCategoryCategoryIdRoute =
+  ProductCategoryCategoryIdRouteImport.update({
+    id: '/product/category/$categoryId',
+    path: '/product/category/$categoryId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const MrpWorkOrderIdRoute = MrpWorkOrderIdRouteImport.update({
   id: '/mrp/work-order/$id',
   path: '/mrp/work-order/$id',
@@ -801,6 +875,12 @@ const InventoryLocationIdRoute = InventoryLocationIdRouteImport.update({
   path: '/inventory/location/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InventoryCarrierCarrierIdRoute =
+  InventoryCarrierCarrierIdRouteImport.update({
+    id: '/inventory/carrier/$carrierId',
+    path: '/inventory/carrier/$carrierId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const HrEmployeeIdRoute = HrEmployeeIdRouteImport.update({
   id: '/hr/employee/$id',
   path: '/hr/employee/$id',
@@ -898,6 +978,8 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/web': typeof WebRoute
   '/accounting/analytic-accounts': typeof AccountingAnalyticAccountsRoute
+  '/accounting/analytic-lines': typeof AccountingAnalyticLinesRoute
+  '/accounting/analytic-plans': typeof AccountingAnalyticPlansRoute
   '/accounting/bank-statements': typeof AccountingBankStatementsRoute
   '/accounting/bills': typeof AccountingBillsRoute
   '/accounting/cash-rounding': typeof AccountingCashRoundingRoute
@@ -912,6 +994,7 @@ export interface FileRoutesByFullPath {
   '/accounting/payment-terms': typeof AccountingPaymentTermsRoute
   '/accounting/payments': typeof AccountingPaymentsRoute
   '/accounting/reconciliation-models': typeof AccountingReconciliationModelsRoute
+  '/accounting/tax-groups': typeof AccountingTaxGroupsRoute
   '/accounting/taxes': typeof AccountingTaxesRoute
   '/accounting/vendor-refunds': typeof AccountingVendorRefundsRoute
   '/attendance/kiosk': typeof AttendanceKioskRoute
@@ -927,8 +1010,12 @@ export interface FileRoutesByFullPath {
   '/crm/stages': typeof CrmStagesRoute
   '/crm/teams': typeof CrmTeamsRoute
   '/event/events': typeof EventEventsRoute
+  '/event/questions': typeof EventQuestionsRoute
   '/event/registration-desk': typeof EventRegistrationDeskRoute
   '/event/registrations': typeof EventRegistrationsRoute
+  '/event/stages': typeof EventStagesRoute
+  '/event/tickets': typeof EventTicketsRoute
+  '/event/types': typeof EventTypesRoute
   '/expenses/my': typeof ExpensesMyRoute
   '/hr/departments': typeof HrDepartmentsRoute
   '/hr/directory': typeof HrDirectoryRoute
@@ -937,6 +1024,7 @@ export interface FileRoutesByFullPath {
   '/hr/plans': typeof HrPlansRoute
   '/hr/work-locations': typeof HrWorkLocationsRoute
   '/inventory/backorder': typeof InventoryBackorderRoute
+  '/inventory/carriers': typeof InventoryCarriersRoute
   '/inventory/deliveries': typeof InventoryDeliveriesRoute
   '/inventory/internal': typeof InventoryInternalRoute
   '/inventory/inventory-adjustment': typeof InventoryInventoryAdjustmentRoute
@@ -952,6 +1040,8 @@ export interface FileRoutesByFullPath {
   '/inventory/product-stock': typeof InventoryProductStockRoute
   '/inventory/quants': typeof InventoryQuantsRoute
   '/inventory/receipts': typeof InventoryReceiptsRoute
+  '/inventory/routes': typeof InventoryRoutesRoute
+  '/inventory/rules': typeof InventoryRulesRoute
   '/inventory/scrap': typeof InventoryScrapRouteWithChildren
   '/inventory/todo': typeof InventoryTodoRoute
   '/inventory/waiting': typeof InventoryWaitingRoute
@@ -962,6 +1052,7 @@ export interface FileRoutesByFullPath {
   '/mrp/unbuilds': typeof MrpUnbuildsRoute
   '/mrp/work-centers': typeof MrpWorkCentersRoute
   '/mrp/work-orders': typeof MrpWorkOrdersRoute
+  '/product/categories': typeof ProductCategoriesRoute
   '/product/products': typeof ProductProductsRoute
   '/project/milestones': typeof ProjectMilestonesRoute
   '/project/projects': typeof ProjectProjectsRoute
@@ -1011,6 +1102,7 @@ export interface FileRoutesByFullPath {
   '/expenses/sheet/$id': typeof ExpensesSheetIdRoute
   '/hr/department/$id': typeof HrDepartmentIdRoute
   '/hr/employee/$id': typeof HrEmployeeIdRoute
+  '/inventory/carrier/$carrierId': typeof InventoryCarrierCarrierIdRoute
   '/inventory/location/$id': typeof InventoryLocationIdRoute
   '/inventory/lot/$id': typeof InventoryLotIdRoute
   '/inventory/move-line/$id': typeof InventoryMoveLineIdRoute
@@ -1028,6 +1120,7 @@ export interface FileRoutesByFullPath {
   '/mrp/unbuild/$id': typeof MrpUnbuildIdRoute
   '/mrp/work-center/$id': typeof MrpWorkCenterIdRoute
   '/mrp/work-order/$id': typeof MrpWorkOrderIdRoute
+  '/product/category/$categoryId': typeof ProductCategoryCategoryIdRoute
   '/product/product/$id': typeof ProductProductIdRoute
   '/project/milestone/$id': typeof ProjectMilestoneIdRoute
   '/project/project/$id': typeof ProjectProjectIdRoute
@@ -1045,6 +1138,8 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/web': typeof WebRoute
   '/accounting/analytic-accounts': typeof AccountingAnalyticAccountsRoute
+  '/accounting/analytic-lines': typeof AccountingAnalyticLinesRoute
+  '/accounting/analytic-plans': typeof AccountingAnalyticPlansRoute
   '/accounting/bank-statements': typeof AccountingBankStatementsRoute
   '/accounting/bills': typeof AccountingBillsRoute
   '/accounting/cash-rounding': typeof AccountingCashRoundingRoute
@@ -1059,6 +1154,7 @@ export interface FileRoutesByTo {
   '/accounting/payment-terms': typeof AccountingPaymentTermsRoute
   '/accounting/payments': typeof AccountingPaymentsRoute
   '/accounting/reconciliation-models': typeof AccountingReconciliationModelsRoute
+  '/accounting/tax-groups': typeof AccountingTaxGroupsRoute
   '/accounting/taxes': typeof AccountingTaxesRoute
   '/accounting/vendor-refunds': typeof AccountingVendorRefundsRoute
   '/attendance/kiosk': typeof AttendanceKioskRoute
@@ -1074,8 +1170,12 @@ export interface FileRoutesByTo {
   '/crm/stages': typeof CrmStagesRoute
   '/crm/teams': typeof CrmTeamsRoute
   '/event/events': typeof EventEventsRoute
+  '/event/questions': typeof EventQuestionsRoute
   '/event/registration-desk': typeof EventRegistrationDeskRoute
   '/event/registrations': typeof EventRegistrationsRoute
+  '/event/stages': typeof EventStagesRoute
+  '/event/tickets': typeof EventTicketsRoute
+  '/event/types': typeof EventTypesRoute
   '/expenses/my': typeof ExpensesMyRoute
   '/hr/departments': typeof HrDepartmentsRoute
   '/hr/directory': typeof HrDirectoryRoute
@@ -1084,6 +1184,7 @@ export interface FileRoutesByTo {
   '/hr/plans': typeof HrPlansRoute
   '/hr/work-locations': typeof HrWorkLocationsRoute
   '/inventory/backorder': typeof InventoryBackorderRoute
+  '/inventory/carriers': typeof InventoryCarriersRoute
   '/inventory/deliveries': typeof InventoryDeliveriesRoute
   '/inventory/internal': typeof InventoryInternalRoute
   '/inventory/inventory-adjustment': typeof InventoryInventoryAdjustmentRoute
@@ -1099,6 +1200,8 @@ export interface FileRoutesByTo {
   '/inventory/product-stock': typeof InventoryProductStockRoute
   '/inventory/quants': typeof InventoryQuantsRoute
   '/inventory/receipts': typeof InventoryReceiptsRoute
+  '/inventory/routes': typeof InventoryRoutesRoute
+  '/inventory/rules': typeof InventoryRulesRoute
   '/inventory/scrap': typeof InventoryScrapRouteWithChildren
   '/inventory/todo': typeof InventoryTodoRoute
   '/inventory/waiting': typeof InventoryWaitingRoute
@@ -1109,6 +1212,7 @@ export interface FileRoutesByTo {
   '/mrp/unbuilds': typeof MrpUnbuildsRoute
   '/mrp/work-centers': typeof MrpWorkCentersRoute
   '/mrp/work-orders': typeof MrpWorkOrdersRoute
+  '/product/categories': typeof ProductCategoriesRoute
   '/product/products': typeof ProductProductsRoute
   '/project/milestones': typeof ProjectMilestonesRoute
   '/project/projects': typeof ProjectProjectsRoute
@@ -1158,6 +1262,7 @@ export interface FileRoutesByTo {
   '/expenses/sheet/$id': typeof ExpensesSheetIdRoute
   '/hr/department/$id': typeof HrDepartmentIdRoute
   '/hr/employee/$id': typeof HrEmployeeIdRoute
+  '/inventory/carrier/$carrierId': typeof InventoryCarrierCarrierIdRoute
   '/inventory/location/$id': typeof InventoryLocationIdRoute
   '/inventory/lot/$id': typeof InventoryLotIdRoute
   '/inventory/move-line/$id': typeof InventoryMoveLineIdRoute
@@ -1175,6 +1280,7 @@ export interface FileRoutesByTo {
   '/mrp/unbuild/$id': typeof MrpUnbuildIdRoute
   '/mrp/work-center/$id': typeof MrpWorkCenterIdRoute
   '/mrp/work-order/$id': typeof MrpWorkOrderIdRoute
+  '/product/category/$categoryId': typeof ProductCategoryCategoryIdRoute
   '/product/product/$id': typeof ProductProductIdRoute
   '/project/milestone/$id': typeof ProjectMilestoneIdRoute
   '/project/project/$id': typeof ProjectProjectIdRoute
@@ -1193,6 +1299,8 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/web': typeof WebRoute
   '/accounting/analytic-accounts': typeof AccountingAnalyticAccountsRoute
+  '/accounting/analytic-lines': typeof AccountingAnalyticLinesRoute
+  '/accounting/analytic-plans': typeof AccountingAnalyticPlansRoute
   '/accounting/bank-statements': typeof AccountingBankStatementsRoute
   '/accounting/bills': typeof AccountingBillsRoute
   '/accounting/cash-rounding': typeof AccountingCashRoundingRoute
@@ -1207,6 +1315,7 @@ export interface FileRoutesById {
   '/accounting/payment-terms': typeof AccountingPaymentTermsRoute
   '/accounting/payments': typeof AccountingPaymentsRoute
   '/accounting/reconciliation-models': typeof AccountingReconciliationModelsRoute
+  '/accounting/tax-groups': typeof AccountingTaxGroupsRoute
   '/accounting/taxes': typeof AccountingTaxesRoute
   '/accounting/vendor-refunds': typeof AccountingVendorRefundsRoute
   '/attendance/kiosk': typeof AttendanceKioskRoute
@@ -1222,8 +1331,12 @@ export interface FileRoutesById {
   '/crm/stages': typeof CrmStagesRoute
   '/crm/teams': typeof CrmTeamsRoute
   '/event/events': typeof EventEventsRoute
+  '/event/questions': typeof EventQuestionsRoute
   '/event/registration-desk': typeof EventRegistrationDeskRoute
   '/event/registrations': typeof EventRegistrationsRoute
+  '/event/stages': typeof EventStagesRoute
+  '/event/tickets': typeof EventTicketsRoute
+  '/event/types': typeof EventTypesRoute
   '/expenses/my': typeof ExpensesMyRoute
   '/hr/departments': typeof HrDepartmentsRoute
   '/hr/directory': typeof HrDirectoryRoute
@@ -1232,6 +1345,7 @@ export interface FileRoutesById {
   '/hr/plans': typeof HrPlansRoute
   '/hr/work-locations': typeof HrWorkLocationsRoute
   '/inventory/backorder': typeof InventoryBackorderRoute
+  '/inventory/carriers': typeof InventoryCarriersRoute
   '/inventory/deliveries': typeof InventoryDeliveriesRoute
   '/inventory/internal': typeof InventoryInternalRoute
   '/inventory/inventory-adjustment': typeof InventoryInventoryAdjustmentRoute
@@ -1247,6 +1361,8 @@ export interface FileRoutesById {
   '/inventory/product-stock': typeof InventoryProductStockRoute
   '/inventory/quants': typeof InventoryQuantsRoute
   '/inventory/receipts': typeof InventoryReceiptsRoute
+  '/inventory/routes': typeof InventoryRoutesRoute
+  '/inventory/rules': typeof InventoryRulesRoute
   '/inventory/scrap': typeof InventoryScrapRouteWithChildren
   '/inventory/todo': typeof InventoryTodoRoute
   '/inventory/waiting': typeof InventoryWaitingRoute
@@ -1257,6 +1373,7 @@ export interface FileRoutesById {
   '/mrp/unbuilds': typeof MrpUnbuildsRoute
   '/mrp/work-centers': typeof MrpWorkCentersRoute
   '/mrp/work-orders': typeof MrpWorkOrdersRoute
+  '/product/categories': typeof ProductCategoriesRoute
   '/product/products': typeof ProductProductsRoute
   '/project/milestones': typeof ProjectMilestonesRoute
   '/project/projects': typeof ProjectProjectsRoute
@@ -1306,6 +1423,7 @@ export interface FileRoutesById {
   '/expenses/sheet/$id': typeof ExpensesSheetIdRoute
   '/hr/department/$id': typeof HrDepartmentIdRoute
   '/hr/employee/$id': typeof HrEmployeeIdRoute
+  '/inventory/carrier/$carrierId': typeof InventoryCarrierCarrierIdRoute
   '/inventory/location/$id': typeof InventoryLocationIdRoute
   '/inventory/lot/$id': typeof InventoryLotIdRoute
   '/inventory/move-line/$id': typeof InventoryMoveLineIdRoute
@@ -1323,6 +1441,7 @@ export interface FileRoutesById {
   '/mrp/unbuild/$id': typeof MrpUnbuildIdRoute
   '/mrp/work-center/$id': typeof MrpWorkCenterIdRoute
   '/mrp/work-order/$id': typeof MrpWorkOrderIdRoute
+  '/product/category/$categoryId': typeof ProductCategoryCategoryIdRoute
   '/product/product/$id': typeof ProductProductIdRoute
   '/project/milestone/$id': typeof ProjectMilestoneIdRoute
   '/project/project/$id': typeof ProjectProjectIdRoute
@@ -1342,6 +1461,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/web'
     | '/accounting/analytic-accounts'
+    | '/accounting/analytic-lines'
+    | '/accounting/analytic-plans'
     | '/accounting/bank-statements'
     | '/accounting/bills'
     | '/accounting/cash-rounding'
@@ -1356,6 +1477,7 @@ export interface FileRouteTypes {
     | '/accounting/payment-terms'
     | '/accounting/payments'
     | '/accounting/reconciliation-models'
+    | '/accounting/tax-groups'
     | '/accounting/taxes'
     | '/accounting/vendor-refunds'
     | '/attendance/kiosk'
@@ -1371,8 +1493,12 @@ export interface FileRouteTypes {
     | '/crm/stages'
     | '/crm/teams'
     | '/event/events'
+    | '/event/questions'
     | '/event/registration-desk'
     | '/event/registrations'
+    | '/event/stages'
+    | '/event/tickets'
+    | '/event/types'
     | '/expenses/my'
     | '/hr/departments'
     | '/hr/directory'
@@ -1381,6 +1507,7 @@ export interface FileRouteTypes {
     | '/hr/plans'
     | '/hr/work-locations'
     | '/inventory/backorder'
+    | '/inventory/carriers'
     | '/inventory/deliveries'
     | '/inventory/internal'
     | '/inventory/inventory-adjustment'
@@ -1396,6 +1523,8 @@ export interface FileRouteTypes {
     | '/inventory/product-stock'
     | '/inventory/quants'
     | '/inventory/receipts'
+    | '/inventory/routes'
+    | '/inventory/rules'
     | '/inventory/scrap'
     | '/inventory/todo'
     | '/inventory/waiting'
@@ -1406,6 +1535,7 @@ export interface FileRouteTypes {
     | '/mrp/unbuilds'
     | '/mrp/work-centers'
     | '/mrp/work-orders'
+    | '/product/categories'
     | '/product/products'
     | '/project/milestones'
     | '/project/projects'
@@ -1455,6 +1585,7 @@ export interface FileRouteTypes {
     | '/expenses/sheet/$id'
     | '/hr/department/$id'
     | '/hr/employee/$id'
+    | '/inventory/carrier/$carrierId'
     | '/inventory/location/$id'
     | '/inventory/lot/$id'
     | '/inventory/move-line/$id'
@@ -1472,6 +1603,7 @@ export interface FileRouteTypes {
     | '/mrp/unbuild/$id'
     | '/mrp/work-center/$id'
     | '/mrp/work-order/$id'
+    | '/product/category/$categoryId'
     | '/product/product/$id'
     | '/project/milestone/$id'
     | '/project/project/$id'
@@ -1489,6 +1621,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/web'
     | '/accounting/analytic-accounts'
+    | '/accounting/analytic-lines'
+    | '/accounting/analytic-plans'
     | '/accounting/bank-statements'
     | '/accounting/bills'
     | '/accounting/cash-rounding'
@@ -1503,6 +1637,7 @@ export interface FileRouteTypes {
     | '/accounting/payment-terms'
     | '/accounting/payments'
     | '/accounting/reconciliation-models'
+    | '/accounting/tax-groups'
     | '/accounting/taxes'
     | '/accounting/vendor-refunds'
     | '/attendance/kiosk'
@@ -1518,8 +1653,12 @@ export interface FileRouteTypes {
     | '/crm/stages'
     | '/crm/teams'
     | '/event/events'
+    | '/event/questions'
     | '/event/registration-desk'
     | '/event/registrations'
+    | '/event/stages'
+    | '/event/tickets'
+    | '/event/types'
     | '/expenses/my'
     | '/hr/departments'
     | '/hr/directory'
@@ -1528,6 +1667,7 @@ export interface FileRouteTypes {
     | '/hr/plans'
     | '/hr/work-locations'
     | '/inventory/backorder'
+    | '/inventory/carriers'
     | '/inventory/deliveries'
     | '/inventory/internal'
     | '/inventory/inventory-adjustment'
@@ -1543,6 +1683,8 @@ export interface FileRouteTypes {
     | '/inventory/product-stock'
     | '/inventory/quants'
     | '/inventory/receipts'
+    | '/inventory/routes'
+    | '/inventory/rules'
     | '/inventory/scrap'
     | '/inventory/todo'
     | '/inventory/waiting'
@@ -1553,6 +1695,7 @@ export interface FileRouteTypes {
     | '/mrp/unbuilds'
     | '/mrp/work-centers'
     | '/mrp/work-orders'
+    | '/product/categories'
     | '/product/products'
     | '/project/milestones'
     | '/project/projects'
@@ -1602,6 +1745,7 @@ export interface FileRouteTypes {
     | '/expenses/sheet/$id'
     | '/hr/department/$id'
     | '/hr/employee/$id'
+    | '/inventory/carrier/$carrierId'
     | '/inventory/location/$id'
     | '/inventory/lot/$id'
     | '/inventory/move-line/$id'
@@ -1619,6 +1763,7 @@ export interface FileRouteTypes {
     | '/mrp/unbuild/$id'
     | '/mrp/work-center/$id'
     | '/mrp/work-order/$id'
+    | '/product/category/$categoryId'
     | '/product/product/$id'
     | '/project/milestone/$id'
     | '/project/project/$id'
@@ -1636,6 +1781,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/web'
     | '/accounting/analytic-accounts'
+    | '/accounting/analytic-lines'
+    | '/accounting/analytic-plans'
     | '/accounting/bank-statements'
     | '/accounting/bills'
     | '/accounting/cash-rounding'
@@ -1650,6 +1797,7 @@ export interface FileRouteTypes {
     | '/accounting/payment-terms'
     | '/accounting/payments'
     | '/accounting/reconciliation-models'
+    | '/accounting/tax-groups'
     | '/accounting/taxes'
     | '/accounting/vendor-refunds'
     | '/attendance/kiosk'
@@ -1665,8 +1813,12 @@ export interface FileRouteTypes {
     | '/crm/stages'
     | '/crm/teams'
     | '/event/events'
+    | '/event/questions'
     | '/event/registration-desk'
     | '/event/registrations'
+    | '/event/stages'
+    | '/event/tickets'
+    | '/event/types'
     | '/expenses/my'
     | '/hr/departments'
     | '/hr/directory'
@@ -1675,6 +1827,7 @@ export interface FileRouteTypes {
     | '/hr/plans'
     | '/hr/work-locations'
     | '/inventory/backorder'
+    | '/inventory/carriers'
     | '/inventory/deliveries'
     | '/inventory/internal'
     | '/inventory/inventory-adjustment'
@@ -1690,6 +1843,8 @@ export interface FileRouteTypes {
     | '/inventory/product-stock'
     | '/inventory/quants'
     | '/inventory/receipts'
+    | '/inventory/routes'
+    | '/inventory/rules'
     | '/inventory/scrap'
     | '/inventory/todo'
     | '/inventory/waiting'
@@ -1700,6 +1855,7 @@ export interface FileRouteTypes {
     | '/mrp/unbuilds'
     | '/mrp/work-centers'
     | '/mrp/work-orders'
+    | '/product/categories'
     | '/product/products'
     | '/project/milestones'
     | '/project/projects'
@@ -1749,6 +1905,7 @@ export interface FileRouteTypes {
     | '/expenses/sheet/$id'
     | '/hr/department/$id'
     | '/hr/employee/$id'
+    | '/inventory/carrier/$carrierId'
     | '/inventory/location/$id'
     | '/inventory/lot/$id'
     | '/inventory/move-line/$id'
@@ -1766,6 +1923,7 @@ export interface FileRouteTypes {
     | '/mrp/unbuild/$id'
     | '/mrp/work-center/$id'
     | '/mrp/work-order/$id'
+    | '/product/category/$categoryId'
     | '/product/product/$id'
     | '/project/milestone/$id'
     | '/project/project/$id'
@@ -1784,6 +1942,8 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   WebRoute: typeof WebRoute
   AccountingAnalyticAccountsRoute: typeof AccountingAnalyticAccountsRoute
+  AccountingAnalyticLinesRoute: typeof AccountingAnalyticLinesRoute
+  AccountingAnalyticPlansRoute: typeof AccountingAnalyticPlansRoute
   AccountingBankStatementsRoute: typeof AccountingBankStatementsRoute
   AccountingBillsRoute: typeof AccountingBillsRoute
   AccountingCashRoundingRoute: typeof AccountingCashRoundingRoute
@@ -1798,6 +1958,7 @@ export interface RootRouteChildren {
   AccountingPaymentTermsRoute: typeof AccountingPaymentTermsRoute
   AccountingPaymentsRoute: typeof AccountingPaymentsRoute
   AccountingReconciliationModelsRoute: typeof AccountingReconciliationModelsRoute
+  AccountingTaxGroupsRoute: typeof AccountingTaxGroupsRoute
   AccountingTaxesRoute: typeof AccountingTaxesRoute
   AccountingVendorRefundsRoute: typeof AccountingVendorRefundsRoute
   AttendanceKioskRoute: typeof AttendanceKioskRoute
@@ -1813,8 +1974,12 @@ export interface RootRouteChildren {
   CrmStagesRoute: typeof CrmStagesRoute
   CrmTeamsRoute: typeof CrmTeamsRoute
   EventEventsRoute: typeof EventEventsRoute
+  EventQuestionsRoute: typeof EventQuestionsRoute
   EventRegistrationDeskRoute: typeof EventRegistrationDeskRoute
   EventRegistrationsRoute: typeof EventRegistrationsRoute
+  EventStagesRoute: typeof EventStagesRoute
+  EventTicketsRoute: typeof EventTicketsRoute
+  EventTypesRoute: typeof EventTypesRoute
   ExpensesMyRoute: typeof ExpensesMyRoute
   HrDepartmentsRoute: typeof HrDepartmentsRoute
   HrDirectoryRoute: typeof HrDirectoryRoute
@@ -1823,6 +1988,7 @@ export interface RootRouteChildren {
   HrPlansRoute: typeof HrPlansRoute
   HrWorkLocationsRoute: typeof HrWorkLocationsRoute
   InventoryBackorderRoute: typeof InventoryBackorderRoute
+  InventoryCarriersRoute: typeof InventoryCarriersRoute
   InventoryDeliveriesRoute: typeof InventoryDeliveriesRoute
   InventoryInternalRoute: typeof InventoryInternalRoute
   InventoryInventoryAdjustmentRoute: typeof InventoryInventoryAdjustmentRoute
@@ -1838,6 +2004,8 @@ export interface RootRouteChildren {
   InventoryProductStockRoute: typeof InventoryProductStockRoute
   InventoryQuantsRoute: typeof InventoryQuantsRoute
   InventoryReceiptsRoute: typeof InventoryReceiptsRoute
+  InventoryRoutesRoute: typeof InventoryRoutesRoute
+  InventoryRulesRoute: typeof InventoryRulesRoute
   InventoryScrapRoute: typeof InventoryScrapRouteWithChildren
   InventoryTodoRoute: typeof InventoryTodoRoute
   InventoryWaitingRoute: typeof InventoryWaitingRoute
@@ -1848,6 +2016,7 @@ export interface RootRouteChildren {
   MrpUnbuildsRoute: typeof MrpUnbuildsRoute
   MrpWorkCentersRoute: typeof MrpWorkCentersRoute
   MrpWorkOrdersRoute: typeof MrpWorkOrdersRoute
+  ProductCategoriesRoute: typeof ProductCategoriesRoute
   ProductProductsRoute: typeof ProductProductsRoute
   ProjectMilestonesRoute: typeof ProjectMilestonesRoute
   ProjectProjectsRoute: typeof ProjectProjectsRoute
@@ -1897,6 +2066,7 @@ export interface RootRouteChildren {
   ExpensesSheetIdRoute: typeof ExpensesSheetIdRoute
   HrDepartmentIdRoute: typeof HrDepartmentIdRoute
   HrEmployeeIdRoute: typeof HrEmployeeIdRoute
+  InventoryCarrierCarrierIdRoute: typeof InventoryCarrierCarrierIdRoute
   InventoryLocationIdRoute: typeof InventoryLocationIdRoute
   InventoryLotIdRoute: typeof InventoryLotIdRoute
   InventoryMoveLineIdRoute: typeof InventoryMoveLineIdRoute
@@ -1912,6 +2082,7 @@ export interface RootRouteChildren {
   MrpUnbuildIdRoute: typeof MrpUnbuildIdRoute
   MrpWorkCenterIdRoute: typeof MrpWorkCenterIdRoute
   MrpWorkOrderIdRoute: typeof MrpWorkOrderIdRoute
+  ProductCategoryCategoryIdRoute: typeof ProductCategoryCategoryIdRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
   ProjectMilestoneIdRoute: typeof ProjectMilestoneIdRoute
   ProjectProjectIdRoute: typeof ProjectProjectIdRoute
@@ -2196,6 +2367,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/product/categories': {
+      id: '/product/categories'
+      path: '/product/categories'
+      fullPath: '/product/categories'
+      preLoaderRoute: typeof ProductCategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mrp/work-orders': {
       id: '/mrp/work-orders'
       path: '/mrp/work-orders'
@@ -2264,6 +2442,20 @@ declare module '@tanstack/react-router' {
       path: '/inventory/scrap'
       fullPath: '/inventory/scrap'
       preLoaderRoute: typeof InventoryScrapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/rules': {
+      id: '/inventory/rules'
+      path: '/inventory/rules'
+      fullPath: '/inventory/rules'
+      preLoaderRoute: typeof InventoryRulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/routes': {
+      id: '/inventory/routes'
+      path: '/inventory/routes'
+      fullPath: '/inventory/routes'
+      preLoaderRoute: typeof InventoryRoutesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inventory/receipts': {
@@ -2371,6 +2563,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InventoryDeliveriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/inventory/carriers': {
+      id: '/inventory/carriers'
+      path: '/inventory/carriers'
+      fullPath: '/inventory/carriers'
+      preLoaderRoute: typeof InventoryCarriersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inventory/backorder': {
       id: '/inventory/backorder'
       path: '/inventory/backorder'
@@ -2427,6 +2626,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExpensesMyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/event/types': {
+      id: '/event/types'
+      path: '/event/types'
+      fullPath: '/event/types'
+      preLoaderRoute: typeof EventTypesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/event/tickets': {
+      id: '/event/tickets'
+      path: '/event/tickets'
+      fullPath: '/event/tickets'
+      preLoaderRoute: typeof EventTicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/event/stages': {
+      id: '/event/stages'
+      path: '/event/stages'
+      fullPath: '/event/stages'
+      preLoaderRoute: typeof EventStagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/event/registrations': {
       id: '/event/registrations'
       path: '/event/registrations'
@@ -2439,6 +2659,13 @@ declare module '@tanstack/react-router' {
       path: '/event/registration-desk'
       fullPath: '/event/registration-desk'
       preLoaderRoute: typeof EventRegistrationDeskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/event/questions': {
+      id: '/event/questions'
+      path: '/event/questions'
+      fullPath: '/event/questions'
+      preLoaderRoute: typeof EventQuestionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/event/events': {
@@ -2546,6 +2773,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountingTaxesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/accounting/tax-groups': {
+      id: '/accounting/tax-groups'
+      path: '/accounting/tax-groups'
+      fullPath: '/accounting/tax-groups'
+      preLoaderRoute: typeof AccountingTaxGroupsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/accounting/reconciliation-models': {
       id: '/accounting/reconciliation-models'
       path: '/accounting/reconciliation-models'
@@ -2644,6 +2878,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountingBankStatementsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/accounting/analytic-plans': {
+      id: '/accounting/analytic-plans'
+      path: '/accounting/analytic-plans'
+      fullPath: '/accounting/analytic-plans'
+      preLoaderRoute: typeof AccountingAnalyticPlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounting/analytic-lines': {
+      id: '/accounting/analytic-lines'
+      path: '/accounting/analytic-lines'
+      fullPath: '/accounting/analytic-lines'
+      preLoaderRoute: typeof AccountingAnalyticLinesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/accounting/analytic-accounts': {
       id: '/accounting/analytic-accounts'
       path: '/accounting/analytic-accounts'
@@ -2698,6 +2946,13 @@ declare module '@tanstack/react-router' {
       path: '/product/product/$id'
       fullPath: '/product/product/$id'
       preLoaderRoute: typeof ProductProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/category/$categoryId': {
+      id: '/product/category/$categoryId'
+      path: '/product/category/$categoryId'
+      fullPath: '/product/category/$categoryId'
+      preLoaderRoute: typeof ProductCategoryCategoryIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mrp/work-order/$id': {
@@ -2817,6 +3072,13 @@ declare module '@tanstack/react-router' {
       path: '/inventory/location/$id'
       fullPath: '/inventory/location/$id'
       preLoaderRoute: typeof InventoryLocationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory/carrier/$carrierId': {
+      id: '/inventory/carrier/$carrierId'
+      path: '/inventory/carrier/$carrierId'
+      fullPath: '/inventory/carrier/$carrierId'
+      preLoaderRoute: typeof InventoryCarrierCarrierIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hr/employee/$id': {
@@ -2973,6 +3235,8 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   WebRoute: WebRoute,
   AccountingAnalyticAccountsRoute: AccountingAnalyticAccountsRoute,
+  AccountingAnalyticLinesRoute: AccountingAnalyticLinesRoute,
+  AccountingAnalyticPlansRoute: AccountingAnalyticPlansRoute,
   AccountingBankStatementsRoute: AccountingBankStatementsRoute,
   AccountingBillsRoute: AccountingBillsRoute,
   AccountingCashRoundingRoute: AccountingCashRoundingRoute,
@@ -2987,6 +3251,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountingPaymentTermsRoute: AccountingPaymentTermsRoute,
   AccountingPaymentsRoute: AccountingPaymentsRoute,
   AccountingReconciliationModelsRoute: AccountingReconciliationModelsRoute,
+  AccountingTaxGroupsRoute: AccountingTaxGroupsRoute,
   AccountingTaxesRoute: AccountingTaxesRoute,
   AccountingVendorRefundsRoute: AccountingVendorRefundsRoute,
   AttendanceKioskRoute: AttendanceKioskRoute,
@@ -3002,8 +3267,12 @@ const rootRouteChildren: RootRouteChildren = {
   CrmStagesRoute: CrmStagesRoute,
   CrmTeamsRoute: CrmTeamsRoute,
   EventEventsRoute: EventEventsRoute,
+  EventQuestionsRoute: EventQuestionsRoute,
   EventRegistrationDeskRoute: EventRegistrationDeskRoute,
   EventRegistrationsRoute: EventRegistrationsRoute,
+  EventStagesRoute: EventStagesRoute,
+  EventTicketsRoute: EventTicketsRoute,
+  EventTypesRoute: EventTypesRoute,
   ExpensesMyRoute: ExpensesMyRoute,
   HrDepartmentsRoute: HrDepartmentsRoute,
   HrDirectoryRoute: HrDirectoryRoute,
@@ -3012,6 +3281,7 @@ const rootRouteChildren: RootRouteChildren = {
   HrPlansRoute: HrPlansRoute,
   HrWorkLocationsRoute: HrWorkLocationsRoute,
   InventoryBackorderRoute: InventoryBackorderRoute,
+  InventoryCarriersRoute: InventoryCarriersRoute,
   InventoryDeliveriesRoute: InventoryDeliveriesRoute,
   InventoryInternalRoute: InventoryInternalRoute,
   InventoryInventoryAdjustmentRoute: InventoryInventoryAdjustmentRoute,
@@ -3027,6 +3297,8 @@ const rootRouteChildren: RootRouteChildren = {
   InventoryProductStockRoute: InventoryProductStockRoute,
   InventoryQuantsRoute: InventoryQuantsRoute,
   InventoryReceiptsRoute: InventoryReceiptsRoute,
+  InventoryRoutesRoute: InventoryRoutesRoute,
+  InventoryRulesRoute: InventoryRulesRoute,
   InventoryScrapRoute: InventoryScrapRouteWithChildren,
   InventoryTodoRoute: InventoryTodoRoute,
   InventoryWaitingRoute: InventoryWaitingRoute,
@@ -3037,6 +3309,7 @@ const rootRouteChildren: RootRouteChildren = {
   MrpUnbuildsRoute: MrpUnbuildsRoute,
   MrpWorkCentersRoute: MrpWorkCentersRoute,
   MrpWorkOrdersRoute: MrpWorkOrdersRoute,
+  ProductCategoriesRoute: ProductCategoriesRoute,
   ProductProductsRoute: ProductProductsRoute,
   ProjectMilestonesRoute: ProjectMilestonesRoute,
   ProjectProjectsRoute: ProjectProjectsRoute,
@@ -3086,6 +3359,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExpensesSheetIdRoute: ExpensesSheetIdRoute,
   HrDepartmentIdRoute: HrDepartmentIdRoute,
   HrEmployeeIdRoute: HrEmployeeIdRoute,
+  InventoryCarrierCarrierIdRoute: InventoryCarrierCarrierIdRoute,
   InventoryLocationIdRoute: InventoryLocationIdRoute,
   InventoryLotIdRoute: InventoryLotIdRoute,
   InventoryMoveLineIdRoute: InventoryMoveLineIdRoute,
@@ -3101,6 +3375,7 @@ const rootRouteChildren: RootRouteChildren = {
   MrpUnbuildIdRoute: MrpUnbuildIdRoute,
   MrpWorkCenterIdRoute: MrpWorkCenterIdRoute,
   MrpWorkOrderIdRoute: MrpWorkOrderIdRoute,
+  ProductCategoryCategoryIdRoute: ProductCategoryCategoryIdRoute,
   ProductProductIdRoute: ProductProductIdRoute,
   ProjectMilestoneIdRoute: ProjectMilestoneIdRoute,
   ProjectProjectIdRoute: ProjectProjectIdRoute,
