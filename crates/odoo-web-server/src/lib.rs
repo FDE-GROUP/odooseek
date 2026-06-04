@@ -14,6 +14,7 @@ pub mod metrics;
 pub mod proxy;
 pub mod rate_limit;
 pub mod report;
+pub mod request_id;
 pub mod session;
 pub mod ws;
 

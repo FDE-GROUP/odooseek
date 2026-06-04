@@ -8,6 +8,7 @@ use async_trait::async_trait;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 use tokio::sync::RwLock;
 use tokio::time::{Duration, Instant};
 
@@ -19,6 +20,18 @@ pub trait CacheStore: Send + Sync {
     async fn set(&self, key: &str, value: Value, endpoint_hint: &str);
     async fn invalidate(&self, prefix: &str);
     async fn entry_count(&self) -> usize;
+    async fn stats(&self) -> CacheStats;
+    async fn clear(&self);
+}
+
+#[derive(Clone, serde::Serialize)]
+pub struct CacheStats {
+    pub entries: usize,
+    pub hits: u64,
+    pub misses: u64,
+    pub sets: u64,
+    pub invalidations: u64,
+    pub hit_rate: f64,
 }
 
 // ── InMemory ────────────────────────────────────────────────────────
@@ -32,6 +45,10 @@ struct CacheEntry {
 pub struct InMemoryCache {
     inner: Arc<RwLock<HashMap<String, CacheEntry>>>,
     max_entries: usize,
+    hits: Arc<AtomicU64>,
+    misses: Arc<AtomicU64>,
+    sets: Arc<AtomicU64>,
+    invalidations: Arc<AtomicU64>,
 }
 
 impl InMemoryCache {
@@ -41,6 +58,10 @@ impl InMemoryCache {
         let cache = Self {
             inner: Arc::new(RwLock::new(HashMap::new())),
             max_entries: Self::DEFAULT_MAX_ENTRIES,
+            hits: Arc::new(AtomicU64::new(0)),
+            misses: Arc::new(AtomicU64::new(0)),
+            sets: Arc::new(AtomicU64::new(0)),
+            invalidations: Arc::new(AtomicU64::new(0)),
         };
         let inner = cache.inner.clone();
         tokio::spawn(async move {
@@ -72,8 +93,10 @@ impl CacheStore for InMemoryCache {
             }
         });
         if result.is_some() {
+            self.hits.fetch_add(1, Ordering::Relaxed);
             crate::metrics::record_cache_operation(crate::metrics::labels::CACHE_RESULT_HIT);
         } else {
+            self.misses.fetch_add(1, Ordering::Relaxed);
             crate::metrics::record_cache_operation(crate::metrics::labels::CACHE_RESULT_MISS);
         }
         crate::metrics::set_cache_entries(cache.len());
@@ -97,6 +120,7 @@ impl CacheStore for InMemoryCache {
         {
             cache.remove(&oldest_key);
         }
+        self.sets.fetch_add(1, Ordering::Relaxed);
         crate::metrics::record_cache_operation(crate::metrics::labels::CACHE_RESULT_SET);
         crate::metrics::set_cache_entries(cache.len());
     }
@@ -106,11 +130,36 @@ impl CacheStore for InMemoryCache {
             .write()
             .await
             .retain(|k, _| !k.starts_with(prefix));
+        self.invalidations.fetch_add(1, Ordering::Relaxed);
         crate::metrics::record_cache_operation(crate::metrics::labels::CACHE_RESULT_INVALIDATE);
     }
 
     async fn entry_count(&self) -> usize {
         self.inner.read().await.len()
+    }
+
+    async fn stats(&self) -> CacheStats {
+        let entries = self.inner.read().await.len();
+        let hits = self.hits.load(Ordering::Relaxed);
+        let misses = self.misses.load(Ordering::Relaxed);
+        let total = hits + misses;
+        let hit_rate = if total > 0 {
+            hits as f64 / total as f64
+        } else {
+            0.0
+        };
+        CacheStats {
+            entries,
+            hits,
+            misses,
+            sets: self.sets.load(Ordering::Relaxed),
+            invalidations: self.invalidations.load(Ordering::Relaxed),
+            hit_rate,
+        }
+    }
+
+    async fn clear(&self) {
+        self.inner.write().await.clear();
     }
 }
 
@@ -194,6 +243,28 @@ pub mod redis_impl {
                 return 0;
             };
             count as usize
+        }
+
+        async fn stats(&self) -> CacheStats {
+            let entries = self.entry_count().await;
+            CacheStats {
+                entries,
+                hits: 0,
+                misses: 0,
+                sets: 0,
+                invalidations: 0,
+                hit_rate: 0.0,
+            }
+        }
+
+        async fn clear(&self) {
+            let Ok(mut conn) = self.client.get_multiplexed_async_connection().await else {
+                return;
+            };
+            let _: () = ::redis::cmd("FLUSHDB")
+                .query_async(&mut conn)
+                .await
+                .unwrap_or(());
         }
     }
 }

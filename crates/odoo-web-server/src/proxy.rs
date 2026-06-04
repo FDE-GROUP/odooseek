@@ -196,20 +196,16 @@ fn build_odoo_url(odoo_base: &str, path: &str) -> Result<String, AppError> {
     Ok(format!("{}/{}", odoo_base, decoded))
 }
 
-fn get_cookie_header(headers: &HeaderMap) -> Option<String> {
-    headers
-        .get("cookie")
-        .and_then(|v| v.to_str().ok())
-        .map(String::from)
-}
-
-/// Attach Cookie header from client request to proxy request
+/// Attach Cookie and X-Request-Id headers from client request to proxy request
 fn with_cookie(request: reqwest::RequestBuilder, headers: &HeaderMap) -> reqwest::RequestBuilder {
-    if let Some(c) = get_cookie_header(headers) {
-        request.header("cookie", c)
-    } else {
-        request
+    let mut req = request;
+    if let Some(c) = headers.get("cookie").and_then(|v| v.to_str().ok()) {
+        req = req.header("cookie", c);
     }
+    if let Some(rid) = headers.get("x-request-id").and_then(|v| v.to_str().ok()) {
+        req = req.header("x-request-id", rid);
+    }
+    req
 }
 
 async fn proxy_send(

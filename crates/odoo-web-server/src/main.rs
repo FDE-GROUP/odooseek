@@ -27,6 +27,7 @@ use odoo_web_server::csrf::{self, CsrfConfig};
 use odoo_web_server::error::AppError;
 use odoo_web_server::health;
 use odoo_web_server::metrics;
+use odoo_web_server::request_id;
 use odoo_web_server::{menu, proxy, report, session, ws};
 
 #[derive(Parser, Debug)]
@@ -175,6 +176,8 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         .route("/health", get(health_check))
         .route("/metrics", get(metrics::metrics_handler))
+        .route("/api/admin/cache/stats", get(cache_stats_handler))
+        .route("/api/admin/cache/clear", post(cache_clear_handler))
         .route("/api/menu", get(menu_handler))
         .route("/api/menus", get(menus_handler))
         .route("/api/session", get(get_session_info))
@@ -193,6 +196,7 @@ async fn main() -> anyhow::Result<()> {
         .layer(axum::extract::DefaultBodyLimit::max(10 * 1024 * 1024)) // 10 MB
         .fallback_service(ServeDir::new(&frontend_dir).append_index_html_on_directories(true))
         .layer(middleware::from_fn(metrics::http_metrics))
+        .layer(middleware::from_fn(request_id::attach_request_id))
         .layer(CompressionLayer::new())
         .layer(TraceLayer::new_for_http())
         .layer(
@@ -513,4 +517,16 @@ async fn health_check(
     Query(params): Query<std::collections::HashMap<String, String>>,
 ) -> impl IntoResponse {
     health::health_check(state, params).await
+}
+
+// ── Cache admin ──────────────────────────────────────────────────
+
+async fn cache_stats_handler(State(state): State<AppState>) -> impl IntoResponse {
+    let stats = state.cache.stats().await;
+    Json(stats)
+}
+
+async fn cache_clear_handler(State(state): State<AppState>) -> impl IntoResponse {
+    state.cache.clear().await;
+    Json(serde_json::json!({ "ok": true }))
 }

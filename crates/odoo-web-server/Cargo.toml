@@ -27,6 +27,7 @@ async-trait.workspace = true
 redis = { workspace = true, optional = true }
 http = "1.4.1"
 percent-encoding = "2"
+getrandom = "0.3"
 metrics.workspace = true
 metrics-exporter-prometheus.workspace = true
 
