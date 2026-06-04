@@ -659,6 +659,16 @@ function parseNode(node: ChildNode): KanbanTemplateNode | null {
     return { type: 'footer', children: parseChildNodes(el) }
   }
 
+  // <t> with class attribute — QWeb renders these as wrapper <div>s
+  if (tag === 't' && el.hasAttribute('class')) {
+    return {
+      type: 'html',
+      tag: 'div',
+      class: el.getAttribute('class') ?? undefined,
+      children: parseChildNodes(el),
+    }
+  }
+
   // HTML wrapper elements
   if (HTML_TAGS.has(tag)) {
     const node: KanbanTemplateNode = {

@@ -43,14 +43,38 @@ const ODOO_TO_TW: Record<string, string> = {
   'me-1': 'mr-1',
   'me-2': 'mr-2',
   'me-auto': 'mr-auto',
+  'ps-0': 'pl-0',
+  'ps-1': 'pl-1',
+  'ps-2': 'pl-2',
+  'pe-0': 'pr-0',
   'p-0': 'p-0',
   'p-1': 'p-1',
   'p-2': 'p-2',
   'px-0': 'px-0',
   'px-2': 'px-2',
   'py-0': 'py-0',
-  'ps-1': 'pl-1',
-  'pe-0': 'pr-0',
+  // Positioning
+  'position-relative': 'relative',
+  'position-absolute': 'absolute',
+  'bottom-0': 'bottom-0',
+  'end-0': 'right-0',
+  'start-0': 'left-0',
+  'top-0': 'top-0',
+  // Float
+  'float-end': 'float-right',
+  'float-start': 'float-left',
+  // Width / height
+  'w-25': 'w-1/4',
+  'w-50': 'w-1/2',
+  'w-75': 'w-3/4',
+  'w-100': 'w-full',
+  'h-25': 'h-1/4',
+  'h-50': 'h-1/2',
+  'h-75': 'h-3/4',
+  'h-100': 'h-full',
+  'h-auto': 'h-auto',
+  'mw-100': 'max-w-full',
+  'mh-100': 'max-h-full',
   // Typography
   'fw-bold': 'font-bold',
   'fw-normal': 'font-normal',
@@ -60,26 +84,21 @@ const ODOO_TO_TW: Record<string, string> = {
   'text-truncate': 'truncate',
   'text-end': 'text-end',
   'text-center': 'text-center',
-  // Float
-  'float-end': 'float-right',
-  'float-start': 'float-left',
-  // Width / height
-  'w-75': 'w-3/4',
-  'w-100': 'w-full',
-  'h-75': 'h-3/4',
-  'h-100': 'h-full',
+  // Background
+  'bg-100': 'bg-muted',
+  'bg-light': 'bg-muted',
+  'bg-white': 'bg-white',
+  'bg-gradient': 'bg-gradient-to-b from-transparent to-black/5',
+  // Misc
+  'opacity-50': 'opacity-50',
+  'object-fit-contain': 'object-contain',
   // Odoo-specific kanban layout classes
   o_kanban_aside_full: 'shrink-0',
   o_kanban_card_full: 'w-full',
   o_hr_employee_kanban: '',
-  // Positioning
-  'position-relative': 'relative',
-  'position-absolute': 'absolute',
-  // Background
-  'bg-100': 'bg-muted',
-  'bg-gradient': 'bg-gradient-to-b from-transparent to-black/5',
-  // Misc
-  'opacity-50': 'opacity-50',
+  // Odoo color utilities
+  'text-primary': 'text-accent',
+  'text-bg-danger': 'bg-red-500 text-white',
 }
 
 export function formatKanbanField(value: unknown, meta: OdooFieldMeta): string {
