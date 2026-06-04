@@ -3,6 +3,85 @@ import { evalCondition, getValue } from '@odooseek/odoo-client'
 import React from 'react'
 import { getFieldWidget, NOOP } from '../widgets'
 
+/** Translate Odoo/Bootstrap CSS classes to Tailwind equivalents. */
+function translateOdooClass(className?: string): string | undefined {
+  if (!className) return undefined
+  return className
+    .split(/\s+/)
+    .map((c) => ODOO_TO_TW[c] ?? c)
+    .filter(Boolean)
+    .join(' ')
+}
+
+const ODOO_TO_TW: Record<string, string> = {
+  // Display
+  'd-flex': 'flex',
+  'd-block': 'block',
+  'd-inline-block': 'inline-block',
+  'd-inline': 'inline',
+  // Flex
+  'flex-row': 'flex-row',
+  'flex-column': 'flex-col',
+  'justify-content-center': 'justify-center',
+  'align-items-center': 'items-center',
+  'align-items-end': 'items-end',
+  // Spacing (Bootstrap → Tailwind)
+  'm-0': 'm-0',
+  'm-1': 'm-1',
+  'm-2': 'm-2',
+  'mt-0': 'mt-0',
+  'mt-1': 'mt-1',
+  'mt-2': 'mt-2',
+  'mb-0': 'mb-0',
+  'mb-1': 'mb-1',
+  'mb-2': 'mb-2',
+  'ms-0': 'ml-0',
+  'ms-1': 'ml-1',
+  'ms-2': 'ml-2',
+  'ms-auto': 'ml-auto',
+  'me-0': 'mr-0',
+  'me-1': 'mr-1',
+  'me-2': 'mr-2',
+  'me-auto': 'mr-auto',
+  'p-0': 'p-0',
+  'p-1': 'p-1',
+  'p-2': 'p-2',
+  'px-0': 'px-0',
+  'px-2': 'px-2',
+  'py-0': 'py-0',
+  'ps-1': 'pl-1',
+  'pe-0': 'pr-0',
+  // Typography
+  'fw-bold': 'font-bold',
+  'fw-normal': 'font-normal',
+  'fs-4': 'text-xl',
+  'fs-5': 'text-lg',
+  'fs-6': 'text-base',
+  'text-truncate': 'truncate',
+  'text-end': 'text-end',
+  'text-center': 'text-center',
+  // Float
+  'float-end': 'float-right',
+  'float-start': 'float-left',
+  // Width / height
+  'w-75': 'w-3/4',
+  'w-100': 'w-full',
+  'h-75': 'h-3/4',
+  'h-100': 'h-full',
+  // Odoo-specific kanban layout classes
+  o_kanban_aside_full: 'shrink-0',
+  o_kanban_card_full: 'w-full',
+  o_hr_employee_kanban: '',
+  // Positioning
+  'position-relative': 'relative',
+  'position-absolute': 'absolute',
+  // Background
+  'bg-100': 'bg-muted',
+  'bg-gradient': 'bg-gradient-to-b from-transparent to-black/5',
+  // Misc
+  'opacity-50': 'opacity-50',
+}
+
 export function formatKanbanField(value: unknown, meta: OdooFieldMeta): string {
   if (value == null || value === false) return ''
   if (typeof value === 'boolean') return value ? '\u2713' : ''
@@ -87,7 +166,7 @@ export function KanbanNode({
           return (
             <img
               src={`/api/web/image/${model}/${recordId}/${node.name}`}
-              className={node.class}
+              className={translateOdooClass(node.class)}
               width={size[0]}
               height={size[1]}
               loading="lazy"
@@ -101,7 +180,7 @@ export function KanbanNode({
         return (
           <img
             src={`/api/web/image/${model}/${recordId}/${node.name}`}
-            className={[node.class, imgClass].filter(Boolean).join(' ')}
+            className={[translateOdooClass(node.class), imgClass].filter(Boolean).join(' ')}
             loading="lazy"
             onError={(e) => {
               ;(e.target as HTMLElement).style.display = 'none'
@@ -111,7 +190,11 @@ export function KanbanNode({
       }
 
       if (!node.widget) {
-        return <div className={node.class}>{formatKanbanField(record[node.name], meta)}</div>
+        return (
+          <div className={translateOdooClass(node.class)}>
+            {formatKanbanField(record[node.name], meta)}
+          </div>
+        )
       }
 
       const Widget = getFieldWidget(
@@ -119,7 +202,7 @@ export function KanbanNode({
         meta.type,
       )
       return (
-        <div className={node.class}>
+        <div className={translateOdooClass(node.class)}>
           <Widget
             field={{ type: 'field', name: node.name, widget: node.widget, options: node.options }}
             value={record[node.name]}
@@ -248,7 +331,7 @@ export function KanbanNode({
     case 'html':
       return React.createElement(
         node.tag,
-        { className: node.class, key: undefined },
+        { className: translateOdooClass(node.class) || undefined, key: undefined },
         ...node.children.map((c, i) => (
           <KanbanNode
             key={i}
