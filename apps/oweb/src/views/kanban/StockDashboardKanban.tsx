@@ -1,6 +1,7 @@
 import { parseKanbanFields, parseKanbanXml, searchRead } from '@odooseek/odoo-client'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import type { JsClassHandlerProps } from '../../lib/js-class-map'
 
 const BADGE_COLORS = {
   success: 'bg-emerald-100 text-emerald-700 border-emerald-200',
@@ -9,19 +10,7 @@ const BADGE_COLORS = {
   secondary: 'bg-slate-100 text-slate-600 border-slate-200',
 } as const
 
-interface StockDashboardProps {
-  model: string
-  arch: string
-  fields: Record<string, { string: string; type: string }>
-  domain: unknown[]
-  groupBy?: string[]
-}
-
-export default function StockDashboardKanban({
-  model,
-  arch,
-  domain: _domain,
-}: StockDashboardProps) {
+export default function StockDashboardKanban({ model, arch, domain }: JsClassHandlerProps) {
   const kanbanView = useMemo(() => parseKanbanXml(arch), [arch])
   const templateFields = useMemo(
     () => parseKanbanFields(kanbanView.template),
@@ -32,8 +21,8 @@ export default function StockDashboardKanban({
     kanbanView.fields.length > 0 ? kanbanView.fields : templateFields.map((f) => f.name)
 
   const { data } = useQuery({
-    queryKey: ['odoo', 'search_read', model, allFields],
-    queryFn: () => searchRead<Array<Record<string, unknown>>>(model, [], allFields, 0, 100),
+    queryKey: ['odoo', 'search_read', model, allFields, domain],
+    queryFn: () => searchRead<Array<Record<string, unknown>>>(model, domain, allFields, 0, 100),
   })
 
   const records: Array<Record<string, unknown>> = data ?? []

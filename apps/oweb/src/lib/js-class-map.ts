@@ -245,16 +245,7 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
 
   // ── Others ────────────────────────────────────────
   base_settings: null,
-  product_list_view: null,
-  product_kanban_catalog: null,
-  product_documents_kanban: null,
   quotation_document_kanban: null,
-  // ── Mail ─────────────────────────────────────────
-  mail_composer_form: null,
-  mail_composer_save_template_form: null,
-  mail_activity_my_kanban: null,
-  activity_calendar: null,
-  pay_run_calendar: null,
   subcontracting_portal_move_list_view: null,
   subcontracting_portal_picking_form_view: null,
   referral_kanban: null,
@@ -270,19 +261,7 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   transifex_code_translation_tree: null,
   theme_preview_form: null,
   theme_preview_kanban: null,
-  // ── IoT ──────────────────────────────────────────
-  iot_device_form: null,
-  add_iot_box_wizard: null,
-  no_iot_box_found_wizard: null,
-  select_printers_wizard: null,
   room_booking_gantt: null,
-  hr_version_payrun_list: null,
-  employee_declaration_list: null,
-  payslip_run_kanban: null,
-  hr_salary_rule_list: null,
-  hr_payslip_batch_form: null,
-  hr_payroll_payslip_list: null,
-  hr_holidays_payslip_list: null,
   auth_passkey_key_create_view_form: null,
   fec_import_wizard_form: null,
   pricer_quick_pairing_form: null,
@@ -290,18 +269,56 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   page_properties_dialog_form: null,
   studio_report_kanban: null,
   job_post_no_save_form: null,
+  worksheet_validation: null,
+
+  // ── Product ──────────────────────────────────────
+  product_list_view: null,
+  product_kanban_catalog: null,
+  product_documents_kanban: null,
+
+  // ── Mail ─────────────────────────────────────────
+  mail_composer_form: null,
+  mail_composer_save_template_form: null,
+  mail_activity_my_kanban: null,
+  activity_calendar: null,
+
+  // ── Payroll ──────────────────────────────────────
+  pay_run_calendar: null,
+  hr_version_payrun_list: null,
+  employee_declaration_list: null,
+  payslip_run_kanban: null,
+  hr_salary_rule_list: null,
+  hr_payslip_batch_form: null,
+  hr_payroll_payslip_list: null,
+  hr_holidays_payslip_list: null,
+  salary_calculator_form_view: null,
+
+  // ── IoT ──────────────────────────────────────────
+  iot_device_form: null,
+  add_iot_box_wizard: null,
+  no_iot_box_found_wizard: null,
+  select_printers_wizard: null,
+
+  // ── Analytic Accounting ──────────────────────────
   analytic_graph: null,
   analytic_kanban: null,
   analytic_pivot: null,
   analytic_list: null,
   analytic_line_grid: null,
-  approvals_category_kanban: null,
-  goal_kanban_view: null,
-  goal_list_view: null,
+
+  // ── Appraisal ────────────────────────────────────
   appraisal_kanban_view: null,
   appraisal_list_view: null,
   appraisal_goal_delete_form: null,
   appraisal_goal_delete_list: null,
+
+  // ── Goals ────────────────────────────────────────
+  goal_kanban_view: null,
+  goal_list_view: null,
+
+  // ── Approval ─────────────────────────────────────
+  approvals_category_kanban: null,
+
   // ── ESG (Sustainability) ──────────────────────────
   esg_carbon_emission_graph: null,
   esg_carbon_emission_kanban: null,
@@ -312,13 +329,15 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   // ── Loyalty ──────────────────────────────────────
   loyalty_card_list_view: null,
   loyalty_program_list_view: null,
+
+  // ── Marketing ─────────────────────────────────────
   marketing_campaign_form_view: null,
   marketing_campaign_kanban_view: null,
   marketing_campaign_list_view: null,
+
+  // ── Time Off / Work Entries ──────────────────────
   work_entries_calendar: null,
   work_entries_gantt: null,
-  salary_calculator_form_view: null,
-  worksheet_validation: null,
 }
 
 /** Pre-computed lazy component map (lazy() must be at module level per React rules). */
