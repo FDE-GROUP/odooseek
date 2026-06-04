@@ -179,9 +179,16 @@ export function OdooViewLoader({
     setInternalRecordId(undefined)
   }, [model])
 
-  const effectiveDomain = useMemo(
+  const effectiveDomain = useMemo<unknown[]>(
     () => [...initialDomain, ...domain, ...searchPanelDomain],
     [initialDomain, domain, searchPanelDomain],
+  )
+
+  /** Domain passed to SearchPanel: base domain WITHOUT searchpanel filters,
+   *  so each section's counts are computed independently of other sections. */
+  const searchPanelBaseDomain = useMemo<unknown[]>(
+    () => [...initialDomain, ...domain],
+    [initialDomain, domain],
   )
 
   const { duplicate, archive, unarchive, remove } = useRecordActions(model)
@@ -800,9 +807,9 @@ export function OdooViewLoader({
                 <SearchPanel
                   model={model}
                   searchPanel={searchPanel}
-                  domain={effectiveDomain}
-                  onCategoryChange={(nextDomain) => {
-                    setSearchPanelDomain(nextDomain)
+                  domain={searchPanelBaseDomain}
+                  onCategoryChange={(searchPanelFilterDomain) => {
+                    setSearchPanelDomain(searchPanelFilterDomain)
                     setMobileSearchPanelOpen(false)
                   }}
                 />
