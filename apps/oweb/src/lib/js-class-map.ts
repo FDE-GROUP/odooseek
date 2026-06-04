@@ -7,7 +7,7 @@
  * - undefined → not yet mapped (same as null for now)
  */
 import type { OdooFieldMeta } from '@odooseek/odoo-client'
-import type { ComponentType } from 'react'
+import { type ComponentType, lazy } from 'react'
 
 export interface JsClassHandlerProps {
   model: string
@@ -31,6 +31,8 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
 
   // ── Event ─────────────────────────────────────────
   event_slot_calendar: null, // OdooCalendarRenderer + multi_create handles this
+  event_configurator_form: null,
+  event_booth_configurator_form: null,
   registration_summary_dialog_list: null, // RegistrationDesk handles this
   registration_summary_dialog_kanban: null, // RegistrationDesk handles this
 
@@ -42,7 +44,6 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   hr_expense_form_view: null,
   hr_expense_kanban: null,
   hr_expense_tree: null,
-  hr_user_preferences_form: null,
 
   // ── Stock ─────────────────────────────────────────
   stock_list_view: null, // OdooListRenderer handles this
@@ -54,6 +55,8 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   stock_barcode_list_kanban: null,
   stock_barcode_sml_form: null,
   stock_map: null,
+  stock_forecasted_graph: null,
+  rotting_kanban: null,
 
   // ── Account ───────────────────────────────────────
   account_dashboard_kanban: null,
@@ -66,10 +69,17 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   account_return_check_kanban: null,
   account_325_form_tree: null,
   account_audit_balance_list: null,
+  account_duplicate_transactions_form: null,
+  accrual_list_view: null,
+  audit_report_kanban_controller: null,
   bank_rec_list: null,
   bank_rec_dialog_list: null,
   bank_rec_widget_kanban: null,
   bankrec_edit_line: null,
+  transient_bank_statement_line_list_view: null,
+
+  // ── Account / Extract ────────────────────────────
+  extract_sample_form: null,
 
   // ── CRM ───────────────────────────────────────────
   crm_form: null,
@@ -77,14 +87,9 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   crm_team_form: null,
   forecast_graph: null,
   forecast_pivot: null,
-  forecast_kanban: null, // mapped in CRM gap analysis
-  forecast_list: null, // mapped in CRM gap analysis
 
   // ── Sale ──────────────────────────────────────────
-  sale_file_upload_kanban: null,
-  sale_file_upload_list: null,
-  sale_onboarding_list: null,
-  sale_onboarding_kanban: null,
+  // (no js_class entries found for Sale in CE)
 
   // ── Purchase ──────────────────────────────────────
   purchase_dashboard_kanban: null,
@@ -92,7 +97,6 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   purchase_order_line_compare: null,
 
   // ── MRP ───────────────────────────────────────────
-  mrp_dashboard_kanban: null,
   mrp_employee_tree: null,
   mrp_workorder_gantt: null,
 
@@ -109,6 +113,8 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   project_task_graph: null,
   project_task_pivot: null,
   project_task_map: null,
+  project_task_analysis_graph: null,
+  project_task_analysis_pivot: null,
   project_gantt: null,
   project_update_kanban: null,
   project_update_list: null,
@@ -117,10 +123,14 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   todo_form: null,
   todo_list: null,
   todo_conversion_form: null,
+  todo_activity_wizard: null,
   subscription_graph: null,
+  burndown_chart: null,
 
   // ── Recruitment ──────────────────────────────────
   recruitment_kanban_view: null,
+  recruitment_report_pivot: null,
+  recruitment_report_view_graph: null,
 
   // ── HR Attendance ─────────────────────────────────
   attendance_list_view: null,
@@ -131,18 +141,27 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   hr_holidays_gantt: null,
   hr_holidays_gantt_manager: null,
   hr_holidays_gantt_manager_hr_leave: null,
+  hr_holidays_graph: null,
   time_off_calendar_dashboard: null,
   time_off_calendar_hr_leave: null,
   time_off_kanban_dashboard: null,
+  time_off_report_calendar: null,
 
   // ── Discuss / LiveChat ────────────────────────────
   'im_livechat.discuss_channel_kanban': null,
   'im_livechat.discuss_channel_list': null,
+  'im_livechat.discuss_channel_looking_for_help_kanban': null,
+  'im_livechat.discuss_channel_looking_for_help_list': null,
   'im_livechat.livechat_channel_kanban': null,
   'im_livechat.agent_history_graph': null,
   'im_livechat.agent_history_pivot': null,
+  'im_livechat.channel_report_graph_views': null,
+  'im_livechat.report_channel_pivot': null,
   livechat_session_form: null,
   'whatsapp.discuss_channel_list': null,
+
+  // ── HR Skills ────────────────────────────────────
+  skills_graph: null,
 
   // ── Timesheet ─────────────────────────────────────
   timesheet_grid: null,
@@ -169,6 +188,9 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   helpdesk_ticket_list: null,
   helpdesk_team_form: null,
   helpdesk_team_kanban_view: null,
+  helpdesk_ticket_analysis_cohort: null,
+  helpdesk_ticket_analysis_graph: null,
+  helpdesk_ticket_analysis_pivot: null,
   fsm_task_calendar: null,
 
   // ── Quality ───────────────────────────────────────
@@ -188,6 +210,7 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   sign_kanban: null,
   sign_list: null,
   sign_activity: null,
+  sign_send_request_form: null,
 
   // ── Documents ─────────────────────────────────────
   documents_kanban: null,
@@ -226,6 +249,9 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   product_kanban_catalog: null,
   product_documents_kanban: null,
   quotation_document_kanban: null,
+  // ── Mail ─────────────────────────────────────────
+  mail_composer_form: null,
+  mail_composer_save_template_form: null,
   mail_activity_my_kanban: null,
   activity_calendar: null,
   pay_run_calendar: null,
@@ -241,11 +267,14 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   data_merge_list: null,
   data_recycle_list: null,
   databases_project_list: null,
-  workspace_activity: null,
   transifex_code_translation_tree: null,
   theme_preview_form: null,
   theme_preview_kanban: null,
+  // ── IoT ──────────────────────────────────────────
   iot_device_form: null,
+  add_iot_box_wizard: null,
+  no_iot_box_found_wizard: null,
+  select_printers_wizard: null,
   room_booking_gantt: null,
   hr_version_payrun_list: null,
   employee_declaration_list: null,
@@ -266,7 +295,6 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   analytic_pivot: null,
   analytic_list: null,
   analytic_line_grid: null,
-  spread_sheet_dashboard_kanban: null,
   approvals_category_kanban: null,
   goal_kanban_view: null,
   goal_list_view: null,
@@ -274,6 +302,14 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   appraisal_list_view: null,
   appraisal_goal_delete_form: null,
   appraisal_goal_delete_list: null,
+  // ── ESG (Sustainability) ──────────────────────────
+  esg_carbon_emission_graph: null,
+  esg_carbon_emission_kanban: null,
+  esg_carbon_emission_list: null,
+  esg_carbon_emission_pivot: null,
+  esg_employee_commuting_report_pivot: null,
+
+  // ── Loyalty ──────────────────────────────────────
   loyalty_card_list_view: null,
   loyalty_program_list_view: null,
   marketing_campaign_form_view: null,
@@ -282,11 +318,20 @@ export const JS_CLASS_MAP: Record<string, null | JsClassLoader> = {
   work_entries_calendar: null,
   work_entries_gantt: null,
   salary_calculator_form_view: null,
+  worksheet_validation: null,
+}
+
+/** Pre-computed lazy component map (lazy() must be at module level per React rules). */
+export const JS_CLASS_COMPONENTS: Record<string, ComponentType<JsClassHandlerProps>> = {}
+for (const key of Object.keys(JS_CLASS_MAP)) {
+  const loader = JS_CLASS_MAP[key]
+  if (typeof loader === 'function') {
+    JS_CLASS_COMPONENTS[key] = lazy(loader)
+  }
 }
 
 /** Check if a js_class has a custom React component handler (non-null). */
 export function hasJscClassHandler(jsClass?: string): boolean {
   if (!jsClass) return false
-  const handler = JS_CLASS_MAP[jsClass]
-  return typeof handler === 'function'
+  return jsClass in JS_CLASS_COMPONENTS
 }

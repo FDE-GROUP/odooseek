@@ -10,16 +10,7 @@ import {
   setCachedViews,
 } from '@odooseek/odoo-client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  type ComponentType,
-  lazy,
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ControlPanel } from '../components/ControlPanel'
 import { DataExportDialog } from '../components/DataExportDialog'
 import { type FormDialogItem, FormDialogOverlay } from '../components/FormDialog'
@@ -40,7 +31,7 @@ import { useRecordActions } from '../hooks/useRecordActions'
 import { useToast } from '../hooks/useToast'
 import { HR_EMPLOYEE_MODEL } from '../lib/hr'
 import { HR_WIZARD_STEPS } from '../lib/hr-wizards'
-import { hasJscClassHandler, JS_CLASS_MAP } from '../lib/js-class-map'
+import { hasJscClassHandler, JS_CLASS_COMPONENTS } from '../lib/js-class-map'
 
 // Lazy-loaded views — only fetched when the user switches to that view type
 const OdooListRenderer = lazy(() =>
@@ -615,9 +606,8 @@ export function OdooViewLoader({
       />
       {hasCustomJsHandler && jsClass
         ? (() => {
-            const loader = JS_CLASS_MAP[jsClass]
-            if (!loader) return null
-            const CustomView = lazy(loader) as unknown as ComponentType<Record<string, unknown>>
+            const CustomView = JS_CLASS_COMPONENTS[jsClass]
+            if (!CustomView) return null
             return (
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <Suspense fallback={<ListSkeleton />}>
