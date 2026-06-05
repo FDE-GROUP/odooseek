@@ -34,6 +34,10 @@ import {
   viewFieldToFieldElement,
 } from './list/listUtils'
 import { useColumnPrefs } from './list/useColumnPrefs'
+import { useDragDrop } from './list/useDragDrop'
+import { useGroupExpansion } from './list/useGroupExpansion'
+import { useListPagination } from './list/useListPagination'
+import { useListSelection } from './list/useListSelection'
 import { getFieldWidget } from './widgets'
 
 function renderListCellContent(content: ReturnType<typeof renderCell>): React.ReactNode {
@@ -83,28 +87,27 @@ export function OdooListRenderer({
   const { openDialog, closeDialog } = useDialog()
   const { archive: recordArchive, unarchive: recordUnarchive } = useRecordActions(model)
   const hasActiveField = 'active' in fields
-  const [offset, setOffset] = useState(0)
-  const [limit, setLimit] = useState(80)
-  const [order, setOrder] = useState('')
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
-  const [groupExtraLimits, setGroupExtraLimits] = useState<Record<string, number>>({})
+
+  const listView = useMemo(() => parseListXml(arch), [arch])
+
+  const {
+    offset,
+    limit,
+    order,
+    handleSort: sortState,
+    handlePageChange: pageChange,
+    handleLimitChange,
+    restoreScroll,
+  } = useListPagination(listView.defaultOrder, listView.limit)
+  const { selectedIds, toggleRow, toggleAll, clearSelection, selectAll } =
+    useListSelection()
+  const { expandedGroups, groupExtraLimits, toggleGroupExpand, setGroupExtraLimits } =
+    useGroupExpansion()
+  const { dragRow, dragOverRow, setDragRow, setDragOverRow, clearDragState } = useDragDrop()
   const [newGroupName, setNewGroupName] = useState('')
   const [colMenuOpen, setColMenuOpen] = useState(false)
   const colMenuRef = useRef<HTMLDivElement>(null)
   const tableContainerRef = useRef<HTMLDivElement>(null)
-  const savedScrollTop = useRef(0)
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
-
-  const listView = useMemo(() => parseListXml(arch), [arch])
-
-  // Apply default_order and limit on first render only
-  const didMount = useRef(false)
-  useEffect(() => {
-    if (didMount.current) return
-    didMount.current = true
-    if (listView.defaultOrder) setOrder(listView.defaultOrder)
-    if (listView.limit) setLimit(listView.limit)
-  }, [listView.defaultOrder, listView.limit])
 
   const groupLimit = listView.groupsLimit ?? 80
 
@@ -121,8 +124,6 @@ export function OdooListRenderer({
   const fieldColumnNames = visibleColumns.filter(isViewField).map((c) => c.name)
   const groupByActive = groupBy.length > 0
   const isEditable = !!listView.editable && !groupByActive
-  const [dragRow, setDragRow] = useState<number | null>(null)
-  const [dragOverRow, setDragOverRow] = useState<number | null>(null)
 
   const [inlineEdit, setInlineEdit] = useState<InlineEditState>({
     mode: 'idle',
@@ -177,16 +178,13 @@ export function OdooListRenderer({
           }),
   })
 
-  const handleSort = useCallback((fieldName: string) => {
-    if (tableContainerRef.current) savedScrollTop.current = tableContainerRef.current.scrollTop
-    setOrder((prev) => {
-      if (prev === fieldName) return `${fieldName} desc`
-      if (prev === `${fieldName} desc`) return ''
-      return fieldName
-    })
-    setOffset(0)
-    setSelectedIds(new Set())
-  }, [])
+  const handleSort = useCallback(
+    (fieldName: string) => {
+      sortState(fieldName, tableContainerRef.current)
+      clearSelection()
+    },
+    [sortState, clearSelection],
+  )
 
   const sortIcon = useCallback(
     (fieldName: string) => {
@@ -203,11 +201,8 @@ export function OdooListRenderer({
 
   // Restore scroll position after data loads
   useEffect(() => {
-    if (!isLoading && savedScrollTop.current > 0 && tableContainerRef.current) {
-      tableContainerRef.current.scrollTop = savedScrollTop.current
-      savedScrollTop.current = 0
-    }
-  }, [isLoading])
+    if (!isLoading) restoreScroll(tableContainerRef.current)
+  }, [isLoading, restoreScroll])
 
   const aggregates = useMemo(
     () =>
@@ -233,15 +228,12 @@ export function OdooListRenderer({
     staleTime: 30_000,
   })
 
-  const handlePageChange = useCallback((newOffset: number) => {
-    if (tableContainerRef.current) savedScrollTop.current = tableContainerRef.current.scrollTop
-    setOffset(newOffset)
-  }, [])
-
-  const handleLimitChange = useCallback((newLimit: number) => {
-    setLimit(newLimit)
-    setOffset(0)
-  }, [])
+  const handlePageChange = useCallback(
+    (newOffset: number) => {
+      pageChange(newOffset, tableContainerRef.current)
+    },
+    [pageChange],
+  )
 
   const invalidateList = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['odoo', 'data', model] })
@@ -290,7 +282,7 @@ export function OdooListRenderer({
   const bulkDeleteMutation = useMutation({
     mutationFn: (ids: number[]) => callKw(model, 'unlink', [ids]),
     onSuccess: () => {
-      setSelectedIds(new Set())
+      clearSelection()
       invalidateList()
     },
   })
@@ -298,7 +290,7 @@ export function OdooListRenderer({
   const bulkArchiveMutation = useMutation({
     mutationFn: (ids: number[]) => recordArchive.mutateAsync(ids),
     onSuccess: () => {
-      setSelectedIds(new Set())
+      clearSelection()
       invalidateList()
     },
   })
@@ -306,7 +298,7 @@ export function OdooListRenderer({
   const bulkUnarchiveMutation = useMutation({
     mutationFn: (ids: number[]) => recordUnarchive.mutateAsync(ids),
     onSuccess: () => {
-      setSelectedIds(new Set())
+      clearSelection()
       invalidateList()
     },
   })
@@ -326,7 +318,7 @@ export function OdooListRenderer({
     mutationFn: ({ ids, values }: { ids: number[]; values: Record<string, unknown> }) =>
       callKw(model, 'write', [ids, values]),
     onSuccess: () => {
-      setSelectedIds(new Set())
+      clearSelection()
       setMultiEditActive(false)
       setMultiEditValues({})
       invalidateList()
@@ -343,10 +335,9 @@ export function OdooListRenderer({
         visibleColumns.filter(isViewField).find((c) => c.name === 'sequence')?.name ?? 'sequence'
       const ids = rowsCopy.map((r) => r.id as number)
       resequenceMutation.mutate({ ids, field: sequenceField })
-      setDragRow(null)
-      setDragOverRow(null)
+      clearDragState()
     },
-    [data, visibleColumns, resequenceMutation],
+    [data, visibleColumns, resequenceMutation, clearDragState],
   )
 
   const handleRowClick = useCallback(
@@ -443,16 +434,10 @@ export function OdooListRenderer({
           setFocusCol(editableColIndices[0] ?? 0)
         } else if (e.key === 'a' && (e.ctrlKey || e.metaKey) && !groupByActive) {
           e.preventDefault()
-          setSelectedIds(new Set(rows.map((r) => r.id as number)))
+          selectAll(rows.map((r) => r.id as number))
         } else if (e.key === ' ' && e.shiftKey && focusRow >= 0 && focusRow < rows.length) {
           e.preventDefault()
-          const id = rows[focusRow].id as number
-          setSelectedIds((prev) => {
-            const next = new Set(prev)
-            if (next.has(id)) next.delete(id)
-            else next.add(id)
-            return next
-          })
+          handleToggleRow(rows[focusRow].id as number, false, focusRow)
         }
         return
       }
@@ -677,22 +662,6 @@ export function OdooListRenderer({
     return m
   }, [topQueryMap, subQueryMap])
 
-  const toggleGroupExpand = useCallback((path: string) => {
-    setExpandedGroups((prev) => {
-      const next = new Set(prev)
-      if (next.has(path)) {
-        // Collapse: also remove all children
-        for (const p of prev) {
-          if (p.startsWith(`${path}-`)) next.delete(p)
-        }
-        next.delete(path)
-      } else {
-        next.add(path)
-      }
-      return next
-    })
-  }, [])
-
   const handleExportClick = useCallback(() => {
     const records = data as Array<Record<string, unknown>>
     if (!records.length) return
@@ -734,39 +703,18 @@ export function OdooListRenderer({
   })
 
   const selectAllAcrossPages = useCallback(() => {
-    if (allMatchingIds) {
-      setSelectedIds(new Set(allMatchingIds))
-    }
-  }, [allMatchingIds])
+    if (allMatchingIds) selectAll(allMatchingIds)
+  }, [allMatchingIds, selectAll])
 
-  const toggleAll = useCallback(() => {
-    if (allSelected) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(pageRecordIds))
-    }
-  }, [allSelected, pageRecordIds])
+  const handleToggleAll = useCallback(() => {
+    toggleAll(pageRecordIds, allSelected)
+  }, [toggleAll, pageRecordIds, allSelected])
 
-  const toggleRow = useCallback(
+  const handleToggleRow = useCallback(
     (id: number, shiftKey: boolean, index: number) => {
-      setSelectedIds((prev) => {
-        if (shiftKey && lastSelectedIdx >= 0 && !groupByActive) {
-          const rows = data as Array<Record<string, unknown>>
-          const start = Math.min(lastSelectedIdx, index)
-          const end = Math.max(lastSelectedIdx, index)
-          const rangeIds = rows.slice(start, end + 1).map((r) => r.id as number)
-          const next = new Set(prev)
-          for (const rid of rangeIds) next.add(rid)
-          return next
-        }
-        const next = new Set(prev)
-        if (next.has(id)) next.delete(id)
-        else next.add(id)
-        return next
-      })
-      setLastSelectedIdx(index)
+      toggleRow(id, shiftKey, index, data as Array<Record<string, unknown>>, groupByActive)
     },
-    [data, lastSelectedIdx, groupByActive],
+    [toggleRow, data, groupByActive],
   )
 
   // Recursive group node renderer — thin wrapper around GroupNode component
@@ -791,7 +739,7 @@ export function OdooListRenderer({
         noOpen={!!listView.noOpen}
         onRowClick={onRowClick}
         toggleGroupExpand={toggleGroupExpand}
-        toggleRow={toggleRow}
+        toggleRow={handleToggleRow}
         handleRowClick={handleRowClick}
         setGroupExtraLimits={setGroupExtraLimits}
         confirmDialog={confirmDialog}
@@ -814,7 +762,7 @@ export function OdooListRenderer({
       listView.noOpen,
       onRowClick,
       toggleGroupExpand,
-      toggleRow,
+      handleToggleRow,
       handleRowClick,
       confirmDialog,
       invalidateList,
@@ -997,7 +945,7 @@ export function OdooListRenderer({
               )}
               <button
                 type="button"
-                onClick={() => setSelectedIds(new Set())}
+                onClick={() => clearSelection()}
                 className="rounded px-2 py-0.5 text-[11px] text-text-muted hover:text-text-primary"
               >
                 Clear
@@ -1100,7 +1048,7 @@ export function OdooListRenderer({
                       ref={(el) => {
                         if (el) el.indeterminate = someSelected
                       }}
-                      onChange={toggleAll}
+                      onChange={handleToggleAll}
                       className="h-4 w-4 cursor-pointer rounded accent-accent"
                     />
                   </th>
@@ -1223,8 +1171,7 @@ export function OdooListRenderer({
                         onDragEnd={
                           hasHandle
                             ? () => {
-                                setDragRow(null)
-                                setDragOverRow(null)
+                                clearDragState()
                               }
                             : undefined
                         }
@@ -1264,8 +1211,8 @@ export function OdooListRenderer({
                           <input
                             type="checkbox"
                             checked={selectedIds.has(recordId)}
-                            onChange={() => toggleRow(recordId, false, i)}
-                            onClick={(e) => toggleRow(recordId, e.shiftKey, i)}
+                            onChange={() => handleToggleRow(recordId, false, i)}
+                            onClick={(e) => handleToggleRow(recordId, e.shiftKey, i)}
                             className="h-4 w-4 cursor-pointer rounded accent-accent"
                           />
                         </td>
