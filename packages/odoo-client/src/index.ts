@@ -53,6 +53,15 @@ export type { ValidationError } from './validation'
 
 export { generateReport, generateReportByXmlId } from './report'
 
+export { EventEmitter } from './events'
+export { Mutex } from './mutex'
+export { KeepLast, KeepLastDroppedError } from './keep-last'
+
+export { normalizeOnchangeValue, normalizeValuesForRpc, validateAllFields } from './onchange-helpers'
+
+export { RecordModel } from './record-model'
+export type { RecordModelConfig, RecordModelSnapshot } from './record-model'
+
 export type {
   ViewType, OdooFieldMeta, ViewField,
   ParsedListView, ParsedFormView, ParsedKanbanView, ParsedActivityView, ParsedSearchView, ParsedPivotView, ParsedGraphView, ParsedCalendarView, ParsedHierarchyView,
