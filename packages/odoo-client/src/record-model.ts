@@ -1,10 +1,17 @@
-import { callKw } from './api'
 import type { OdooFieldMeta } from './types'
 import { EventEmitter } from './events'
 import { KeepLast } from './keep-last'
 import { Mutex } from './mutex'
 import { normalizeOnchangeValue, normalizeValuesForRpc, validateAllFields } from './onchange-helpers'
 import { isFieldValueEmpty, validateFieldValue } from './validation'
+
+type CallKwFn = <T = unknown>(model: string, method: string, args: unknown[], kwargs?: Record<string, unknown>) => Promise<T>
+
+let _rpcCall: CallKwFn
+
+export function _setCallKw(fn: CallKwFn): void {
+  _rpcCall = fn
+}
 
 export interface RecordModelConfig {
   model: string
@@ -110,7 +117,10 @@ export class RecordModel {
       clearTimeout(this._onchangeTimer)
 
       const currentData = this.data
-      const { missing, errors } = validateAllFields(this.fields, currentData)
+      const fieldsToValidate = Object.fromEntries(
+        this.readFields.filter((k) => k in this.fields).map((k) => [k, this.fields[k]]),
+      )
+      const { missing, errors } = validateAllFields(fieldsToValidate, currentData)
       this._missingFields = missing
       this._fieldErrors = errors
       if (missing.size > 0 || errors.size > 0) {
@@ -126,7 +136,7 @@ export class RecordModel {
       try {
         const normalized = normalizeValuesForRpc(currentData, this.fields)
         if (this.isNew) {
-          const newId = await callKw<number>(this.model, 'create', [normalized], {
+          const newId = await _rpcCall<number>(this.model, 'create', [normalized], {
             context: this.context,
           })
           this._values = { ...currentData, id: newId }
@@ -140,7 +150,7 @@ export class RecordModel {
           }, 2000)
           return { success: true, newId }
         }
-        await callKw(this.model, 'write', [[this.recordId], normalized], {
+        await _rpcCall(this.model, 'write', [[this.recordId], normalized], {
           context: this.context,
         })
         this._values = { ...currentData }
@@ -205,7 +215,7 @@ export class RecordModel {
   // ── Load defaults for new record ──────────────────────────
 
   async loadDefaults(): Promise<void> {
-    const defaults = await callKw<Record<string, unknown>>(
+    const defaults = await _rpcCall<Record<string, unknown>>(
       this.model,
       'default_get',
       [this.readFields],
@@ -256,7 +266,7 @@ export class RecordModel {
         }
 
         const result = await this._keepLast.add(
-          callKw<{ value?: Record<string, unknown>; warning?: { title: string; message: string; type: string } }>(
+          _rpcCall<{ value?: Record<string, unknown>; warning?: { title: string; message: string; type: string } }>(
             this.model,
             'onchange',
             [

@@ -6,6 +6,7 @@ import {
   getDecorationClass,
   isFieldValueEmpty,
   isListCellImage,
+  ListModel,
   parseListXml,
   readGroup,
   renderCell,
@@ -20,6 +21,7 @@ import { useConfirmDialog } from '../components/ConfirmDialog'
 import { ExportDialog } from '../components/ExportDialog'
 import { Pagination } from '../components/Pagination'
 import { useDialog } from '../hooks/useDialog'
+import { useListModel } from '../hooks/useListModel'
 import { useRecordActions } from '../hooks/useRecordActions'
 import { GroupNode } from './list/GroupNode'
 import { InlineEditRow } from './list/InlineEditRow'
@@ -34,10 +36,6 @@ import {
   viewFieldToFieldElement,
 } from './list/listUtils'
 import { useColumnPrefs } from './list/useColumnPrefs'
-import { useDragDrop } from './list/useDragDrop'
-import { useGroupExpansion } from './list/useGroupExpansion'
-import { useListPagination } from './list/useListPagination'
-import { useListSelection } from './list/useListSelection'
 import { getFieldWidget } from './widgets'
 
 function renderListCellContent(content: ReturnType<typeof renderCell>): React.ReactNode {
@@ -67,12 +65,6 @@ interface ListRendererProps {
   onRowClick?: (recordId: number) => void
 }
 
-interface InlineEditState {
-  mode: 'idle' | 'editing' | 'creating'
-  recordId?: number
-  values: Record<string, unknown>
-}
-
 export function OdooListRenderer({
   model,
   arch,
@@ -90,20 +82,12 @@ export function OdooListRenderer({
 
   const listView = useMemo(() => parseListXml(arch), [arch])
 
-  const {
-    offset,
-    limit,
-    order,
-    handleSort: sortState,
-    handlePageChange: pageChange,
-    handleLimitChange,
-    restoreScroll,
-  } = useListPagination(listView.defaultOrder, listView.limit)
-  const { selectedIds, toggleRow, toggleAll, clearSelection, selectAll } =
-    useListSelection()
-  const { expandedGroups, groupExtraLimits, toggleGroupExpand, setGroupExtraLimits } =
-    useGroupExpansion()
-  const { dragRow, dragOverRow, setDragRow, setDragOverRow, clearDragState } = useDragDrop()
+  const listModel = useMemo(
+    () => new ListModel({ defaultOrder: listView.defaultOrder, defaultLimit: listView.limit }),
+    [listView.defaultOrder, listView.limit],
+  )
+  const snap = useListModel(listModel)
+
   const [newGroupName, setNewGroupName] = useState('')
   const [colMenuOpen, setColMenuOpen] = useState(false)
   const colMenuRef = useRef<HTMLDivElement>(null)
@@ -125,16 +109,6 @@ export function OdooListRenderer({
   const groupByActive = groupBy.length > 0
   const isEditable = !!listView.editable && !groupByActive
 
-  const [inlineEdit, setInlineEdit] = useState<InlineEditState>({
-    mode: 'idle',
-    values: {},
-  })
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
-  const [focusCol, setFocusCol] = useState(0)
-  const [focusRow, setFocusRow] = useState(-1)
-  const [multiEditActive, setMultiEditActive] = useState(false)
-  const [multiEditValues, setMultiEditValues] = useState<Record<string, unknown>>({})
-
   const editableColIndices = useMemo(
     () =>
       visibleColumns
@@ -148,18 +122,6 @@ export function OdooListRenderer({
     [visibleColumns, fields],
   )
 
-  const moveFocus = useCallback(
-    (direction: 1 | -1) => {
-      setFocusCol((prev) => {
-        const idx = editableColIndices.indexOf(prev)
-        const next = idx + direction
-        if (next < 0 || next >= editableColIndices.length) return prev
-        return editableColIndices[next]
-      })
-    },
-    [editableColIndices],
-  )
-
   // keyboard handler is defined below after handleInlineSave/handleInlineCancel
 
   const {
@@ -167,33 +129,32 @@ export function OdooListRenderer({
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['odoo', 'data', model, 'list', domain, groupBy, offset, limit, order],
+    queryKey: ['odoo', 'data', model, 'list', domain, groupBy, snap.offset, snap.limit, snap.order],
     queryFn: () =>
       groupByActive
         ? readGroup<ReadGroupResult[]>(model, domain, fieldColumnNames, groupBy)
         : callKw<Array<Record<string, unknown>>>(model, 'search_read', [domain, fieldColumnNames], {
-            offset,
-            limit,
-            order: order || undefined,
+            offset: snap.offset,
+            limit: snap.limit,
+            order: snap.order || undefined,
           }),
   })
 
   const handleSort = useCallback(
     (fieldName: string) => {
-      sortState(fieldName, tableContainerRef.current)
-      clearSelection()
+      listModel.sort(fieldName, tableContainerRef.current)
     },
-    [sortState, clearSelection],
+    [listModel],
   )
 
   const sortIcon = useCallback(
     (fieldName: string) => {
-      if (order === fieldName) return <ChevronUp className="inline h-3 w-3 text-accent" />
-      if (order === `${fieldName} desc`)
+      if (snap.order === fieldName) return <ChevronUp className="inline h-3 w-3 text-accent" />
+      if (snap.order === `${fieldName} desc`)
         return <ChevronDown className="inline h-3 w-3 text-accent" />
       return <ArrowUpDown className="inline h-3 w-3 opacity-30" />
     },
-    [order],
+    [snap.order],
   )
 
   const data = (groupedData ?? []) as unknown[]
@@ -201,8 +162,8 @@ export function OdooListRenderer({
 
   // Restore scroll position after data loads
   useEffect(() => {
-    if (!isLoading) restoreScroll(tableContainerRef.current)
-  }, [isLoading, restoreScroll])
+    if (!isLoading) listModel.restoreScroll(tableContainerRef.current)
+  }, [isLoading, listModel])
 
   const aggregates = useMemo(
     () =>
@@ -230,9 +191,9 @@ export function OdooListRenderer({
 
   const handlePageChange = useCallback(
     (newOffset: number) => {
-      pageChange(newOffset, tableContainerRef.current)
+      listModel.setPage(newOffset, tableContainerRef.current)
     },
-    [pageChange],
+    [listModel],
   )
 
   const invalidateList = useCallback(() => {
@@ -268,8 +229,7 @@ export function OdooListRenderer({
         ? callKw(model, 'write', [[recordId], values])
         : callKw(model, 'create', [values]),
     onSuccess: () => {
-      setInlineEdit({ mode: 'idle', values: {} })
-      setValidationErrors({})
+      listModel.leaveEdit()
       invalidateList()
     },
   })
@@ -282,7 +242,7 @@ export function OdooListRenderer({
   const bulkDeleteMutation = useMutation({
     mutationFn: (ids: number[]) => callKw(model, 'unlink', [ids]),
     onSuccess: () => {
-      clearSelection()
+      listModel.clearSelection()
       invalidateList()
     },
   })
@@ -290,7 +250,7 @@ export function OdooListRenderer({
   const bulkArchiveMutation = useMutation({
     mutationFn: (ids: number[]) => recordArchive.mutateAsync(ids),
     onSuccess: () => {
-      clearSelection()
+      listModel.clearSelection()
       invalidateList()
     },
   })
@@ -298,7 +258,7 @@ export function OdooListRenderer({
   const bulkUnarchiveMutation = useMutation({
     mutationFn: (ids: number[]) => recordUnarchive.mutateAsync(ids),
     onSuccess: () => {
-      clearSelection()
+      listModel.clearSelection()
       invalidateList()
     },
   })
@@ -318,9 +278,8 @@ export function OdooListRenderer({
     mutationFn: ({ ids, values }: { ids: number[]; values: Record<string, unknown> }) =>
       callKw(model, 'write', [ids, values]),
     onSuccess: () => {
-      clearSelection()
-      setMultiEditActive(false)
-      setMultiEditValues({})
+      listModel.clearSelection()
+      listModel.setMultiEditActive(false)
       invalidateList()
     },
   })
@@ -335,9 +294,9 @@ export function OdooListRenderer({
         visibleColumns.filter(isViewField).find((c) => c.name === 'sequence')?.name ?? 'sequence'
       const ids = rowsCopy.map((r) => r.id as number)
       resequenceMutation.mutate({ ids, field: sequenceField })
-      clearDragState()
+      listModel.clearDragState()
     },
-    [data, visibleColumns, resequenceMutation, clearDragState],
+    [data, visibleColumns, resequenceMutation, listModel],
   )
 
   const handleRowClick = useCallback(
@@ -350,37 +309,23 @@ export function OdooListRenderer({
         onRowClick?.(record.id as number)
         return
       }
-      setInlineEdit({
-        mode: 'editing',
-        recordId: record.id as number,
-        values: { ...record },
-      })
-      setFocusCol(editableColIndices[0] ?? 0)
+      listModel.enterEdit(record, editableColIndices)
     },
-    [isEditable, onRowClick, editableColIndices, listView.noOpen, listView.openFormView],
+    [isEditable, onRowClick, editableColIndices, listView.noOpen, listView.openFormView, listModel],
   )
 
   const handleInlineChange = useCallback((fieldName: string, value: unknown) => {
-    setInlineEdit((prev) => ({
-      ...prev,
-      values: { ...prev.values, [fieldName]: value },
-    }))
-    setValidationErrors((prev) => {
-      if (!prev[fieldName]) return prev
-      const next = { ...prev }
-      delete next[fieldName]
-      return next
-    })
-  }, [])
+    listModel.updateEdit(fieldName, value)
+  }, [listModel])
 
   const handleInlineSave = useCallback(() => {
-    if (inlineEdit.mode === 'idle') return
+    if (snap.inlineEdit.mode === 'idle') return
     const errors: Record<string, string> = {}
     for (const col of visibleColumns) {
       if (isNonField(col)) continue
       const meta = fields[col.name]
       if (!meta || meta.readonly || col.readonly) continue
-      const val = inlineEdit.values[col.name]
+      const val = snap.inlineEdit.values[col.name]
       if ((col.required || meta.required) && isFieldValueEmpty(val, meta.type)) {
         errors[col.name] = 'Required'
       } else {
@@ -389,55 +334,48 @@ export function OdooListRenderer({
       }
     }
     if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors)
+      listModel.setValidationErrors(errors)
       return
     }
-    setValidationErrors({})
+    listModel.setValidationErrors({})
     saveMutation.mutate({
-      mode: inlineEdit.mode as 'editing' | 'creating',
-      values: inlineEdit.values,
-      recordId: inlineEdit.recordId,
+      mode: snap.inlineEdit.mode as 'editing' | 'creating',
+      values: snap.inlineEdit.values,
+      recordId: snap.inlineEdit.recordId,
     })
-  }, [inlineEdit, saveMutation, visibleColumns, fields])
+  }, [snap.inlineEdit, saveMutation, visibleColumns, fields, listModel])
 
   const handleInlineCancel = useCallback(() => {
-    setInlineEdit({ mode: 'idle', values: {} })
-    setValidationErrors({})
-  }, [])
+    listModel.leaveEdit()
+  }, [listModel])
 
   const handleTableKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (inlineEdit.mode === 'idle') {
+      if (snap.inlineEdit.mode === 'idle') {
         const rows = data as Array<Record<string, unknown>>
         if (e.key === 'ArrowDown') {
           e.preventDefault()
-          setFocusRow((prev) => Math.min(prev + 1, rows.length - 1))
+          listModel.setFocusRow(Math.min(snap.focusRow + 1, rows.length - 1))
         } else if (e.key === 'ArrowUp') {
           e.preventDefault()
-          setFocusRow((prev) => Math.max(prev - 1, 0))
+          listModel.setFocusRow(Math.max(snap.focusRow - 1, 0))
         } else if (
           e.key === 'Enter' &&
-          focusRow >= 0 &&
-          focusRow < rows.length &&
+          snap.focusRow >= 0 &&
+          snap.focusRow < rows.length &&
           !listView.noOpen
         ) {
           e.preventDefault()
-          onRowClick?.(rows[focusRow].id as number)
-        } else if (e.key === 'F2' && focusRow >= 0 && focusRow < rows.length && isEditable) {
+          onRowClick?.(rows[snap.focusRow].id as number)
+        } else if (e.key === 'F2' && snap.focusRow >= 0 && snap.focusRow < rows.length && isEditable) {
           e.preventDefault()
-          const record = rows[focusRow]
-          setInlineEdit({
-            mode: 'editing',
-            recordId: record.id as number,
-            values: { ...record },
-          })
-          setFocusCol(editableColIndices[0] ?? 0)
+          listModel.enterEdit(rows[snap.focusRow], editableColIndices)
         } else if (e.key === 'a' && (e.ctrlKey || e.metaKey) && !groupByActive) {
           e.preventDefault()
-          selectAll(rows.map((r) => r.id as number))
-        } else if (e.key === ' ' && e.shiftKey && focusRow >= 0 && focusRow < rows.length) {
+          listModel.selectAll(rows.map((r) => r.id as number))
+        } else if (e.key === ' ' && e.shiftKey && snap.focusRow >= 0 && snap.focusRow < rows.length) {
           e.preventDefault()
-          handleToggleRow(rows[focusRow].id as number, false, focusRow)
+          handleToggleRow(rows[snap.focusRow].id as number, false, snap.focusRow)
         }
         return
       }
@@ -449,64 +387,54 @@ export function OdooListRenderer({
         handleInlineSave()
       } else if (e.key === 'Tab' && !e.shiftKey) {
         e.preventDefault()
-        const idx = editableColIndices.indexOf(focusCol)
+        const idx = editableColIndices.indexOf(snap.focusCol)
         if (idx < editableColIndices.length - 1) {
-          moveFocus(1)
-        } else if (inlineEdit.mode === 'editing') {
+          listModel.moveFocus(1, editableColIndices)
+        } else if (snap.inlineEdit.mode === 'editing') {
           // Tab from last editable column → move to next record
           const rows = data as Array<Record<string, unknown>>
-          const currentIdx = rows.findIndex((r) => r.id === inlineEdit.recordId)
+          const currentIdx = rows.findIndex((r) => r.id === snap.inlineEdit.recordId)
           if (currentIdx >= 0 && currentIdx < rows.length - 1) {
             handleInlineSave()
             const nextRecord = rows[currentIdx + 1]
             setTimeout(() => {
-              setInlineEdit({
-                mode: 'editing',
-                recordId: nextRecord.id as number,
-                values: { ...nextRecord },
-              })
-              setFocusCol(editableColIndices[0] ?? 0)
+              listModel.enterEdit(nextRecord, editableColIndices)
             }, 100)
           }
         }
       } else if (e.key === 'Tab' && e.shiftKey) {
         e.preventDefault()
-        const idx = editableColIndices.indexOf(focusCol)
+        const idx = editableColIndices.indexOf(snap.focusCol)
         if (idx > 0) {
-          moveFocus(-1)
-        } else if (inlineEdit.mode === 'editing') {
+          listModel.moveFocus(-1, editableColIndices)
+        } else if (snap.inlineEdit.mode === 'editing') {
           // Shift+Tab from first editable column → move to previous record
           const rows = data as Array<Record<string, unknown>>
-          const currentIdx = rows.findIndex((r) => r.id === inlineEdit.recordId)
+          const currentIdx = rows.findIndex((r) => r.id === snap.inlineEdit.recordId)
           if (currentIdx > 0) {
             handleInlineSave()
             const prevRecord = rows[currentIdx - 1]
             setTimeout(() => {
-              setInlineEdit({
-                mode: 'editing',
-                recordId: prevRecord.id as number,
-                values: { ...prevRecord },
-              })
-              setFocusCol(editableColIndices[editableColIndices.length - 1] ?? 0)
+              listModel.enterEdit(prevRecord, editableColIndices)
+              listModel.setFocusCol(editableColIndices[editableColIndices.length - 1] ?? 0)
             }, 100)
           }
         }
       }
     },
     [
-      inlineEdit.mode,
+      snap.inlineEdit,
+      snap.focusCol,
+      snap.focusRow,
       handleInlineCancel,
       handleInlineSave,
       editableColIndices,
-      focusCol,
-      focusRow,
-      moveFocus,
       data,
       onRowClick,
       isEditable,
       groupByActive,
-      inlineEdit.recordId,
       listView.noOpen,
+      listModel,
     ],
   )
 
@@ -516,22 +444,22 @@ export function OdooListRenderer({
       const meta = fields[col.name]
       if (meta) defaults[col.name] = defaultForType(meta.type)
     }
-    setInlineEdit({ mode: 'creating', values: defaults })
-  }, [visibleColumns, fields])
+    listModel.enterCreate(defaults, editableColIndices)
+  }, [visibleColumns, fields, editableColIndices, listModel])
 
   // Warn before leaving page with unsaved inline edits
   useEffect(() => {
-    if (inlineEdit.mode === 'idle') return
+    if (snap.inlineEdit.mode === 'idle') return
     const handler = (e: BeforeUnloadEvent) => {
       e.preventDefault()
     }
     window.addEventListener('beforeunload', handler)
     return () => window.removeEventListener('beforeunload', handler)
-  }, [inlineEdit.mode])
+  }, [snap.inlineEdit.mode])
 
   // Click outside table to close edit mode
   useEffect(() => {
-    if (inlineEdit.mode === 'idle') return
+    if (snap.inlineEdit.mode === 'idle') return
     const handler = (e: MouseEvent) => {
       const target = e.target as HTMLElement
       if (target.closest('table') || target.closest('[data-edit-panel]')) return
@@ -539,7 +467,7 @@ export function OdooListRenderer({
     }
     document.addEventListener('click', handler)
     return () => document.removeEventListener('click', handler)
-  }, [inlineEdit.mode, handleInlineCancel])
+  }, [snap.inlineEdit.mode, handleInlineCancel])
 
   // Close column menu on outside click
   useEffect(() => {
@@ -554,7 +482,7 @@ export function OdooListRenderer({
   }, [colMenuOpen])
 
   // Group expand queries - multi-level support
-  const expandedGroupPaths = useMemo(() => [...expandedGroups].sort(), [expandedGroups])
+  const expandedGroupPaths = useMemo(() => [...snap.expandedGroups].sort(), [snap.expandedGroups])
 
   // Top-level group queries
   const topLevelQueries = useQueries({
@@ -564,9 +492,9 @@ export function OdooListRenderer({
         const index = Number(path)
         const isLeaf = groupBy.length <= 1
         const domain = groupData?.[index]?.__domain ?? []
-        const gLimit = groupLimit + (groupExtraLimits[path] ?? 0)
+        const gLimit = groupLimit + (snap.groupExtraLimits[path] ?? 0)
         return {
-          queryKey: ['odoo', 'group-data', model, path, domain, order, groupBy.length, gLimit],
+          queryKey: ['odoo', 'group-data', model, path, domain, snap.order, groupBy.length, gLimit],
           queryFn: () =>
             isLeaf
               ? callKw<Array<Record<string, unknown>>>(
@@ -575,7 +503,7 @@ export function OdooListRenderer({
                   [domain, fieldColumnNames],
                   {
                     limit: gLimit,
-                    order: order || undefined,
+                    order: snap.order || undefined,
                   },
                 )
               : readGroup<ReadGroupResult[]>(model, domain, fieldColumnNames, [groupBy[1]]),
@@ -626,16 +554,16 @@ export function OdooListRenderer({
         domain = parentResult?.[indexInParent]?.__domain ?? []
       }
 
-      const gLimit = groupLimit + (groupExtraLimits[path] ?? 0)
+      const gLimit = groupLimit + (snap.groupExtraLimits[path] ?? 0)
       return {
-        queryKey: ['odoo', 'group-data', model, path, domain, order, gLimit],
+        queryKey: ['odoo', 'group-data', model, path, domain, snap.order, gLimit],
         queryFn: () =>
           isLeaf
             ? callKw<Array<Record<string, unknown>>>(
                 model,
                 'search_read',
                 [domain, fieldColumnNames],
-                { limit: gLimit, order: order || undefined },
+                { limit: gLimit, order: snap.order || undefined },
               )
             : readGroup<ReadGroupResult[]>(model, domain, fieldColumnNames, [groupBy[depth + 1]]),
         enabled: domain.length > 0,
@@ -673,12 +601,12 @@ export function OdooListRenderer({
           model={model}
           fields={fields}
           data={records}
-          selectedIds={selectedIds.size > 0 ? selectedIds : undefined}
+          selectedIds={snap.selectedIds.size > 0 ? snap.selectedIds : undefined}
           onClose={() => closeDialog(dialogId)}
         />
       ),
     })
-  }, [data, openDialog, closeDialog, model, listView.string, fields, selectedIds])
+  }, [data, openDialog, closeDialog, model, listView.string, fields, snap.selectedIds])
 
   const editableFieldElements = useMemo(
     () => visibleColumns.map((col) => (isNonField(col) ? null : viewFieldToFieldElement(col))),
@@ -690,31 +618,29 @@ export function OdooListRenderer({
     [data],
   )
 
-  const allSelected = pageRecordIds.length > 0 && pageRecordIds.every((id) => selectedIds.has(id))
-  const someSelected = selectedIds.size > 0 && !allSelected
-  const [lastSelectedIdx, setLastSelectedIdx] = useState(-1)
-
+  const allSelected = pageRecordIds.length > 0 && pageRecordIds.every((id) => snap.selectedIds.has(id))
+  const someSelected = snap.selectedIds.size > 0 && !allSelected
   const { data: allMatchingIds } = useQuery({
     queryKey: ['odoo', 'allIds', model, domain],
     queryFn: () => callKw<number[]>(model, 'search', [domain]),
     enabled:
-      selectedIds.size > 0 && !groupByActive && !!totalCount && selectedIds.size < totalCount,
+      snap.selectedIds.size > 0 && !groupByActive && !!totalCount && snap.selectedIds.size < totalCount,
     staleTime: 30_000,
   })
 
   const selectAllAcrossPages = useCallback(() => {
-    if (allMatchingIds) selectAll(allMatchingIds)
-  }, [allMatchingIds, selectAll])
+    if (allMatchingIds) listModel.selectAll(allMatchingIds)
+  }, [allMatchingIds, listModel])
 
   const handleToggleAll = useCallback(() => {
-    toggleAll(pageRecordIds, allSelected)
-  }, [toggleAll, pageRecordIds, allSelected])
+    listModel.toggleAll(pageRecordIds, allSelected)
+  }, [listModel, pageRecordIds, allSelected])
 
   const handleToggleRow = useCallback(
     (id: number, shiftKey: boolean, index: number) => {
-      toggleRow(id, shiftKey, index, data as Array<Record<string, unknown>>, groupByActive)
+      listModel.toggleRow(id, shiftKey, index, data as Array<Record<string, unknown>>, groupByActive)
     },
-    [toggleRow, data, groupByActive],
+    [listModel, data, groupByActive],
   )
 
   // Recursive group node renderer — thin wrapper around GroupNode component
@@ -729,8 +655,8 @@ export function OdooListRenderer({
         groupBy={groupBy}
         fieldColumnNames={fieldColumnNames}
         model={model}
-        selectedIds={selectedIds}
-        expandedGroups={expandedGroups}
+        selectedIds={snap.selectedIds}
+        expandedGroups={snap.expandedGroups}
         groupQueryMap={groupQueryMap}
         groupLimit={groupLimit}
         decorations={listView.decorations}
@@ -738,10 +664,10 @@ export function OdooListRenderer({
         isEditable={isEditable}
         noOpen={!!listView.noOpen}
         onRowClick={onRowClick}
-        toggleGroupExpand={toggleGroupExpand}
+        toggleGroupExpand={listModel.toggleGroupExpand.bind(listModel)}
         toggleRow={handleToggleRow}
         handleRowClick={handleRowClick}
-        setGroupExtraLimits={setGroupExtraLimits}
+        setGroupExtraLimits={listModel.setGroupExtraLimits.bind(listModel)}
         confirmDialog={confirmDialog}
         invalidateList={invalidateList}
       />
@@ -752,8 +678,8 @@ export function OdooListRenderer({
       groupBy,
       fieldColumnNames,
       model,
-      selectedIds,
-      expandedGroups,
+      snap.selectedIds,
+      snap.expandedGroups,
       groupQueryMap,
       groupLimit,
       listView.decorations,
@@ -761,7 +687,7 @@ export function OdooListRenderer({
       isEditable,
       listView.noOpen,
       onRowClick,
-      toggleGroupExpand,
+      listModel,
       handleToggleRow,
       handleRowClick,
       confirmDialog,
@@ -815,7 +741,7 @@ export function OdooListRenderer({
           )}
         </div>
         <div className="flex items-center gap-2">
-          {isEditable && inlineEdit.mode === 'idle' && listView.create !== false && (
+          {isEditable && snap.inlineEdit.mode === 'idle' && listView.create !== false && (
             <button
               type="button"
               onClick={handleAddRow}
@@ -826,11 +752,11 @@ export function OdooListRenderer({
           )}
           {!groupByActive && totalCount != null ? (
             <Pagination
-              offset={offset}
+              offset={snap.offset}
               total={totalCount}
-              limit={limit}
+              limit={snap.limit}
               onPageChange={handlePageChange}
-              onLimitChange={handleLimitChange}
+              onLimitChange={listModel.setPageSize.bind(listModel)}
             />
           ) : (
             <span className="text-xs text-text-muted">
@@ -854,19 +780,19 @@ export function OdooListRenderer({
         </div>
       )}
 
-      {!isLoading && !error && data.length === 0 && inlineEdit.mode !== 'creating' && (
+      {!isLoading && !error && data.length === 0 && snap.inlineEdit.mode !== 'creating' && (
         <div className="rounded-lg border border-border-subtle bg-surface/50 py-12 text-center text-sm text-text-muted">
           {t('list.noRecords')}
         </div>
       )}
 
-      {(!isLoading && !error && data.length > 0) || inlineEdit.mode === 'creating' ? (
+      {(!isLoading && !error && data.length > 0) || snap.inlineEdit.mode === 'creating' ? (
         <>
-          {selectedIds.size > 0 && (
+          {snap.selectedIds.size > 0 && (
             <div className="flex items-center gap-2 rounded-lg border border-accent/20 bg-accent/5 px-4 py-2">
               <span className="text-xs font-medium text-accent">
-                {selectedIds.size} selected
-                {!groupByActive && !!totalCount && selectedIds.size < totalCount && (
+                {snap.selectedIds.size} selected
+                {!groupByActive && !!totalCount && snap.selectedIds.size < totalCount && (
                   <>
                     {' — '}
                     <button
@@ -884,10 +810,10 @@ export function OdooListRenderer({
                 onClick={() => {
                   confirmDialog({
                     title: 'Delete Records',
-                    message: `Are you sure you want to delete ${selectedIds.size} selected record(s)?`,
+                    message: `Are you sure you want to delete ${snap.selectedIds.size} selected record(s)?`,
                     confirmLabel: 'Delete',
                     variant: 'danger',
-                    onConfirm: () => bulkDeleteMutation.mutate([...selectedIds]),
+                    onConfirm: () => bulkDeleteMutation.mutate([...snap.selectedIds]),
                   })
                 }}
                 disabled={bulkDeleteMutation.isPending}
@@ -895,10 +821,10 @@ export function OdooListRenderer({
               >
                 Delete
               </button>
-              {selectedIds.size === 1 && (
+              {snap.selectedIds.size === 1 && (
                 <button
                   type="button"
-                  onClick={() => duplicateMutation.mutate([...selectedIds][0])}
+                  onClick={() => duplicateMutation.mutate([...snap.selectedIds][0])}
                   disabled={duplicateMutation.isPending}
                   className="rounded border border-border-default px-2 py-0.5 text-[11px] text-text-secondary hover:bg-hover disabled:opacity-50"
                 >
@@ -908,7 +834,7 @@ export function OdooListRenderer({
               {hasActiveField && (
                 <button
                   type="button"
-                  onClick={() => bulkArchiveMutation.mutate([...selectedIds])}
+                  onClick={() => bulkArchiveMutation.mutate([...snap.selectedIds])}
                   disabled={bulkArchiveMutation.isPending}
                   className="rounded border border-border-default px-2 py-0.5 text-[11px] text-text-secondary hover:bg-hover disabled:opacity-50"
                 >
@@ -918,17 +844,17 @@ export function OdooListRenderer({
               {hasActiveField && (
                 <button
                   type="button"
-                  onClick={() => bulkUnarchiveMutation.mutate([...selectedIds])}
+                  onClick={() => bulkUnarchiveMutation.mutate([...snap.selectedIds])}
                   disabled={bulkUnarchiveMutation.isPending}
                   className="rounded border border-border-default px-2 py-0.5 text-[11px] text-text-secondary hover:bg-hover disabled:opacity-50"
                 >
                   Unarchive
                 </button>
               )}
-              {isEditable && selectedIds.size > 1 && (
+              {isEditable && snap.selectedIds.size > 1 && (
                 <button
                   type="button"
-                  onClick={() => setMultiEditActive(true)}
+                  onClick={() => listModel.setMultiEditActive(true)}
                   className="rounded border border-accent/40 px-2 py-0.5 text-[11px] text-accent hover:bg-accent/10"
                 >
                   Edit
@@ -945,17 +871,17 @@ export function OdooListRenderer({
               )}
               <button
                 type="button"
-                onClick={() => clearSelection()}
+                onClick={() => listModel.clearSelection()}
                 className="rounded px-2 py-0.5 text-[11px] text-text-muted hover:text-text-primary"
               >
                 Clear
               </button>
             </div>
           )}
-          {multiEditActive && selectedIds.size > 1 && (
+          {snap.multiEditActive && snap.selectedIds.size > 1 && (
             <div className="rounded-lg border border-accent/30 bg-accent/5 px-4 py-3">
               <div className="mb-2 text-xs font-semibold text-accent">
-                Edit {selectedIds.size} records
+                Edit {snap.selectedIds.size} records
               </div>
               <div className="flex flex-wrap gap-3">
                 {visibleColumns.filter(isViewField).map((col) => {
@@ -972,17 +898,17 @@ export function OdooListRenderer({
                       <input
                         id={`multi-edit-${col.name}`}
                         type={meta.type === 'boolean' ? 'checkbox' : 'text'}
-                        checked={meta.type === 'boolean' ? !!multiEditValues[col.name] : undefined}
+                        checked={meta.type === 'boolean' ? !!snap.multiEditValues[col.name] : undefined}
                         value={
                           meta.type !== 'boolean'
-                            ? String(multiEditValues[col.name] ?? '')
+                            ? String(snap.multiEditValues[col.name] ?? '')
                             : undefined
                         }
                         onChange={(e) =>
-                          setMultiEditValues((prev) => ({
-                            ...prev,
-                            [col.name]: meta.type === 'boolean' ? e.target.checked : e.target.value,
-                          }))
+                          listModel.updateMultiEditValue(
+                            col.name,
+                            meta.type === 'boolean' ? e.target.checked : e.target.value,
+                          )
                         }
                         className="rounded border border-border-default px-2 py-0.5 text-xs"
                         placeholder={meta.type === 'integer' || meta.type === 'float' ? '0' : ''}
@@ -996,7 +922,7 @@ export function OdooListRenderer({
                   type="button"
                   onClick={() => {
                     const edited: Record<string, unknown> = {}
-                    for (const [k, v] of Object.entries(multiEditValues)) {
+                    for (const [k, v] of Object.entries(snap.multiEditValues)) {
                       if (v !== '' && v !== undefined) edited[k] = v
                     }
                     if (Object.keys(edited).length === 0) return
@@ -1008,10 +934,10 @@ export function OdooListRenderer({
                       .join(', ')
                     confirmDialog({
                       title: 'Confirm Changes',
-                      message: `You are about to update ${selectedIds.size} records. Fields: ${changes}`,
+                      message: `You are about to update ${snap.selectedIds.size} records. Fields: ${changes}`,
                       confirmLabel: 'Apply',
                       onConfirm: () =>
-                        bulkWriteMutation.mutate({ ids: [...selectedIds], values: edited }),
+                        bulkWriteMutation.mutate({ ids: [...snap.selectedIds], values: edited }),
                     })
                   }}
                   disabled={bulkWriteMutation.isPending}
@@ -1022,8 +948,7 @@ export function OdooListRenderer({
                 <button
                   type="button"
                   onClick={() => {
-                    setMultiEditActive(false)
-                    setMultiEditValues({})
+                    listModel.setMultiEditActive(false)
                   }}
                   className="rounded border border-border-default px-3 py-1 text-[11px] text-text-secondary hover:bg-hover"
                 >
@@ -1088,17 +1013,17 @@ export function OdooListRenderer({
                 </tr>
               </thead>
               <tbody>
-                {inlineEdit.mode === 'creating' && listView.editable !== 'bottom' && (
+                {snap.inlineEdit.mode === 'creating' && listView.editable !== 'bottom' && (
                   <InlineEditRow
                     columns={visibleColumns}
                     fieldElements={editableFieldElements}
                     fields={fields}
-                    values={inlineEdit.values}
+                    values={snap.inlineEdit.values}
                     onChange={handleInlineChange}
                     onSave={handleInlineSave}
                     onCancel={handleInlineCancel}
                     isSaving={saveMutation.isPending}
-                    validationErrors={validationErrors}
+                    validationErrors={snap.validationErrors}
                   />
                 )}
                 {groupByActive && groupData ? (
@@ -1141,7 +1066,7 @@ export function OdooListRenderer({
                   (data as Array<Record<string, unknown>>).map((record, i) => {
                     const recordId = record.id as number
                     const isEditing =
-                      inlineEdit.mode === 'editing' && inlineEdit.recordId === recordId
+                      snap.inlineEdit.mode === 'editing' && snap.inlineEdit.recordId === recordId
                     const rowDeco = getDecorationClass(
                       listView.decorations as unknown as Record<string, unknown>,
                       record,
@@ -1155,7 +1080,7 @@ export function OdooListRenderer({
                         onDragStart={
                           hasHandle
                             ? (e) => {
-                                setDragRow(i)
+                                listModel.setDragRow(i)
                                 e.dataTransfer.effectAllowed = 'move'
                               }
                             : undefined
@@ -1164,21 +1089,21 @@ export function OdooListRenderer({
                           hasHandle
                             ? (e) => {
                                 e.preventDefault()
-                                setDragOverRow(i)
+                                listModel.setDragOverRow(i)
                               }
                             : undefined
                         }
                         onDragEnd={
                           hasHandle
                             ? () => {
-                                clearDragState()
+                                listModel.clearDragState()
                               }
                             : undefined
                         }
                         onDrop={
                           hasHandle
                             ? () => {
-                                if (dragRow !== null && dragRow !== i) handleDrop(dragRow, i)
+                                if (snap.dragRow !== null && snap.dragRow !== i) handleDrop(snap.dragRow, i)
                               }
                             : undefined
                         }
@@ -1186,14 +1111,14 @@ export function OdooListRenderer({
                         className={[
                           'border-b border-border-subtle transition-colors hover:bg-hover/50',
                           isEditing ? 'bg-accent/5' : '',
-                          selectedIds.has(recordId) ? 'bg-accent/5' : '',
+                          snap.selectedIds.has(recordId) ? 'bg-accent/5' : '',
                           !isEditable && onRowClick && !listView.noOpen ? 'cursor-pointer' : '',
                           isEditable ? 'cursor-pointer' : '',
-                          dragOverRow === i && dragRow !== null ? 'border-t-2 border-t-accent' : '',
-                          i === data.length - 1 && inlineEdit.mode !== 'creating'
+                          snap.dragOverRow === i && snap.dragRow !== null ? 'border-t-2 border-t-accent' : '',
+                          i === data.length - 1 && snap.inlineEdit.mode !== 'creating'
                             ? 'border-b-0'
                             : '',
-                          focusRow === i && inlineEdit.mode === 'idle'
+                          snap.focusRow === i && snap.inlineEdit.mode === 'idle'
                             ? 'outline outline-2 outline-accent/30 outline-offset-[-2px]'
                             : '',
                           rowDeco,
@@ -1210,7 +1135,7 @@ export function OdooListRenderer({
                         >
                           <input
                             type="checkbox"
-                            checked={selectedIds.has(recordId)}
+                            checked={snap.selectedIds.has(recordId)}
                             onChange={() => handleToggleRow(recordId, false, i)}
                             onClick={(e) => handleToggleRow(recordId, e.shiftKey, i)}
                             className="h-4 w-4 cursor-pointer rounded accent-accent"
@@ -1257,7 +1182,7 @@ export function OdooListRenderer({
                           if (isEditing && !isReadonly) {
                             const fe = editableFieldElements[ci] as FieldElement
                             const Widget = getFieldWidget(fe, meta?.type ?? 'char')
-                            const errMsg = validationErrors[col.name]
+                            const errMsg = snap.validationErrors[col.name]
                             const hasRequiredErr = errMsg === 'Required'
                             const hasTypeErr = !!errMsg && !hasRequiredErr
                             const errRing = hasRequiredErr
@@ -1276,7 +1201,7 @@ export function OdooListRenderer({
                               >
                                 {createElement(Widget, {
                                   field: fe,
-                                  value: inlineEdit.values[col.name],
+                                  value: snap.inlineEdit.values[col.name],
                                   onChange: (v: unknown) => handleInlineChange(col.name, v),
                                   readOnly: false,
                                   meta,
@@ -1399,17 +1324,17 @@ export function OdooListRenderer({
                     )
                   })
                 )}
-                {inlineEdit.mode === 'creating' && listView.editable === 'bottom' && (
+                {snap.inlineEdit.mode === 'creating' && listView.editable === 'bottom' && (
                   <InlineEditRow
                     columns={visibleColumns}
                     fieldElements={editableFieldElements}
                     fields={fields}
-                    values={inlineEdit.values}
+                    values={snap.inlineEdit.values}
                     onChange={handleInlineChange}
                     onSave={handleInlineSave}
                     onCancel={handleInlineCancel}
                     isSaving={saveMutation.isPending}
-                    validationErrors={validationErrors}
+                    validationErrors={snap.validationErrors}
                   />
                 )}
               </tbody>

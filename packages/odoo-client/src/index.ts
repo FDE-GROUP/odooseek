@@ -59,8 +59,16 @@ export { KeepLast, KeepLastDroppedError } from './keep-last'
 
 export { normalizeOnchangeValue, normalizeValuesForRpc, validateAllFields } from './onchange-helpers'
 
-export { RecordModel } from './record-model'
+export { RecordModel, _setCallKw } from './record-model'
 export type { RecordModelConfig, RecordModelSnapshot } from './record-model'
+
+export { ListModel } from './list-model'
+export type { ListModelConfig, ListModelSnapshot, InlineEditState } from './list-model'
+
+// Wire the real callKw into RecordModel
+import { callKw } from './api'
+import { _setCallKw } from './record-model'
+_setCallKw(callKw)
 
 export type {
   ViewType, OdooFieldMeta, ViewField,

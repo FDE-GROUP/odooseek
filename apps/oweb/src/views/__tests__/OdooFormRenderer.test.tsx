@@ -1,4 +1,5 @@
 import type { OdooFieldMeta } from '@odooseek/odoo-client'
+import { _setCallKw } from '@odooseek/odoo-client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -20,6 +21,8 @@ vi.mock('@odooseek/odoo-client', async () => {
     loadAction: (...args: unknown[]) => mockLoadAction(...args),
   }
 })
+
+_setCallKw((...args: unknown[]) => mockCallKw(...args))
 
 let queryClient: QueryClient
 
@@ -877,5 +880,195 @@ describe('OdooFormRenderer real-time validation', () => {
     await waitFor(() => {
       expect(screen.getByText(/required/i)).toBeInTheDocument()
     })
+  })
+})
+
+describe('RecordModel integration via FormRenderer', () => {
+  beforeEach(() => {
+    queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    mockCallKw.mockReset()
+  })
+
+  test('onchange updates dependent field after user types', async () => {
+    const user = userEvent.setup()
+    mockCallKw.mockImplementation((_model: string, method: string) => {
+      if (method === 'read') return Promise.resolve(readResult)
+      if (method === 'onchange') return Promise.resolve({ value: { email: 'auto-filled@test.com' } })
+      return Promise.resolve(undefined)
+    })
+
+    render(<OdooFormRenderer model="res.partner" arch={formArch} fields={fields} recordId={1} />, {
+      wrapper,
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Edit')).toBeInTheDocument()
+    })
+    await user.click(screen.getByText('Edit'))
+    await waitFor(() => {
+      expect(screen.getByText('Save')).toBeInTheDocument()
+    })
+
+    // Type in the name field — triggers onchange
+    const nameInput = screen.getAllByRole('textbox')[0]
+    await user.clear(nameInput)
+    await user.type(nameInput, 'New Name')
+
+    // Wait for onchange to fire and email to be auto-filled
+    await waitFor(() => {
+      const emailInputs = screen.getAllByRole('textbox')
+      const emailInput = emailInputs[1]
+      expect(emailInput).toHaveValue('auto-filled@test.com')
+    })
+  })
+
+  test('onchange warning renders in form', async () => {
+    const user = userEvent.setup()
+    mockCallKw.mockImplementation((_model: string, method: string) => {
+      if (method === 'read') return Promise.resolve(readResult)
+      if (method === 'onchange') return Promise.resolve({
+        value: {},
+        warning: { title: 'Heads Up', message: 'This partner has duplicates', type: 'dialog' },
+      })
+      return Promise.resolve(undefined)
+    })
+
+    render(<OdooFormRenderer model="res.partner" arch={formArch} fields={fields} recordId={1} />, {
+      wrapper,
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Edit')).toBeInTheDocument()
+    })
+    await user.click(screen.getByText('Edit'))
+    await waitFor(() => {
+      expect(screen.getByText('Save')).toBeInTheDocument()
+    })
+
+    // Trigger onchange
+    const nameInput = screen.getAllByRole('textbox')[0]
+    await user.clear(nameInput)
+    await user.type(nameInput, 'X')
+
+    await waitFor(() => {
+      expect(screen.getByText('Heads Up')).toBeInTheDocument()
+      expect(screen.getByText(/This partner has duplicates/)).toBeInTheDocument()
+    })
+  })
+
+  test('new record loads defaults via default_get', async () => {
+    mockCallKw.mockImplementation((_model: string, method: string) => {
+      if (method === 'default_get') return Promise.resolve({ name: 'New Partner', email: '', state: false })
+      if (method === 'onchange') return Promise.resolve({ value: {} })
+      return Promise.resolve(undefined)
+    })
+
+    render(<OdooFormRenderer model="res.partner" arch={formArch} fields={fields} context={{}} />, {
+      wrapper,
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Save')).toBeInTheDocument()
+    })
+
+    // The name field should have the default value
+    const nameInput = screen.getAllByRole('textbox')[0]
+    expect(nameInput).toHaveValue('New Partner')
+
+    // Verify default_get was called with correct fields
+    const defaultGetCall = mockCallKw.mock.calls.find(
+      (c: unknown[]) => (c as unknown[])[1] === 'default_get',
+    )
+    expect(defaultGetCall).toBeDefined()
+    const args = defaultGetCall![2] as unknown[]
+    expect(args[0]).toContain('name')
+  })
+
+  test('context default_ values override default_get', async () => {
+    mockCallKw.mockImplementation((_model: string, method: string) => {
+      if (method === 'default_get') return Promise.resolve({ name: 'From default_get', email: '' })
+      if (method === 'onchange') return Promise.resolve({ value: {} })
+      return Promise.resolve(undefined)
+    })
+
+    render(
+      <OdooFormRenderer
+        model="res.partner"
+        arch={formArch}
+        fields={fields}
+        context={{ default_name: 'From Context' }}
+      />,
+      { wrapper },
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Save')).toBeInTheDocument()
+    })
+
+    const nameInput = screen.getAllByRole('textbox')[0]
+    expect(nameInput).toHaveValue('From Context')
+  })
+
+  test('save error from RPC shows in form', async () => {
+    const user = userEvent.setup()
+    mockCallKw.mockImplementation((_model: string, method: string) => {
+      if (method === 'read') return Promise.resolve(readResult)
+      if (method === 'write') return Promise.reject(new Error('Access Denied: insufficient rights'))
+      if (method === 'onchange') return Promise.resolve({ value: {} })
+      return Promise.resolve(undefined)
+    })
+
+    render(<OdooFormRenderer model="res.partner" arch={formArch} fields={fields} recordId={1} />, {
+      wrapper,
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Edit')).toBeInTheDocument()
+    })
+    await user.click(screen.getByText('Edit'))
+
+    const nameInput = screen.getAllByRole('textbox')[0]
+    await user.clear(nameInput)
+    await user.type(nameInput, 'Changed')
+    await user.click(screen.getByText('Save'))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Access Denied/)).toBeInTheDocument()
+    })
+  })
+
+  test('Edit → modify → Cancel → values restored', async () => {
+    const user = userEvent.setup()
+    mockCallKw.mockImplementation((_model: string, method: string) => {
+      if (method === 'read') return Promise.resolve(readResult)
+      if (method === 'onchange') return Promise.resolve({ value: {} })
+      return Promise.resolve(undefined)
+    })
+
+    render(<OdooFormRenderer model="res.partner" arch={formArch} fields={fields} recordId={1} />, {
+      wrapper,
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Edit')).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByText('Edit'))
+
+    // Modify name
+    const nameInput = screen.getAllByRole('textbox')[0]
+    await user.clear(nameInput)
+    await user.type(nameInput, 'Modified Name')
+    expect(nameInput).toHaveValue('Modified Name')
+
+    // Cancel
+    await user.click(screen.getByText('Cancel'))
+
+    await waitFor(() => {
+      expect(screen.getByText('Edit')).toBeInTheDocument()
+    })
+
+    // In read-only mode, value is shown as text not input
+    expect(screen.getByText('Test')).toBeInTheDocument()
   })
 })
