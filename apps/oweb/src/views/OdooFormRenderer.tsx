@@ -43,6 +43,7 @@ import {
   validateAllFields,
   wizardBtn,
 } from './form/formUtils'
+import { useFormLifecycle } from './form/useFormLifecycle'
 import { Rainbowman } from './widgets/Rainbowman'
 
 export interface OdooFormRendererRef {
@@ -361,7 +362,7 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
     if (first) {
       formRef.current
         ?.querySelector(`[data-field-name="${CSS.escape(first as string)}"]`)
-        ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        ?.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
     }
   }, [effectiveMissingFields, effectiveFieldErrors])
 
@@ -401,76 +402,18 @@ export const OdooFormRenderer = forwardRef(function OdooFormRenderer(
 
   useImperativeHandle(ref, () => ({ save: handleSave }), [handleSave])
 
-  // Keyboard shortcuts: Ctrl+S save, Escape cancel
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault()
-        if (editMode && !saveMutation.isPending) handleSave()
-      }
-      if (e.key === 'Escape' && editMode) {
-        e.preventDefault()
-        handleCancel()
-      }
-    }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [editMode, saveMutation.isPending, handleSave, handleCancel])
-
-  // beforeUnload: warn when leaving with unsaved changes
-  useEffect(() => {
-    if (!isDirty) return
-    const handler = (e: BeforeUnloadEvent) => {
-      e.preventDefault()
-    }
-    window.addEventListener('beforeunload', handler)
-    return () => window.removeEventListener('beforeunload', handler)
-  }, [isDirty])
-
-  // Autosave: save after 5s idle when dirty
-  useEffect(() => {
-    if (!isDirty || !editMode || !newRecordId) return
-    const timer = setTimeout(() => {
-      handleSave()
-    }, 5000)
-    return () => clearTimeout(timer)
-  }, [isDirty, editMode, newRecordId, handleSave])
-
-  // Draft recovery: save draft to localStorage, restore on mount
-  const draftKey = `form_draft_${model}_${recordId ?? 'new'}`
-  useEffect(() => {
-    if (isDirty && editMode) {
-      try {
-        localStorage.setItem(draftKey, JSON.stringify(formValues))
-      } catch {
-        // localStorage full or unavailable
-      }
-    }
-  }, [isDirty, editMode, formValues, draftKey])
-
-  const draftLoaded = useRef(false)
-  useEffect(() => {
-    if (!editMode || draftLoaded.current) return
-    draftLoaded.current = true
-    try {
-      const draft = localStorage.getItem(draftKey)
-      if (draft) {
-        localStorage.removeItem(draftKey)
-        setFormValues(JSON.parse(draft))
-      }
-    } catch {
-      // invalid draft
-    }
-  }, [editMode, draftKey])
-
-  // Autofocus first editable field on new record
-  useEffect(() => {
-    if (!editMode || !formRef.current) return
-    const first = formRef.current.querySelector<HTMLInputElement>(
-      'input[type="text"], textarea, select',
-    )
-    if (first) first.focus()
-  }, [editMode])
+  useFormLifecycle({
+    model,
+    recordId,
+    editMode,
+    isDirty,
+    formValues,
+    handleSave,
+    handleCancel,
+    savePending: saveMutation.isPending,
+    formRef,
+    setFormValues,
+  })
 
   const handleActionButton = useCallback(
     async (btn: ButtonElement) => {
