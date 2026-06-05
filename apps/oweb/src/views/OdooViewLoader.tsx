@@ -4,16 +4,14 @@ import {
   callKw,
   generateReport,
   getCachedViews,
-  type OdooAction,
-  orderedViewTypesFromActWindow,
   parseSearchXml,
   setCachedViews,
 } from '@odooseek/odoo-client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { ControlPanel } from '../components/ControlPanel'
 import { DataExportDialog } from '../components/DataExportDialog'
-import { type FormDialogItem, FormDialogOverlay } from '../components/FormDialog'
+import { FormDialogOverlay } from '../components/FormDialog'
 import type { FormEditActionsProps } from '../components/FormEditActions'
 import { ImportDialog } from '../components/ImportDialog'
 import { SearchPanel } from '../components/SearchPanel'
@@ -32,6 +30,10 @@ import { useToast } from '../hooks/useToast'
 import { HR_EMPLOYEE_MODEL } from '../lib/hr'
 import { HR_WIZARD_STEPS } from '../lib/hr-wizards'
 import { hasJscClassHandler, JS_CLASS_COMPONENTS } from '../lib/js-class-map'
+import { useDialogState } from './useDialogState'
+import { useSearchPanel } from './useSearchPanel'
+import { useSearchState } from './useSearchState'
+import { useViewNavigation } from './useViewNavigation'
 
 // Lazy-loaded views — only fetched when the user switches to that view type
 const OdooListRenderer = lazy(() =>
@@ -117,11 +119,8 @@ export function OdooViewLoader({
     [viewId, viewType],
   )
   const ck = useMemo(() => cacheKey(model, viewsToLoad), [model, viewsToLoad])
-  const [domain, setDomain] = useState<unknown[]>(initialDomain)
-  const [groupBy, setGroupBy] = useState<string[]>([])
-  const [internalViewType, setInternalViewType] = useState(viewType)
-  const [_internalRecordId, setInternalRecordId] = useState<number | undefined>(_recordId)
   const toast = useToast()
+  const queryClient = useQueryClient()
   const [formEditActions, setFormEditActions] = useState<FormEditActionsProps | null>(null)
   const handleFormEditActionsChange = useCallback((actions: FormEditActionsProps | null) => {
     setFormEditActions((prev) => {
@@ -143,130 +142,33 @@ export function OdooViewLoader({
     })
   }, [])
 
-  // Sync external props when they change
-  useEffect(() => {
-    setInternalViewType(viewType)
-  }, [viewType])
-  useEffect(() => {
-    setInternalRecordId(_recordId)
-  }, [_recordId])
-
-  // Default create handler: switch to form view with no record
-  const handleCreate = useCallback(() => {
-    setInternalViewType('form')
-    setInternalRecordId(undefined)
-  }, [])
-  const [recordId, setRecordId] = useState<number | undefined>(_recordId)
-  const [formDialogs, setFormDialogs] = useState<FormDialogItem[]>([])
-  const formDialogIdRef = useRef(0)
-  const [wizardDialog, setWizardDialog] = useState<{
-    model: string
-    context: Record<string, unknown>
-  } | null>(null)
-  const queryClient = useQueryClient()
-  const [showImport, setShowImport] = useState(false)
-  const [showExport, setShowExport] = useState(false)
-  const [searchPanelDomain, setSearchPanelDomain] = useState<unknown[]>([])
-  const [mobileSearchPanelOpen, setMobileSearchPanelOpen] = useState(false)
-  const [searchPanelOpen, setSearchPanelOpen] = useState(true) // desktop toggle
-  useEffect(() => {
-    setRecordId(_recordId)
-    setInternalRecordId(_recordId)
-  }, [_recordId])
-
-  useEffect(() => {
-    setRecordId(undefined)
-    setInternalRecordId(undefined)
-  }, [model])
-
-  const effectiveDomain = useMemo<unknown[]>(
-    () => [...initialDomain, ...domain, ...searchPanelDomain],
-    [initialDomain, domain, searchPanelDomain],
-  )
-
-  /** Domain passed to SearchPanel: base domain WITHOUT searchpanel filters,
-   *  so each section's counts are computed independently of other sections. */
-  const searchPanelBaseDomain = useMemo<unknown[]>(
-    () => [...initialDomain, ...domain],
-    [initialDomain, domain],
-  )
+  // Extracted hooks
+  const { internalViewType, recordId, handleCreate } = useViewNavigation(viewType, _recordId, model)
+  const {
+    groupBy,
+    searchPanelDomain,
+    effectiveDomain,
+    searchPanelBaseDomain,
+    handleSearch,
+    handleGroupByChange,
+    setSearchPanelDomain,
+  } = useSearchState(initialDomain)
+  const {
+    formDialogs,
+    wizardDialog,
+    showImport,
+    showExport,
+    openFormDialog,
+    closeFormDialog,
+    handleFormAction,
+    setShowImport,
+    setShowExport,
+    dismissWizard,
+  } = useDialogState(model, viewType, recordId, onRowClick, onSwitchView, onBackToList, queryClient)
+  const { searchPanelOpen, mobileSearchPanelOpen, setSearchPanelOpen, setMobileSearchPanelOpen } =
+    useSearchPanel()
 
   const { duplicate, archive, unarchive, remove } = useRecordActions(model)
-
-  const openFormDialog = useCallback((action: OdooAction) => {
-    const id = ++formDialogIdRef.current
-    setFormDialogs((prev) => [...prev, { id, action }])
-  }, [])
-
-  const closeFormDialog = useCallback((id: number) => {
-    setFormDialogs((prev) => prev.filter((d) => d.id !== id))
-  }, [])
-
-  const handleFormAction = useCallback(
-    (action: OdooAction) => {
-      if (action.type === 'ir.actions.act_window') {
-        if (action.target === 'new') {
-          const resModel = action.res_model as string | undefined
-          if (resModel && HR_WIZARD_STEPS[resModel]) {
-            setWizardDialog({
-              model: resModel,
-              context: {
-                ...(typeof action.context === 'object' && action.context ? action.context : {}),
-                active_model: model,
-                active_id: recordId,
-                active_ids: recordId ? [recordId] : [],
-              },
-            })
-            return
-          }
-          openFormDialog(action)
-          return
-        }
-        if (action.res_model) {
-          const newViewType =
-            orderedViewTypesFromActWindow(action.view_mode, action.views)[0] ?? 'list'
-          if (action.res_id) {
-            onRowClick?.(action.res_id)
-          } else if (action.res_model !== model || newViewType !== viewType) {
-            onSwitchView?.(newViewType)
-          } else {
-            onBackToList?.()
-          }
-        }
-      } else if (action.type === 'ir.actions.act_url') {
-        const url = (action as Record<string, unknown>).url as string | undefined
-        if (url) window.open(url, '_blank')
-      } else if (action.type === 'ir.actions.report') {
-        const rawAction = action as Record<string, unknown>
-        const actionId = rawAction.id ?? rawAction.report_name
-        generateReport(Number(actionId || 0), recordId ? [recordId] : [])
-      } else if (action.type === 'ir.actions.server') {
-        toast.info('Action executed')
-      } else if (action.type === 'ir.actions.act_window_close') {
-        onBackToList?.()
-      } else if (action.type === 'ir.actions.client') {
-        const tag = (action as Record<string, unknown>).tag as string | undefined
-        if (tag === 'event.event_barcode_scan_view') {
-          const ctx = (action as Record<string, unknown>).context as
-            | Record<string, unknown>
-            | undefined
-          const eventId = ctx?.default_event_id ?? recordId
-          window.open(`/event/registration-desk?event_id=${eventId}`, '_self')
-        }
-      }
-    },
-    [
-      model,
-      viewType,
-      recordId,
-      onRowClick,
-      onSwitchView,
-      onBackToList,
-      toast,
-      openFormDialog,
-      queryClient,
-    ],
-  )
 
   type ViewData = {
     views: Record<string, { arch: string; id: number; toolbar?: ViewToolbar }>
@@ -377,14 +279,6 @@ export function OdooViewLoader({
       },
     })
   }, [recordId, remove, toast, onBackToList])
-
-  const handleSearch = useCallback((newDomain: unknown[]) => {
-    setDomain(newDomain)
-  }, [])
-
-  const handleGroupByChange = useCallback((groupBys: string[]) => {
-    setGroupBy(groupBys)
-  }, [])
 
   const activeView = viewData?.views?.[internalViewType]
   const searchView = viewData?.views?.search
@@ -855,11 +749,8 @@ export function OdooViewLoader({
           model={wizardDialog.model}
           context={wizardDialog.context}
           steps={HR_WIZARD_STEPS[wizardDialog.model]}
-          onDone={() => {
-            setWizardDialog(null)
-            queryClient.invalidateQueries({ queryKey: ['odoo', 'read', model] })
-          }}
-          onCancel={() => setWizardDialog(null)}
+          onDone={dismissWizard}
+          onCancel={dismissWizard}
         />
       )}
     </>
