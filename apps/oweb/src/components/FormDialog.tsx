@@ -3,6 +3,7 @@ import { callKw } from '@odooseek/odoo-client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 import { useToast } from '../hooks/useToast'
 import { ACTIVITY_DIALOG_WIZARD_MODELS, parseActionContext } from '../lib/activity-actions'
 import type { OdooFormRendererRef } from '../views/OdooFormRenderer'
@@ -55,6 +56,7 @@ function FormDialogBody({
   const queryClient = useQueryClient()
   const toast = useToast()
   const formRef = useRef<OdooFormRendererRef>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
   const failureNotifiedRef = useRef(false)
   const [dismissed, setDismissed] = useState(false)
   const action = item.action
@@ -161,6 +163,8 @@ function FormDialogBody({
   const title = action.name ?? action.display_name ?? model
   const showForm = Boolean(activeView) && !dismissed
 
+  useFocusTrap(panelRef, !dismissed)
+
   if (dismissed) return null
 
   return createPortal(
@@ -168,13 +172,20 @@ function FormDialogBody({
       {/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop */}
       <div role="presentation" className="absolute inset-0 bg-black/30" onClick={handleClose} />
       <div className="flex items-start justify-center min-h-full p-4 pt-12 pointer-events-none">
-        <div className="relative w-full max-w-[800px] rounded-xl border border-border-subtle bg-surface shadow-2xl max-h-[85vh] flex flex-col pointer-events-auto">
+        <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+          className="relative w-full max-w-[800px] rounded-xl border border-border-subtle bg-surface shadow-2xl max-h-[85vh] flex flex-col pointer-events-auto"
+        >
           <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3 shrink-0">
             <h3 className="text-sm font-semibold text-text-primary truncate">{title}</h3>
             <button
               type="button"
               onClick={handleClose}
               className="text-text-muted hover:text-text-primary text-lg leading-none shrink-0 ml-2"
+              aria-label="Close"
             >
               ×
             </button>

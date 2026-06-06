@@ -144,7 +144,10 @@ export function Navbar() {
   const settingsActive = currentPath === '/settings'
 
   return (
-    <header className="flex items-center justify-between border-b border-border-subtle bg-root px-5 py-2">
+    <nav
+      aria-label="Main navigation"
+      className="flex items-center justify-between border-b border-border-subtle bg-root px-5 py-2"
+    >
       <div className="flex items-center gap-3">
         {isAuthenticated && currentApp ? (
           <button
@@ -303,6 +306,6 @@ export function Navbar() {
           </Link>
         )}
       </div>
-    </header>
+    </nav>
   )
 }

@@ -33,7 +33,10 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         this.props.fallback ?? (
-          <div className="flex h-screen items-center justify-center bg-root text-text-primary">
+          <div
+            role="alert"
+            className="flex h-screen items-center justify-center bg-root text-text-primary"
+          >
             <div className="text-center">
               <h1 className="text-2xl font-bold">Something went wrong</h1>
               <p className="mt-2 text-sm text-text-secondary">{this.state.error?.message}</p>

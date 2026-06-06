@@ -13,16 +13,22 @@ export function ToastContainer() {
   if (toasts.length === 0) return null
 
   return (
-    <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2">
+    <div
+      aria-live="polite"
+      aria-atomic="true"
+      className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2"
+    >
       {toasts.map((t) => (
         <div
           key={t.id}
+          role="status"
           className={`animate-fade-slide-in flex items-center gap-2 rounded-lg border px-4 py-3 text-sm shadow-lg ${TYPE_STYLES[t.type]}`}
         >
           <span className="flex-1">{t.message}</span>
           <button
             type="button"
             onClick={() => removeToast(t.id)}
+            aria-label="Close notification"
             className="opacity-60 hover:opacity-100"
           >
             x

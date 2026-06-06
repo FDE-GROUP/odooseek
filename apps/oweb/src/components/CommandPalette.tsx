@@ -25,6 +25,8 @@ export function fuzzyMatch(text: string, query: string): number {
   return score
 }
 
+const LISTBOX_ID = 'cmd-palette-listbox'
+
 export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -114,6 +116,8 @@ export function CommandPalette() {
 
   if (!open) return null
 
+  const activeDescendant = commands[highlightIndex] ? `cmd-opt-${highlightIndex}` : undefined
+
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: backdrop overlay
     <div
@@ -124,9 +128,11 @@ export function CommandPalette() {
         setQuery('')
       }}
     >
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: dialog container */}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: dialog container stops propagation */}
       <div
-        role="presentation"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search menus"
         className="w-full max-w-lg overflow-hidden rounded-xl border border-border-subtle bg-surface shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
@@ -135,37 +141,45 @@ export function CommandPalette() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search menus..."
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={commands.length > 0}
+            aria-controls={LISTBOX_ID}
+            aria-activedescendant={activeDescendant}
             // biome-ignore lint/a11y/noAutofocus: intentional focus for immediate user interaction
             autoFocus
             className="w-full border-0 bg-transparent text-sm text-text-primary placeholder:text-text-muted outline-none"
           />
         </div>
         {commands.length > 0 ? (
-          <ul className="max-h-80 overflow-y-auto py-1">
+          <div role="listbox" id={LISTBOX_ID} className="max-h-80 overflow-y-auto py-1">
             {commands.map((cmd, idx) => (
-              <li key={cmd.id}>
-                <button
-                  type="button"
-                  onClick={cmd.execute}
-                  onMouseEnter={() => setHighlightIndex(idx)}
-                  className={`flex w-full flex-col px-4 py-2 text-left transition-colors ${
-                    idx === highlightIndex ? 'bg-accent/10 text-accent' : 'hover:bg-hover'
-                  }`}
+              // biome-ignore lint/a11y/useKeyWithClickEvents: option click handled via combobox keyboard nav
+              <div
+                key={cmd.id}
+                id={`cmd-opt-${idx}`}
+                role="option"
+                aria-selected={idx === highlightIndex}
+                tabIndex={0}
+                onClick={cmd.execute}
+                onMouseEnter={() => setHighlightIndex(idx)}
+                className={`flex w-full flex-col px-4 py-2 text-left transition-colors ${
+                  idx === highlightIndex ? 'bg-accent/10 text-accent' : 'hover:bg-hover'
+                }`}
+              >
+                <span
+                  className={`text-sm font-medium ${idx === highlightIndex ? 'text-accent' : 'text-text-primary'}`}
                 >
-                  <span
-                    className={`text-sm font-medium ${idx === highlightIndex ? 'text-accent' : 'text-text-primary'}`}
-                  >
-                    {cmd.label}
-                  </span>
-                  <span
-                    className={`text-xs ${idx === highlightIndex ? 'text-accent/70' : 'text-text-muted'}`}
-                  >
-                    {cmd.path}
-                  </span>
-                </button>
-              </li>
+                  {cmd.label}
+                </span>
+                <span
+                  className={`text-xs ${idx === highlightIndex ? 'text-accent/70' : 'text-text-muted'}`}
+                >
+                  {cmd.path}
+                </span>
+              </div>
             ))}
-          </ul>
+          </div>
         ) : query.trim() ? (
           <div className="px-4 py-6 text-center text-sm text-text-muted">No results</div>
         ) : (

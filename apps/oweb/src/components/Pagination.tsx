@@ -58,8 +58,9 @@ export function Pagination({ offset, total, limit, onPageChange, onLimitChange }
 
   if (total === 0) {
     return (
-      <div className="flex items-center justify-between px-1">
+      <nav aria-label="Pagination" className="flex items-center justify-between px-1">
         <select
+          aria-label="Items per page"
           value={limit}
           onChange={(e) => onLimitChange(Number(e.target.value))}
           className="rounded border border-border-default bg-surface px-2 py-1 text-xs text-text-secondary"
@@ -71,13 +72,14 @@ export function Pagination({ offset, total, limit, onPageChange, onLimitChange }
           ))}
         </select>
         <span className="text-xs text-text-muted">0 records</span>
-      </div>
+      </nav>
     )
   }
 
   return (
-    <div className="flex items-center justify-between px-1">
+    <nav aria-label="Pagination" className="flex items-center justify-between px-1">
       <select
+        aria-label="Items per page"
         value={limit}
         onChange={(e) => onLimitChange(Number(e.target.value))}
         className="rounded border border-border-default bg-surface px-2 py-1 text-xs text-text-secondary"
@@ -94,6 +96,7 @@ export function Pagination({ offset, total, limit, onPageChange, onLimitChange }
           type="button"
           onClick={() => onPageChange(0)}
           disabled={offset === 0}
+          aria-label="First page"
           className="rounded border border-border-default px-2 py-1 text-xs text-text-secondary transition-colors hover:bg-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           «
@@ -102,6 +105,7 @@ export function Pagination({ offset, total, limit, onPageChange, onLimitChange }
           type="button"
           onClick={() => onPageChange(Math.max(0, offset - limit))}
           disabled={offset === 0}
+          aria-label="Previous page"
           className="rounded border border-border-default px-2 py-1 text-xs text-text-secondary transition-colors hover:bg-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           ‹
@@ -112,6 +116,7 @@ export function Pagination({ offset, total, limit, onPageChange, onLimitChange }
             type="number"
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
+            aria-label="Go to page"
             onKeyDown={handleKeyDown}
             onBlur={handleConfirm}
             min={1}
@@ -122,6 +127,7 @@ export function Pagination({ offset, total, limit, onPageChange, onLimitChange }
           <button
             type="button"
             onClick={handleRangeClick}
+            aria-label={`Page ${start}-${end} of ${total}`}
             className="cursor-pointer rounded border border-border-default px-2 py-1 text-xs text-text-secondary transition-colors hover:bg-hover"
           >
             {start}-{end}
@@ -133,6 +139,7 @@ export function Pagination({ offset, total, limit, onPageChange, onLimitChange }
           type="button"
           onClick={() => onPageChange(Math.min(maxOffset, offset + limit))}
           disabled={offset >= maxOffset}
+          aria-label="Next page"
           className="rounded border border-border-default px-2 py-1 text-xs text-text-secondary transition-colors hover:bg-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           ›
@@ -141,11 +148,12 @@ export function Pagination({ offset, total, limit, onPageChange, onLimitChange }
           type="button"
           onClick={() => onPageChange(maxOffset)}
           disabled={offset >= maxOffset}
+          aria-label="Last page"
           className="rounded border border-border-default px-2 py-1 text-xs text-text-secondary transition-colors hover:bg-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           »
         </button>
       </div>
-    </div>
+    </nav>
   )
 }

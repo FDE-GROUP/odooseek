@@ -91,7 +91,7 @@ describe('Toast', () => {
     fireEvent.click(screen.getByTestId('trigger'))
     expect(screen.getByText('Close me')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'x' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Close notification' }))
 
     expect(screen.queryByText('Close me')).not.toBeInTheDocument()
   })

@@ -577,7 +577,7 @@ export function SearchBar({
   const hasAny = activeFilterFacets.length > 0 || activeGroupByFacets.length > 0 || !!keyword
 
   return (
-    <div className={compact ? 'relative' : 'relative space-y-2'}>
+    <search className={compact ? 'relative' : 'relative space-y-2'}>
       <div
         className={`relative flex min-w-0 flex-1 items-center rounded-lg border border-border-default bg-surface transition-colors focus-within:border-accent ${compact ? 'h-7' : ''}`}
       >
@@ -640,6 +640,7 @@ export function SearchBar({
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={hasAny ? '' : placeholder}
+            aria-label="Search"
             className={`min-w-[80px] flex-1 border-0 bg-transparent text-xs text-text-primary placeholder:text-text-muted outline-none ${compact ? 'py-0' : 'py-1'}`}
           />
         </div>
@@ -910,7 +911,7 @@ export function SearchBar({
           </button>
         </form>
       )}
-    </div>
+    </search>
   )
 }
 

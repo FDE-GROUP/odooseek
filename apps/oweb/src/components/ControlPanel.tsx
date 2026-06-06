@@ -163,6 +163,8 @@ export function ControlPanel({
                   e.stopPropagation()
                   openMenuOnHover('action')
                 }}
+                aria-expanded={openMenu === 'action'}
+                aria-haspopup="menu"
                 className={cpNeutralPill()}
               >
                 Action
@@ -246,6 +248,8 @@ export function ControlPanel({
                   e.stopPropagation()
                   openMenuOnHover('print')
                 }}
+                aria-expanded={openMenu === 'print'}
+                aria-haspopup="menu"
                 className={cpNeutralPill()}
               >
                 Print

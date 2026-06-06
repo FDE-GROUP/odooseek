@@ -56,7 +56,7 @@ describe('Dialog', () => {
     fireEvent.click(screen.getByTestId('trigger'))
     expect(screen.getByText('Close Me')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: '×' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
     expect(screen.queryByText('Close Me')).not.toBeInTheDocument()
   })
 
