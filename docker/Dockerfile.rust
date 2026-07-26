@@ -1,0 +1,42 @@
+# Stage 1: Build Rust binary
+FROM rust:1.91-slim-bookworm AS builder
+
+WORKDIR /app
+
+# Copy workspace config
+COPY Cargo.toml Cargo.lock rust-toolchain.toml ./
+COPY crates/odoo-core/Cargo.toml crates/odoo-core/Cargo.toml
+COPY crates/odoo-web-server/Cargo.toml crates/odoo-web-server/Cargo.toml
+
+# Create dummy source to cache dependencies
+RUN mkdir -p crates/odoo-core/src crates/odoo-web-server/src && \
+    echo "fn main() {}" > crates/odoo-web-server/src/main.rs && \
+    echo "" > crates/odoo-core/src/lib.rs && \
+    cargo build --release -p odoo-web-server && \
+    rm -rf crates target/release/odoo-web-server
+
+# Copy actual source
+COPY crates/ crates/
+
+# Build with timestamp injection
+RUN touch crates/odoo-core/src/lib.rs && \
+    cargo build --release -p odoo-web-server
+
+# Stage 2: Minimal runtime
+FROM debian:bookworm-slim
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /app/target/release/odoo-web-server /usr/local/bin/odoo-web-server
+
+ENV HOST=0.0.0.0
+ENV PORT=3000
+ENV ODOO_URL=http://web:8069
+ENV FRONTEND_DIR=/app/dist
+ENV RUST_LOG=info
+
+EXPOSE 3000
+
+CMD ["odoo-web-server"]

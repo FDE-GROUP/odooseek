@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+      记录规则：普通用户只能看到/操作自己的导出任务
+    -->
+    <record id="rule_l8_export_job_own" model="ir.rule">
+        <field name="name">L8 导出任务：仅本人</field>
+        <field name="model_id" ref="model_l8_export_job"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+</odoo>
+
+

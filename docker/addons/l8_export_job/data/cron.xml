@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+      L8 导出任务 cron
+
+      说明：
+      - 开发环境 workers=0 时可用
+      - 生产环境请按实际负载调整 interval
+    -->
+    <record id="ir_cron_l8_export_job" model="ir.cron">
+        <field name="name">L8 导出任务处理</field>
+        <field name="model_id" ref="model_l8_export_job"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_process_export_jobs()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
+</odoo>
+
+

@@ -1,0 +1,66 @@
+services:
+  web:
+    image: odoo:19.0
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./config:/etc/odoo
+    environment:
+      - HOST=db
+      - PORT=5432
+      - USER=odoo
+      - PASSWORD=odoo
+    command: >
+      sh -c "pip3 install --break-system-packages --quiet PyJWT==2.8.0 && odoo"
+
+  server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.rust
+    depends_on:
+      - web
+    ports:
+      # oweb → odoo-web-server → Odoo 三层架构入口
+      - "3000:3000"
+    volumes:
+      # Oweb SPA 静态资源（只读）
+      - ../apps/oweb/dist:/app/dist:ro
+    environment:
+      - ODOO_URL=http://web:8069
+      - RUST_LOG=odoo_web_server=debug,info
+      - FRONTEND_DIR=/app/dist
+    restart: unless-stopped
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      # 可选：配置服务器自动发现
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+    ports:
+      - "25050:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    restart: unless-stopped
+
+volumes:
+  odoo-web-data:
+  odoo-db-data:
+  pgadmin-data:
